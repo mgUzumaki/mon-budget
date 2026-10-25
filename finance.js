@@ -1,36 +1,201 @@
-/* Calculs monétaires en centimes entiers. */
+/* =====================================================
+   FINANCE.JS — Calculs et dates de Mon Budget
+   ===================================================== */
+
 window.Finance = (() => {
-  const money = cents => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format((cents||0)/100);
-  const toCents = value => {
-    const n=Number(String(value).replace(",","."));
-    if(!Number.isFinite(n)||n<=0||n>999999999999) throw new Error("Saisissez un montant positif valide.");
-    return Math.round((n+Number.EPSILON)*100);
-  };
-  const monthKey = date => date.slice(0,7);
-  const yearKey = date => date.slice(0,4);
-  const localDate = () => {const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;};
-  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const sum = (transactions,type) => transactions.filter(t=>t.type===type).reduce((a,t)=>a+t.amountCents,0);
-  function inPeriod(t, period, key) {
-    if(period==="year") return yearKey(t.date)===key;
-    if(period==="day") return t.date===key;
-    return monthKey(t.date)===key;
+  function money(cents, currency = "EUR", lang = "fr-FR") {
+    const amount = (Number(cents) || 0) / 100;
+
+    try {
+      return new Intl.NumberFormat(lang, {
+        style: "currency",
+        currency
+      }).format(amount);
+    } catch {
+      return `${amount.toFixed(2)} ${currency}`;
+    }
   }
+
+  function toCents(value) {
+    const normalized = String(value ?? "")
+      .trim()
+      .replace(/\s/g, "")
+      .replace(",", ".");
+
+    const amount = Number(normalized);
+
+    if (
+      !Number.isFinite(amount) ||
+      amount <= 0 ||
+      amount > 999999999999
+    ) {
+      throw new Error("Saisissez un montant positif valide.");
+    }
+
+    const cents = Math.round((amount + Number.EPSILON) * 100);
+
+    if (!Number.isSafeInteger(cents)) {
+      throw new Error("Ce montant est trop élevé.");
+    }
+
+    return cents;
+  }
+
+  function localDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function monthKey(date) {
+    return String(date || "").slice(0, 7);
+  }
+
+  function yearKey(date) {
+    return String(date || "").slice(0, 4);
+  }
+
+  function uid() {
+    if (globalThis.crypto?.randomUUID) {
+      return globalThis.crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function sum(transactions, type) {
+    return transactions
+      .filter(transaction => transaction.type === type)
+      .reduce(
+        (total, transaction) =>
+          total + (Number(transaction.amountCents) || 0),
+        0
+      );
+  }
+
+  function getWeekRange(dateString) {
+    const date = new Date(`${dateString}T12:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+      throw new Error("Date invalide.");
+    }
+
+    const day = date.getDay();
+    const offset = day === 0 ? -6 : 1 - day;
+
+    const start = new Date(date);
+    start.setDate(start.getDate() + offset);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    return {
+      start: localDate(start),
+      end: localDate(end)
+    };
+  }
+
+  function inPeriod(transaction, period, key) {
+    const date = transaction.date;
+
+    if (!date) return false;
+
+    if (period === "day") {
+      return date === key;
+    }
+
+    if (period === "year") {
+      return yearKey(date) === String(key).slice(0, 4);
+    }
+
+    if (period === "week") {
+      const range = getWeekRange(key);
+      return date >= range.start && date <= range.end;
+    }
+
+    // Par défaut : mois
+    return monthKey(date) === String(key).slice(0, 7);
+  }
+
   function summarize(transactions, period, key) {
-    const items=transactions.filter(t=>inPeriod(t,period,key));
-    const income=sum(items,"income"),expense=sum(items,"expense");
-    return {income,expense,net:income-expense,items};
+    const items = transactions.filter(transaction =>
+      inPeriod(transaction, period, key)
+    );
+
+    const income = sum(items, "income");
+    const expense = sum(items, "expense");
+    const transfers = sum(items, "transfer");
+
+    return {
+      income,
+      expense,
+      transfers,
+      net: income - expense,
+      items
+    };
   }
+
   function dailyExpenses(transactions, month) {
-    const [year,mo]=month.split("-").map(Number), days=new Date(year,mo,0).getDate();
-    const totals=Array(days).fill(0);
-    transactions.filter(t=>t.type==="expense"&&monthKey(t.date)===month).forEach(t=>totals[Number(t.date.slice(8,10))-1]+=t.amountCents);
+    const [year, monthNumber] = month.split("-").map(Number);
+    const numberOfDays = new Date(year, monthNumber, 0).getDate();
+    const totals = Array(numberOfDays).fill(0);
+
+    transactions
+      .filter(transaction =>
+        transaction.type === "expense" &&
+        monthKey(transaction.date) === month
+      )
+      .forEach(transaction => {
+        const day = Number(transaction.date.slice(8, 10));
+
+        if (day >= 1 && day <= numberOfDays) {
+          totals[day - 1] += Number(transaction.amountCents) || 0;
+        }
+      });
+
     return totals;
   }
-  function categoryTotals(transactions,categories,month) {
-    const map={};
-    transactions.filter(t=>t.type==="expense"&&monthKey(t.date)===month).forEach(t=>map[t.categoryId]=(map[t.categoryId]||0)+t.amountCents);
-    return Object.entries(map).map(([id,cents])=>({id,name:categories.find(c=>c.id===id)?.name||"Catégorie supprimée",cents})).sort((a,b)=>b.cents-a.cents);
+
+  function categoryTotals(transactions, categories, month) {
+    const totals = new Map();
+
+    transactions
+      .filter(transaction =>
+        transaction.type === "expense" &&
+        monthKey(transaction.date) === month
+      )
+      .forEach(transaction => {
+        const id = transaction.categoryId || "uncategorized";
+        const amount = Number(transaction.amountCents) || 0;
+
+        totals.set(id, (totals.get(id) || 0) + amount);
+      });
+
+    return Array.from(totals, ([id, cents]) => {
+      const category = categories.find(item => item.id === id);
+
+      return {
+        id,
+        name: category?.name || "Catégorie supprimée",
+        cents
+      };
+    }).sort((a, b) => b.cents - a.cents);
   }
-  return {money,toCents,monthKey,yearKey,localDate,uid,sum,summarize,dailyExpenses,categoryTotals};
+
+  return {
+    money,
+    toCents,
+    localDate,
+    monthKey,
+    yearKey,
+    uid,
+    sum,
+    getWeekRange,
+    inPeriod,
+    summarize,
+    dailyExpenses,
+    categoryTotals
+  };
 })();

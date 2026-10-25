@@ -1,6 +1,6 @@
-// ==========================================
-// DB.JS — Gestion de la base de données Supabase (Robuste & Mappée)
-// ==========================================
+/* =====================================================
+   DB.JS — Connexion aux données Supabase
+   ===================================================== */
 
 const BudgetDB = {
   defaults: [
@@ -12,96 +12,115 @@ const BudgetDB = {
     { id: "cat-epargne", name: "Épargne", kind: "transfer" }
   ],
 
-  async getTransactions() {
-    const { data, error } = await supabaseClient
-      .from('transactions')
-      .select('*')
-      .order('date', { ascending: false });
-    
-    if (error) {
-      console.error("Erreur lors de la récupération des transactions :", error);
-      return [];
+  async requireUser() {
+    if (!window.supabaseClient) {
+      throw new Error("La connexion Supabase n'est pas initialisée.");
     }
-    // Mapping sécurisé DB -> Application
+
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error) throw error;
+
+    if (!data?.user) {
+      throw new Error("Vous devez être connecté.");
+    }
+
+    return data.user;
+  },
+
+  async getTransactions() {
+    await this.requireUser();
+
+    const { data, error } = await supabaseClient
+      .from("transactions")
+      .select("*")
+      .order("date", { ascending: false });
+
+    if (error) {
+      console.error("Erreur de chargement :", error);
+      throw error;
+    }
+
     return (data || []).map(row => ({
       id: row.id,
       date: row.date,
-      type: row.type,
+      type: row.type || "expense",
       categoryId: row.category,
       amountCents: Math.round(Number(row.amount || 0) * 100),
       description: row.note || "",
-      expenseKind: row.expense_kind || "variable",
-      recurring: !!row.recurring,
-      createdAt: row.created_at || new Date().toISOString()
+      createdAt: row.created_at || ""
     }));
   },
 
   async putTransaction(transaction) {
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      throw new Error("Vous devez être connecté pour enregistrer une opération.");
+    const user = await this.requireUser();
+
+    if (!transaction?.date) {
+      throw new Error("La date de l'opération est obligatoire.");
     }
 
-    // Mapping sécurisé Application -> DB
+    if (!["expense", "income", "transfer"].includes(transaction.type)) {
+      throw new Error("Le type d'opération est invalide.");
+    }
+
+    const amountCents = Number(transaction.amountCents);
+
+    if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+      throw new Error("Le montant doit être positif et valide.");
+    }
+
     const payload = {
-      id: transaction.id,
       user_id: user.id,
       date: transaction.date,
       type: transaction.type,
-      category: transaction.categoryId,
-      amount: transaction.amountCents / 100,
-      note: transaction.description || "",
-      expense_kind: transaction.expenseKind || "variable",
-      recurring: !!transaction.recurring,
+      category: transaction.categoryId || null,
+      amount: amountCents / 100,
+      note: String(transaction.description || "").trim(),
       created_at: transaction.createdAt || new Date().toISOString()
     };
 
-    const { data, error } = await supabaseClient
-      .from('transactions')
-      .upsert(payload);
+    if (transaction.id) {
+      payload.id = transaction.id;
+    }
 
-    if (error) throw error;
+    const { data, error } = await supabaseClient
+      .from("transactions")
+      .upsert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erreur d'enregistrement :", error);
+      throw error;
+    }
+
     return data;
   },
 
   async deleteTransaction(id) {
-    const { error } = await supabaseClient
-      .from('transactions')
-      .delete()
-      .eq('id', id);
+    if (!id) {
+      throw new Error("Identifiant de transaction manquant.");
+    }
 
-    if (error) throw error;
+    await this.requireUser();
+
+    const { error } = await supabaseClient
+      .from("transactions")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Erreur de suppression :", error);
+      throw error;
+    }
   },
 
   async getCategories() {
-    const { data, error } = await supabaseClient
-      .from('categories')
-      .select('*');
-
-    if (error || !data || data.length === 0) {
-      return this.defaults;
-    }
-    return data.map(c => ({
-      id: c.id || c.name,
-      name: c.name,
-      kind: c.kind || 'expense'
-    }));
+    return this.defaults.map(category => ({ ...category }));
   },
 
   async getBudgets() {
-    const { data, error } = await supabaseClient
-      .from('budgets')
-      .select('*');
-
-    if (error) {
-      console.error("Erreur lors de la récupération des budgets :", error);
-      return [];
-    }
-    return (data || []).map(b => ({
-      id: b.id,
-      month: b.month,
-      categoryId: b.category,
-      limitCents: Math.round(Number(b.limit_amount || b.limit || 0) * 100)
-    }));
+    // Les budgets ne sont pas encore stockés dans Supabase.
+    return [];
   }
 };
