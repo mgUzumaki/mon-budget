@@ -114,6 +114,14 @@
   function showDialog(id) { $(id)?.showModal(); }
   function closeDialog(id) { $(id)?.close(); }
 
+  // Permet de fermer les fenêtres modales avec les boutons Annuler / X
+document.querySelectorAll("[data-close]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const modalId = btn.getAttribute("data-close");
+    closeDialog(modalId);
+  });
+});
+
   // --- MENU LATÉRAL MOBILE ---
   const sidebar = $("sidebar");
   const sidebarToggle = $("sidebar-toggle");
