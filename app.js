@@ -448,5 +448,3 @@ javascript
   // Lancement initial
   checkAuthAndStart();
 })();
-
-```
