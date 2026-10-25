@@ -102,19 +102,20 @@
   }
 }
 
-/* --- Style moderne pour la modale de connexion --- */
+/* --- Correction de la modale de connexion et de l'arrière-plan flouté --- */
 #auth-dialog {
-  border: none;
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  padding: 20px;
-  max-width: 420px;
-  width: 90%;
-  background: #ffffff;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3) !important;
+  background: #ffffff !important;
+  padding: 24px !important;
+  max-width: 420px !important;
+  width: 90% !important;
 }
 
-/* L'arrière-plan derrière la modale : semi-transparent avec un effet de flou */
+/* L'arrière-plan assombri et flouté (compatible Safari & Chrome) */
 #auth-dialog::backdrop {
-  background: rgba(15, 23, 42, 0.5); /* Assombrit légèrement le fond */
-  backdrop-filter: blur(6px);         /* Crée un effet de flou élégant sur ton application */
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
