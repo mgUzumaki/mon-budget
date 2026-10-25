@@ -1,8 +1,21 @@
+
 /* =====================================================
    DB.JS — Connexion aux données Supabase
    ===================================================== */
 
 const BudgetDB = {
+  client() {
+    const client = window.supabaseClient;
+
+    if (!client) {
+      throw new Error(
+        "Supabase n'est pas initialisé. Vérifiez le bloc de connexion dans index.html."
+      );
+    }
+
+    return client;
+  },
+
   defaults: [
     { id: "cat-alimentation", name: "Alimentation", kind: "expense" },
     { id: "cat-logement", name: "Logement", kind: "expense" },
@@ -13,15 +26,13 @@ const BudgetDB = {
   ],
 
   async requireUser() {
-    if (!window.supabaseClient) {
-      throw new Error("La connexion Supabase n'est pas initialisée.");
-    }
+    const client = this.client();
 
-    const { data, error } = await supabaseClient.auth.getUser();
+    const { data, error } = await client.auth.getUser();
 
     if (error) throw error;
 
-    if (!data?.user) {
+    if (!data || !data.user) {
       throw new Error("Vous devez être connecté.");
     }
 
@@ -29,15 +40,17 @@ const BudgetDB = {
   },
 
   async getTransactions() {
-    await this.requireUser();
+    const user = await this.requireUser();
+    const client = this.client();
 
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("transactions")
       .select("*")
+      .eq("user_id", user.id)
       .order("date", { ascending: false });
 
     if (error) {
-      console.error("Erreur de chargement :", error);
+      console.error("Erreur de chargement des transactions :", error);
       throw error;
     }
 
@@ -54,8 +67,9 @@ const BudgetDB = {
 
   async putTransaction(transaction) {
     const user = await this.requireUser();
+    const client = this.client();
 
-    if (!transaction?.date) {
+    if (!transaction || !transaction.date) {
       throw new Error("La date de l'opération est obligatoire.");
     }
 
@@ -75,15 +89,14 @@ const BudgetDB = {
       type: transaction.type,
       category: transaction.categoryId || null,
       amount: amountCents / 100,
-      note: String(transaction.description || "").trim(),
-      created_at: transaction.createdAt || new Date().toISOString()
+      note: String(transaction.description || "").trim()
     };
 
     if (transaction.id) {
       payload.id = transaction.id;
     }
 
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("transactions")
       .upsert(payload)
       .select()
@@ -94,7 +107,15 @@ const BudgetDB = {
       throw error;
     }
 
-    return data;
+    return {
+      id: data.id,
+      date: data.date,
+      type: data.type || "expense",
+      categoryId: data.category,
+      amountCents: Math.round(Number(data.amount || 0) * 100),
+      description: data.note || "",
+      createdAt: data.created_at || ""
+    };
   },
 
   async deleteTransaction(id) {
@@ -102,12 +123,14 @@ const BudgetDB = {
       throw new Error("Identifiant de transaction manquant.");
     }
 
-    await this.requireUser();
+    const user = await this.requireUser();
+    const client = this.client();
 
-    const { error } = await supabaseClient
+    const { error } = await client
       .from("transactions")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Erreur de suppression :", error);
@@ -120,7 +143,6 @@ const BudgetDB = {
   },
 
   async getBudgets() {
-    // Les budgets ne sont pas encore stockés dans Supabase.
     return [];
   }
 };
