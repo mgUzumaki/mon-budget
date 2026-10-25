@@ -513,6 +513,51 @@
     }
   });
 
-  // Démarrage
-  refresh();
+  // --- GESTION DE L'AUTHENTIFICATION ---
+  async function checkAuthAndStart() {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+      showDialog("auth-dialog");
+    } else {
+      refresh();
+    }
+  }
+
+  $("btn-login")?.addEventListener("click", async () => {
+    const email = $("auth-email").value.trim();
+    const password = $("auth-password").value.trim();
+    $("auth-error").textContent = "";
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      $("auth-error").textContent = "Erreur : " + error.message;
+    } else {
+      closeDialog("auth-dialog");
+      toast("Connexion réussie !");
+      refresh();
+    }
+  });
+
+  $("btn-signup")?.addEventListener("click", async () => {
+    const email = $("auth-email").value.trim();
+    const password = $("auth-password").value.trim();
+    $("auth-error").textContent = "";
+
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) {
+      $("auth-error").textContent = "Erreur : " + error.message;
+    } else {
+      alert("Compte créé avec succès ! Si demandé par Supabase, vérifiez vos emails, sinon vous pouvez vous connecter.");
+    }
+  });
+
+  $("logout-btn")?.addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    toast("Déconnexion réussie");
+    location.reload();
+  });
+
+  // Démarrage de l'application avec vérification de la session
+  checkAuthAndStart();
 })();

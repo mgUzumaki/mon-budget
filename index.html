@@ -181,5 +181,27 @@
   <script src="db.js"></script>
   <script src="finance.js"></script>
   <script src="app.js"></script>
+<!-- Fenêtre modale d'authentification -->
+  <dialog id="auth-dialog" class="modal">
+    <form id="auth-form" method="dialog" style="padding: 10px;">
+      <div class="modal-heading">
+        <div>
+          <div class="eyebrow">SÉCURITÉ</div>
+          <h2>Connexion à Mon Budget</h2>
+        </div>
+      </div>
+      <p style="margin-bottom: 15px; color: #4b5563; font-size: 14px;">Entrez vos identifiants pour accéder à vos données personnelles.</p>
+      
+      <label><span>Email</span><input id="auth-email" type="email" required placeholder="votre@email.com" style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #d1d5db;"></label>
+      
+      <label><span>Mot de passe</span><input id="auth-password" type="password" required placeholder="••••••••" style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #d1d5db;"></label>
+      
+      <div class="modal-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <button type="button" class="primary-btn" id="btn-login" style="width: 100%; justify-content: center;">Se connecter</button>
+        <button type="button" class="secondary-btn" id="btn-signup" style="width: 100%; justify-content: center;">Créer un compte</button>
+      </div>
+      <p id="auth-error" style="color: #b74e48; font-size: 13px; margin-top: 15px; text-align: center; font-weight: 500;"></p>
+    </form>
+  </dialog>
 </body>
 </html>
