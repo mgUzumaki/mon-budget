@@ -175,7 +175,7 @@
     const year = calendarViewDate.getFullYear();
     const month = calendarViewDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const offset = (firstDay.getDay() + 6) % 7; // Lundi en première colonne
+    const offset = (firstDay.getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const selectedKey = `${referenceDate.getFullYear()}-${String(referenceDate.getMonth()+1).padStart(2,'0')}-${String(referenceDate.getDate()).padStart(2,'0')}`;
     const todayKey = Finance.localDate();
@@ -194,7 +194,6 @@
     popup.querySelectorAll('[data-calendar-date]').forEach(button => button.addEventListener('click', () => {
       const [y, m, d] = button.dataset.calendarDate.split('-').map(Number);
       referenceDate = new Date(y, m-1, d);
-      // Le calendrier sélectionne une date; la vue courante (semaine/mois/année) est conservée.
       popup.hidden = true;
       renderDashboard();
     }));
@@ -212,7 +211,6 @@
     popup.hidden = false;
   });
 
-  // Boutons fléchés (Précédent / Suivant)
   $("prev-period").addEventListener('click', () => {
     if (currentRange === 'month') {
       const day = referenceDate.getDate();
@@ -434,84 +432,87 @@
 
   function renderCategoryManager(){$("category-manage-list").innerHTML=categories.map(c=>`<div class="category-manage-row"><span>${escapeHTML(c.name)}</span>${BudgetDB.defaults.some(d=>d.id===c.id)?'<span class="muted">Par défaut</span>':`<button type="button" data-category-delete="${escapeHTML(c.id)}">Supprimer</button>`}</div>`).join("");}
 
-  function openTransaction(t=null){
-    $("transaction-form").reset();$("transaction-id").value=t?.id||"";$("transaction-modal-title").textContent=t?"Modifier l’opération":t('btn_new_op');$("transaction-type").value=t?.type||"expense";$("transaction-amount").value=t?(t.amountCents/100).toFixed(2):"";$("transaction-date").value=t?.date||today;$("transaction-category").value=t?.categoryId||categories.find(c=>c.kind==="expense")?.id||"";$("transaction-description").value=t?.description||"";$("expense-kind").value=t?.expenseKind||"variable";$("transaction-recurring").checked=!!t?.recurring;toggleExpenseKind();showDialog("transaction-dialog");
-  }
-  function toggleExpenseKind(){$("expense-kind-wrap").style.display=$("transaction-type").value==="expense"?"block":"none";const type=$("transaction-type").value;const sel=$("transaction-category");const allowed=categories.filter(c=>c.kind===type||type==="transfer"&&c.kind==="transfer"||type==="expense"&&c.kind==="expense"||type==="income"&&c.kind==="income");sel.innerHTML=allowed.map(c=>`<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join("");}
-  async function saveTransaction(e){e.preventDefault();try{const id=$("transaction-id").value;const amountCents=Finance.toCents($("transaction-amount").value),date=$("transaction-date").value,type=$("transaction-type").value,categoryId=$("transaction-category").value;if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!categoryId)throw new Error("Complétez la date et la catégorie.");const existing=transactions.find(t=>t.id===id);const tx={id:id||Finance.uid(),date,amountCents,type,categoryId,description:$("transaction-description").value.trim(),expenseKind:type==="expense"?$("expense-kind").value:null,recurring:$("transaction-recurring").checked,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};await BudgetDB.putTransaction(tx);closeDialog("transaction-dialog");await refresh();toast("Opération enregistrée.");}catch(err){toast(err.message||"Erreur");}}
-  async function deleteTransaction(id){if(!confirm("Supprimer ?"))return;await BudgetDB.deleteTransaction(id);await refresh();toast("Supprimé.");}
-  async function createBudget(e){e.preventDefault();try{const categoryId=$("budget-category").value,limitCents=Finance.toCents($("budget-limit").value),month=$("budget-month").value||today.slice(0,7);await BudgetDB.putBudget({id:Finance.uid(),categoryId,limitCents,month});closeDialog("budget-dialog");await refresh();toast("Budget créé.");}catch(err){toast("Erreur");}}
-  function exportData(){const data={app:"mon-budget",version:1,exportedAt:new Date().toISOString(),transactions,categories,budgets};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`mon-budget-${today}.json`;a.click();URL.revokeObjectURL(url);toast("Exporté.");}
-  async function chooseImport(file){try{if(!file)return;const data=JSON.parse(await file.text());pendingImport=data;showDialog("import-dialog");}catch(err){toast("Fichier invalide.");}finally{$("import-file").value="";}}
-  async function confirmImport(e){e.preventDefault();if(!pendingImport)return;const mode=new FormData($("import-form")).get("import-mode");await BudgetDB.importData(pendingImport,mode);pendingImport=null;closeDialog("import-dialog");await refresh();toast("Import réussi.");}
-  
-  function bind(){
-    // Bouton de navigation mobile: le volet peut toujours être rouvert.
-    const menuButton = document.createElement('button');
-    menuButton.type = 'button';
-    menuButton.id = 'sidebar-toggle';
-    menuButton.className = 'sidebar-toggle';
-    menuButton.setAttribute('aria-label', 'Ouvrir la navigation');
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.textContent = '☰';
-    document.body.appendChild(menuButton);
-    const navBackdrop = document.createElement('button');
-    navBackdrop.type = 'button';
-    navBackdrop.id = 'sidebar-backdrop';
-    navBackdrop.className = 'sidebar-backdrop';
-    navBackdrop.setAttribute('aria-label', 'Fermer la navigation');
-    document.body.appendChild(navBackdrop);
-    const closeSidebar = () => {
-      document.querySelector('.sidebar')?.classList.remove('is-open');
-      navBackdrop.classList.remove('is-visible');
-      menuButton.setAttribute('aria-expanded', 'false');
-      menuButton.setAttribute('aria-label', 'Ouvrir la navigation');
-      document.body.classList.remove('nav-open');
-    };
-    menuButton.addEventListener('click', () => {
-      const sidebar = document.querySelector('.sidebar');
-      const willOpen = !sidebar.classList.contains('is-open');
-      sidebar.classList.toggle('is-open', willOpen);
-      navBackdrop.classList.toggle('is-visible', willOpen);
-      menuButton.setAttribute('aria-expanded', String(willOpen));
-      menuButton.setAttribute('aria-label', willOpen ? 'Fermer la navigation' : 'Ouvrir la navigation');
-      document.body.classList.toggle('nav-open', willOpen);
-    });
-    navBackdrop.addEventListener('click', closeSidebar);
-    document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{go(b.dataset.page);closeSidebar();}));
-    document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.goto)));
-    ["quick-add","mobile-add","add-transaction"].forEach(id=>$(id).addEventListener("click",()=>openTransaction()));
-    
-    $("app-currency").addEventListener("change", (e) => {
-      currentCurrency = e.target.value;
-      localStorage.setItem('user_currency', currentCurrency);
-      renderAll();
-      toast("Devise mise à jour.");
-    });
-
-    $("app-lang").addEventListener("change", (e) => {
-      currentLang = e.target.value;
-      localStorage.setItem('user_lang', currentLang);
-      renderAll();
-      toast("Langue mise à jour.");
-    });
-
-    $("budget-month").value=today.slice(0,7);$("stats-month").value=today.slice(0,7);
-    $("budget-month").addEventListener("change",renderBudgets);$("stats-month").addEventListener("change",renderStats);$("stats-period").addEventListener("change",renderStats);
-    ["search-transactions","filter-type","filter-category","filter-from","filter-to"].forEach(id=>$(id).addEventListener("input",renderTransactions));
-    $("transaction-type").addEventListener("change",toggleExpenseKind);$("transaction-form").addEventListener("submit",saveTransaction);$("add-budget").addEventListener("click",()=>{ $("budget-form").reset();showDialog("budget-dialog");});$("budget-form").addEventListener("submit",createBudget);
-    $("transaction-list").addEventListener("click",e=>{const edit=e.target.closest("[data-edit]"),del=e.target.closest("[data-delete]");if(edit)openTransaction(transactions.find(t=>t.id===edit.dataset.edit));if(del)deleteTransaction(del.dataset.delete);});
-    $("recent-transactions").addEventListener("click",e=>{const edit=e.target.closest("[data-edit]"),del=e.target.closest("[data-delete]");if(edit)openTransaction(transactions.find(t=>t.id===edit.dataset.edit));if(del)deleteTransaction(del.dataset.delete);});
-    $("budget-list").addEventListener("click",async e=>{const b=e.target.closest("[data-budget-delete]");if(b&&confirm("Supprimer ?")){await BudgetDB.deleteBudget(b.dataset.budgetDelete);await refresh();}});
-    $("export-data").addEventListener("click",exportData);$("import-file").addEventListener("change",e=>chooseImport(e.target.files[0]));$("import-form").addEventListener("submit",confirmImport);
-    $("clear-data").addEventListener("click",async()=>{if(confirm("Effacer ?")){await BudgetDB.clearAll();await refresh();}});
-    $("manage-categories").addEventListener("click",()=>showDialog("category-dialog"));
-    $("category-form").addEventListener("submit",async e=>{e.preventDefault();const name=$("new-category").value.trim();if(!name)return;await BudgetDB.putCategory({id:Finance.uid(),name,kind:"expense"});$("new-category").value="";await refresh();});
-    $("category-manage-list").addEventListener("click",async e=>{const b=e.target.closest("[data-category-delete]");if(!b)return;await BudgetDB.deleteCategory(b.dataset.categoryDelete);await refresh();});
-    document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeDialog(b.dataset.close)));
-    ["transaction-dialog","budget-dialog","category-dialog","import-dialog"].forEach(id=>$(id).addEventListener("click",e=>{e.target===$(id)&&closeDialog(id);}));
+  function openTransaction(transactionItem = null){
+    $("transaction-form").reset();
+    $("transaction-id").value = transactionItem?.id || "";
+    $("transaction-modal-title").textContent = transactionItem ? "Modifier l’opération" : t('btn_new_op');
+    $("transaction-type").value = transactionItem?.type || "expense";
+    $("transaction-amount").value = transactionItem ? (transactionItem.amountCents / 100).toFixed(2) : "";
+    $("transaction-date").value = transactionItem?.date || today;
+    $("transaction-category").value = transactionItem?.categoryId || categories.find(c => c.kind === "expense")?.id || "";
+    $("transaction-description").value = transactionItem?.description || "";
+    $("expense-kind").value = transactionItem?.expenseKind || "variable";
+    $("transaction-recurring").checked = !!transactionItem?.recurring;
+    toggleExpenseKind();
+    showDialog("transaction-dialog");
   }
 
-  async function init(){try{await BudgetDB.openDB();await BudgetDB.seedCategories();bind();await refresh();}catch(e){console.error(e);}}
-  document.addEventListener("DOMContentLoaded",init);
+  function toggleExpenseKind(){
+    $("expense-kind-wrap").style.display = $("transaction-type").value === "expense" ? "block" : "none";
+    const type = $("transaction-type").value;
+    const sel = $("transaction-category");
+    const allowed = categories.filter(c => c.kind === type || (type === "transfer" && c.kind === "transfer") || (type === "expense" && c.kind === "expense") || (type === "income" && c.kind === "income"));
+    sel.innerHTML = allowed.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join("");
+  }
+
+  async function saveTransaction(e){
+    e.preventDefault();
+    try {
+      const id = $("transaction-id").value;
+      const amountCents = Finance.toCents($("transaction-amount").value);
+      const date = $("transaction-date").value;
+      const type = $("transaction-type").value;
+      const categoryId = $("transaction-category").value;
+      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !categoryId) throw new Error("Complétez la date et la catégorie.");
+      const existing = transactions.find(t => t.id === id);
+      const tx = {
+        id: id || Finance.uid(),
+        date,
+        amountCents,
+        type,
+        categoryId,
+        description: $("transaction-description").value.trim(),
+        expenseKind: type === "expense" ? $("expense-kind").value : null,
+        recurring: $("transaction-recurring").checked,
+        createdAt: existing?.createdAt || new Date().toISOString()
+      };
+      await BudgetDB.putTransaction(tx);
+      closeDialog("transaction-dialog");
+      await refresh();
+      toast("Opération enregistrée avec succès");
+    } catch(err) {
+      console.error(err);
+      toast("Erreur : " + err.message);
+    }
+  }
+
+  async function deleteTransaction(id){
+    if(confirm("Supprimer cette transaction ?")) {
+      await BudgetDB.deleteTransaction(id);
+      await refresh();
+      toast("Transaction supprimée");
+    }
+  }
+
+  // Event Listeners initiaux
+  $("btn_new_op")?.addEventListener("click", () => openTransaction());
+  $("quick-add")?.addEventListener("click", () => openTransaction());
+  $("mobile-add")?.addEventListener("click", () => openTransaction());
+  $("transaction-form")?.addEventListener("submit", saveTransaction);
+  $("transaction-type")?.addEventListener("change", toggleExpenseKind);
+
+  document.addEventListener("click", (e) => {
+    const editId = e.target.dataset.edit;
+    const deleteId = e.target.dataset.delete;
+    if(editId) {
+      const item = transactions.find(t => t.id === editId);
+      if(item) openTransaction(item);
+    }
+    if(deleteId) {
+      deleteTransaction(deleteId);
+    }
+  });
+
+  // Démarrage
+  refresh();
 })();
