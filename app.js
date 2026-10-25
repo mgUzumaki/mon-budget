@@ -1004,3 +1004,152 @@
   applyTranslations();
   checkAuthAndStart();
 })();
+
+/* =====================================================
+   CORRECTION — OUVERTURE DU FORMULAIRE TRANSACTION
+   ===================================================== */
+
+(function () {
+  "use strict";
+
+  function initTransactionButtons() {
+    const dialog = document.getElementById("transaction-dialog");
+    const form = document.getElementById("transaction-form");
+
+    if (!dialog || !form) {
+      console.error(
+        "Formulaire introuvable : vérifie transaction-dialog et transaction-form dans index.html."
+      );
+      return;
+    }
+
+    // Ouvre la fenêtre d'ajout
+    function openTransactionForm() {
+      if (dialog.open) return;
+
+      form.reset();
+
+      const dateInput = document.getElementById("transaction-date");
+      if (dateInput) {
+        const now = new Date();
+        const localDate = [
+          now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, "0"),
+          String(now.getDate()).padStart(2, "0")
+        ].join("-");
+
+        dateInput.value = localDate;
+      }
+
+      if (typeof BudgetDB !== "undefined") {
+        Promise.resolve(BudgetDB.getCategories())
+          .then(categories => {
+            const select = document.getElementById("transaction-category");
+            if (!select) return;
+
+            select.replaceChildren();
+
+            categories.forEach(category => {
+              const option = document.createElement("option");
+              option.value = category.id;
+              option.textContent = category.name;
+              select.appendChild(option);
+            });
+          })
+          .catch(error => console.error("Erreur catégories :", error));
+      }
+
+      if (typeof dialog.showModal === "function") {
+        dialog.showModal();
+      } else {
+        dialog.setAttribute("open", "");
+      }
+    }
+
+    // Tous les boutons qui ouvrent la fenêtre
+    [
+      "quick-add",
+      "btn_new_op",
+      "mobile-add",
+      "add-transaction",
+      "btn-add-transaction",
+      "btn-new-transaction"
+    ].forEach(id => {
+      const button = document.getElementById(id);
+      if (button) {
+        button.addEventListener("click", openTransactionForm);
+      }
+    });
+
+    document.querySelectorAll("[data-open-transaction]").forEach(button => {
+      button.addEventListener("click", openTransactionForm);
+    });
+
+    // Fermeture de la fenêtre
+    dialog.querySelectorAll('[data-close="transaction-dialog"]').forEach(button => {
+      button.addEventListener("click", () => dialog.close());
+    });
+
+    // Enregistrement
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const amount = document.getElementById("transaction-amount");
+      const date = document.getElementById("transaction-date");
+      const type = document.getElementById("transaction-type");
+      const category = document.getElementById("transaction-category");
+      const description = document.getElementById("transaction-description");
+
+      if (!amount || !date || !type || !category || !description) {
+        alert("Un champ du formulaire est introuvable.");
+        return;
+      }
+
+      const amountCents = Math.round(Number(amount.value) * 100);
+
+      if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+        alert("Entre un montant supérieur à zéro.");
+        amount.focus();
+        return;
+      }
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
+
+      try {
+        if (typeof BudgetDB === "undefined") {
+          throw new Error("BudgetDB n'est pas chargé. Vérifie db.js dans index.html.");
+        }
+
+        await BudgetDB.putTransaction({
+          date: date.value,
+          type: type.value,
+          categoryId: category.value,
+          amountCents,
+          description: description.value.trim()
+        });
+
+        dialog.close();
+
+        if (typeof window.refresh === "function") {
+          await window.refresh();
+        } else if (typeof refresh === "function") {
+          await refresh();
+        } else {
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout :", error);
+        alert("Impossible d'enregistrer l'opération : " + (error.message || error));
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTransactionButtons);
+  } else {
+    initTransactionButtons();
+  }
+})();
