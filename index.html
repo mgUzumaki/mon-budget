@@ -8,7 +8,15 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles-fix.css">
+  
+  <!-- SDK Supabase et Initialisation -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://fcsroswxrtlkmttsayrf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lWjzSW8jq7iIW-yPJWrWqw_fTh0-Ix4';
+    
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
 </head>
 <body>
   <div class="app-shell">
@@ -153,6 +161,14 @@
           <article class="panel settings-card"><div class="settings-symbol">↑</div><h3 data-i18n="import_title">Restaurer une sauvegarde</h3><p data-i18n="import_desc">Importez un fichier JSON exporté depuis Mon Budget.</p><label class="secondary-btn file-label"><span data-i18n="btn_import">Choisir un fichier JSON</span><input type="file" id="import-file" accept=".json,application/json" hidden></label></article>
           <article class="panel settings-card"><div class="settings-symbol">⌁</div><h3 data-i18n="cat_title">Catégories</h3><p data-i18n="cat_desc">Ajoutez une catégorie pour adapter l’application à votre quotidien.</p><button class="secondary-btn" id="manage-categories"><span data-i18n="btn_manage_cat">Gérer les catégories</span></button></article>
           <article class="panel settings-card warning-card"><div class="settings-symbol">!</div><h3 data-i18n="clear_title">Effacer les données locales</h3><p data-i18n="clear_desc">Cette action est irréversible sans sauvegarde.</p><button class="danger-btn" id="clear-data"><span data-i18n="btn_clear">Effacer toutes les données</span></button></article>
+          
+          <!-- Bouton de déconnexion dans les réglages -->
+          <article class="panel settings-card warning-card">
+            <div class="settings-symbol">🔒</div>
+            <h3>Déconnexion</h3>
+            <p>Fermer votre session active sur cet appareil.</p>
+            <button class="danger-btn" id="logout-btn">Se déconnecter</button>
+          </article>
         </div>
         <div class="notice"><strong data-i18n="notice_title">À savoir</strong><p data-i18n="notice_desc">Les données sont conservées localement dans ce navigateur.</p></div>
       </section>
@@ -175,13 +191,8 @@
   <dialog id="budget-dialog" class="modal"><form id="budget-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_planning">PLANIFICATION</div><h2 data-i18n="btn_new_budget">Créer un budget</h2></div><button type="button" class="icon-btn" data-close="budget-dialog">×</button></div><label><span data-i18n="modal_cat">Catégorie</span><select id="budget-category" required></select></label><label><span data-i18n="modal_limit">Limite mensuelle</span><input type="number" id="budget-limit" min="0.01" step="0.01" required placeholder="Ex. 250"></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="budget-dialog" data-i18n="btn_cancel">Annuler</button><button class="primary-btn" type="submit" data-i18n="btn_save">Enregistrer</button></div></form></dialog>
   <dialog id="category-dialog" class="modal"><form id="category-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_custom">PERSONNALISATION</div><h2 data-i18n="btn_manage_cat">Gérer les catégories</h2></div><button type="button" class="icon-btn" data-close="category-dialog">×</button></div><label><span data-i18n="modal_new_cat">Nom d’une nouvelle catégorie</span><input id="new-category" maxlength="50" placeholder="Ex. Animaux" required></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="category-dialog" data-i18n="btn_close">Fermer</button><button class="primary-btn" type="submit" data-i18n="btn_add">Ajouter</button></div><div id="category-manage-list" class="category-manage-list"></div></form></dialog>
   <dialog id="import-dialog" class="modal"><form id="import-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_restore">RESTAURATION</div><h2 data-i18n="import_title">Importer une sauvegarde</h2></div><button type="button" class="icon-btn" data-close="import-dialog">×</button></div><p data-i18n="import_prompt">Comment souhaitez-vous restaurer ce fichier ?</p><label class="radio-line"><input type="radio" name="import-mode" value="merge" checked> <span data-i18n="import_merge">Fusionner avec mes données actuelles</span></label><label class="radio-line"><input type="radio" name="import-mode" value="replace"> <span data-i18n="import_replace">Remplacer toutes mes données actuelles</span></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="import-dialog" data-i18n="btn_cancel">Annuler</button><button class="primary-btn" type="submit" data-i18n="import_confirm">Confirmer l’import</button></div></form></dialog>
-  <div id="toast" role="status" aria-live="polite"></div>
   
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="db.js"></script>
-  <script src="finance.js"></script>
-  <script src="app.js"></script>
-<!-- Fenêtre modale d'authentification -->
+  <!-- Fenêtre modale d'authentification -->
   <dialog id="auth-dialog" class="modal">
     <form id="auth-form" method="dialog" style="padding: 10px;">
       <div class="modal-heading">
@@ -203,5 +214,12 @@
       <p id="auth-error" style="color: #b74e48; font-size: 13px; margin-top: 15px; text-align: center; font-weight: 500;"></p>
     </form>
   </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="db.js"></script>
+  <script src="finance.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
