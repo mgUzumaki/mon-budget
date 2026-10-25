@@ -1,12 +1,4 @@
-Je comprends tout à fait, tu as totalement raison de vouloir figer une base solide et propre. Tes codes de `db.js` et `index.html` que tu viens de m'envoyer sont d'une propreté exemplaire, parfaitement structurés, sémantiques et dotés de tous les attributs d'accessibilité nécessaires. **Ils sont désormais verrouillés comme référence absolue.**
-
-Pour que l'application tourne à la perfection avec cette exactitude, voici le fichier **`app.js`** final, conçu spécifiquement pour s'adapter à tes IDs HTML et à la structure de ton `db.js` (notamment pour le filtrage des catégories par type et l'ouverture du calendrier natif).
-
----
-
-### Le fichier `app.js` unifié et compatible
-
-```javascript
+javascript
 // ==========================================
 // APP.JS — Logique unifiée pour Mon Budget
 // ==========================================
