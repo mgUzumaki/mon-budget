@@ -1,22 +1,35 @@
+
 /* =====================================================
-   APP.JS — Application Mon Budget
+   APP.JS — Mon Budget
+   Compatible avec le index.html fourni
    ===================================================== */
 
 (() => {
   "use strict";
+
+  /* ---------- OUTILS ET ÉTAT ---------- */
 
   const $ = id => document.getElementById(id);
 
   let transactions = [];
   let categories = [];
   let budgets = [];
-  let toastTimer;
-
   let currentRange = "month";
   let referenceDate = new Date();
-
   let currentLang = localStorage.getItem("user_lang") || "fr";
   let currentCurrency = localStorage.getItem("user_currency") || "FCFA";
+  let toastTimer;
+  let dailyChart = null;
+  let categoryChart = null;
+
+  const client = () => {
+    if (!window.supabaseClient) {
+      throw new Error(
+        "Supabase n'est pas initialisé. Vérifie la connexion dans index.html."
+      );
+    }
+    return window.supabaseClient;
+  };
 
   const translations = {
     fr: {
@@ -24,49 +37,43 @@
       nav_transactions: "Transactions",
       nav_budgets: "Budgets",
       nav_stats: "Statistiques",
-      nav_settings: "Sauvegarde & réglages",
-      btn_add: "＋ Ajouter une opération",
+      nav_settings: "Réglages",
+      btn_add: "Ajouter une opération",
       dash_intro: "Votre situation financière en un coup d'œil.",
       range_week: "Semaine",
       range_month: "Mois",
       range_year: "Année",
       range_day: "Jour",
-      metric_net: "Net de la période",
-      metric_net_sub: "Revenus moins dépenses",
-      metric_exp: "Total Dépenses",
-      metric_exp_sub: "Dépenses de la période",
-      metric_inc: "Total Revenus",
-      metric_inc_sub: "Revenus de la période",
-      metric_save: "Épargne de côté",
-      metric_save_sub: "Virements épargne",
+      metric_net: "Solde net",
+      metric_exp: "Total des dépenses",
+      metric_inc: "Total des revenus",
+      metric_save: "Épargne",
       chart_exp_title: "Évolution des dépenses",
       chart_exp_sub: "Activité et tendance",
       chart_cat_title: "Répartition par catégorie",
-      chart_cat_sub: "Vue en camembert",
+      chart_cat_sub: "Répartition des dépenses",
       recent_title: "Opérations récentes",
-      recent_sub: "Dernières opérations enregistrées",
+      recent_sub: "Vos dernières opérations",
       see_all: "Voir tout →",
-      trans_intro: "Retrouvez et filtrez vos opérations.",
-      btn_new_op: "＋ Nouvelle opération",
+      trans_intro: "Retrouvez, filtrez et corrigez vos opérations.",
+      btn_new_op: "Nouvelle opération",
       filter_all_types: "Tous les types",
       type_expense: "Dépenses",
       type_income: "Revenus",
       type_transfer: "Transferts",
       filter_all_cats: "Toutes les catégories",
       budget_intro: "Fixez une limite par catégorie.",
-      btn_new_budget: "＋ Créer un budget",
+      btn_new_budget: "Créer un budget",
       budget_month_label: "Budgets du mois sélectionné",
       stats_intro: "Analysez vos revenus et vos dépenses.",
       stats_note: "Les transferts internes sont exclus.",
-      stats_activity: "Activité de la période",
-      stats_activity_sub: "Revenus et dépenses",
-      settings_intro: "Gérez vos données et préférences.",
+      settings_intro: "Gérez vos préférences et vos données.",
       pref_currency: "Devise",
       pref_currency_desc: "Choisissez la monnaie d’affichage.",
       pref_lang: "Langue",
-      pref_lang_desc: "Choisissez la langue de l’interface.",
+      pref_lang_desc: "Sélectionnez la langue de l’interface.",
       export_title: "Exporter une sauvegarde",
-      export_desc: "Téléchargez vos données en JSON.",
+      export_desc: "Téléchargez vos données au format JSON.",
       btn_export: "Exporter mes données",
       import_title: "Restaurer une sauvegarde",
       import_desc: "Importez un fichier JSON.",
@@ -74,76 +81,52 @@
       cat_title: "Catégories",
       cat_desc: "Gérez vos catégories.",
       btn_manage_cat: "Gérer les catégories",
-      clear_title: "Effacer les données",
-      clear_desc: "Attention : cette action peut être irréversible.",
+      clear_title: "Effacer les données locales",
+      clear_desc: "Cette action peut être irréversible.",
       btn_clear: "Effacer toutes les données",
-      notice_title: "À savoir",
-      notice_desc: "Vos données sont gérées avec Supabase.",
-      footer_text: "Gestion simple et privée <span>•</span> Aucune connexion bancaire",
-      modal_quick: "SAISIE RAPIDE",
-      modal_type: "Type d’opération",
-      modal_amount: "Montant",
-      modal_date: "Date",
-      modal_cat: "Catégorie",
-      modal_desc: "Description",
-      modal_optional: "(facultatif)",
-      modal_nature: "Nature de la dépense",
-      nature_var: "Variable",
-      nature_fix: "Fixe",
-      modal_recurring: "Opération récurrente",
-      btn_cancel: "Annuler",
-      btn_save: "Enregistrer",
-      btn_close: "Fermer",
       privacy_title: "Vos données restent privées",
       privacy_desc: "Stockées dans votre espace sécurisé."
     },
-
     en: {
       nav_dashboard: "Dashboard",
       nav_transactions: "Transactions",
       nav_budgets: "Budgets",
       nav_stats: "Statistics",
-      nav_settings: "Settings & Backup",
-      btn_add: "＋ Add transaction",
+      nav_settings: "Settings",
+      btn_add: "Add transaction",
       dash_intro: "Your financial situation at a glance.",
       range_week: "Week",
       range_month: "Month",
       range_year: "Year",
       range_day: "Day",
-      metric_net: "Period net",
-      metric_net_sub: "Income minus expenses",
+      metric_net: "Net balance",
       metric_exp: "Total expenses",
-      metric_exp_sub: "Expenses in this period",
       metric_inc: "Total income",
-      metric_inc_sub: "Income in this period",
       metric_save: "Savings",
-      metric_save_sub: "Savings transfers",
-      chart_exp_title: "Expense evolution",
-      chart_exp_sub: "Activity and trend",
-      chart_cat_title: "Category breakdown",
-      chart_cat_sub: "Doughnut chart",
+      chart_exp_title: "Expense trends",
+      chart_exp_sub: "Activity and trends",
+      chart_cat_title: "By category",
+      chart_cat_sub: "Expense breakdown",
       recent_title: "Recent transactions",
-      recent_sub: "Latest recorded transactions",
+      recent_sub: "Your latest transactions",
       see_all: "View all →",
       trans_intro: "Find and filter your transactions.",
-      btn_new_op: "＋ New transaction",
+      btn_new_op: "New transaction",
       filter_all_types: "All types",
       type_expense: "Expenses",
       type_income: "Income",
       type_transfer: "Transfers",
       filter_all_cats: "All categories",
       budget_intro: "Set a limit for each category.",
-      btn_new_budget: "＋ Create budget",
+      btn_new_budget: "Create a budget",
       budget_month_label: "Budgets for selected month",
-      stats_intro: "Analyze your income and expenses.",
+      stats_intro: "Analyze income and expenses.",
       stats_note: "Internal transfers are excluded.",
-      stats_activity: "Period activity",
-      stats_activity_sub: "Income and expenses",
-      settings_intro: "Manage your data and preferences.",
+      settings_intro: "Manage your preferences and data.",
       pref_currency: "Currency",
       pref_currency_desc: "Choose your display currency.",
       pref_lang: "Language",
-      pref_lang_desc: "Choose your interface language.",
+      pref_lang_desc: "Choose the interface language.",
       export_title: "Export backup",
       export_desc: "Download your data as JSON.",
       btn_export: "Export my data",
@@ -153,26 +136,9 @@
       cat_title: "Categories",
       cat_desc: "Manage your categories.",
       btn_manage_cat: "Manage categories",
-      clear_title: "Clear data",
-      clear_desc: "Warning: this action may be irreversible.",
+      clear_title: "Clear local data",
+      clear_desc: "This action may be irreversible.",
       btn_clear: "Clear all data",
-      notice_title: "Good to know",
-      notice_desc: "Your data is managed with Supabase.",
-      footer_text: "Simple, private finance management <span>•</span> No bank connection",
-      modal_quick: "QUICK ENTRY",
-      modal_type: "Transaction type",
-      modal_amount: "Amount",
-      modal_date: "Date",
-      modal_cat: "Category",
-      modal_desc: "Description",
-      modal_optional: "(optional)",
-      modal_nature: "Expense type",
-      nature_var: "Variable",
-      nature_fix: "Fixed",
-      modal_recurring: "Recurring transaction",
-      btn_cancel: "Cancel",
-      btn_save: "Save",
-      btn_close: "Close",
       privacy_title: "Your data stays private",
       privacy_desc: "Stored in your secure space."
     }
@@ -184,52 +150,18 @@
       key;
   }
 
-  function applyTranslations() {
-    document.querySelectorAll("[data-i18n]").forEach(element => {
-      const key = element.getAttribute("data-i18n");
-      const value = t(key);
-
-      if (!value) return;
-
-      if (key === "footer_text") {
-        element.innerHTML = value;
-      } else {
-        element.textContent = value;
-      }
-    });
-
-    if ($("app-currency")) {
-      $("app-currency").value = currentCurrency;
-    }
-
-    if ($("app-lang")) {
-      $("app-lang").value = currentLang;
-    }
-
-    if ($("auth-lang-select")) {
-      $("auth-lang-select").value = currentLang;
-    }
-  }
-
-  function customMoney(cents) {
-    const locale = currentLang === "fr" ? "fr-FR" : "en-US";
-
-    return Finance.money(cents, currentCurrency, locale);
-  }
-
   function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#39;"
-    })[character]);
+    })[char]);
   }
 
   function toast(message) {
     const element = $("toast");
-
     if (!element) {
       console.log(message);
       return;
@@ -237,29 +169,182 @@
 
     element.textContent = message;
     element.classList.add("show");
-
     clearTimeout(toastTimer);
 
     toastTimer = setTimeout(() => {
       element.classList.remove("show");
-    }, 3000);
+    }, 3500);
   }
+
+  function localDate(date = new Date()) {
+    if (window.Finance?.localDate) {
+      return Finance.localDate(date);
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function toCents(value) {
+    if (window.Finance?.toCents) {
+      return Finance.toCents(value);
+    }
+
+    const number = Number(String(value).replace(",", "."));
+    if (!Number.isFinite(number)) return 0;
+
+    return Math.round(number * 100);
+  }
+
+  function formatMoney(cents) {
+    const amount = Number(cents || 0) / 100;
+
+    const symbols = {
+      "FCFA": "FCFA",
+      "€": "EUR",
+      "$": "USD",
+      "£": "GBP",
+      "CHF": "CHF"
+    };
+
+    const code = symbols[currentCurrency] || currentCurrency;
+    const locale = currentLang === "fr" ? "fr-FR" : "en-US";
+
+    try {
+      if (code === "FCFA") {
+        return new Intl.NumberFormat(locale, {
+          maximumFractionDigits: 0
+        }).format(amount) + " FCFA";
+      }
+
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: code
+      }).format(amount);
+    } catch {
+      return `${amount.toFixed(2)} ${currentCurrency}`;
+    }
+  }
+
+  function getCategoryName(id) {
+    return categories.find(category => category.id === id)?.name ||
+      "Sans catégorie";
+  }
+
+  function getPeriodBounds() {
+    const date = new Date(referenceDate);
+    const start = new Date(date);
+    const end = new Date(date);
+
+    if (currentRange === "day") {
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+    } else if (currentRange === "week") {
+      const weekday = (date.getDay() + 6) % 7;
+      start.setDate(date.getDate() - weekday);
+      start.setHours(0, 0, 0, 0);
+      end.setTime(start.getTime());
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+    } else if (currentRange === "year") {
+      start.setMonth(0, 1);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(11, 31);
+      end.setHours(23, 59, 59, 999);
+    } else {
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(end.getMonth() + 1, 0);
+      end.setHours(23, 59, 59, 999);
+    }
+
+    return { start, end };
+  }
+
+  function inSelectedPeriod(transaction) {
+    if (!transaction.date) return false;
+
+    const date = new Date(`${transaction.date}T12:00:00`);
+    const { start, end } = getPeriodBounds();
+
+    return date >= start && date <= end;
+  }
+
+  function getPeriodTransactions() {
+    return transactions.filter(inSelectedPeriod);
+  }
+
+  function getSummary(items) {
+    let income = 0;
+    let expense = 0;
+    let transfers = 0;
+
+    items.forEach(transaction => {
+      const amount = Number(transaction.amountCents || 0);
+
+      if (transaction.type === "income") income += amount;
+      else if (transaction.type === "expense") expense += amount;
+      else if (transaction.type === "transfer") transfers += amount;
+    });
+
+    return {
+      income,
+      expense,
+      transfers,
+      net: income - expense
+    };
+  }
+
+  /* ---------- TRADUCTIONS ---------- */
+
+  function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+      const key = element.dataset.i18n;
+      element.textContent = t(key);
+    });
+
+    const currency = $("app-currency");
+    if (currency) currency.value = currentCurrency;
+
+    const language = $("app-lang");
+    if (language) language.value = currentLang;
+
+    const authLanguage = $("auth-lang-select");
+    if (authLanguage) authLanguage.value = currentLang;
+  }
+
+  /* ---------- FENÊTRES ---------- */
 
   function showDialog(id) {
     const dialog = $(id);
+    if (!dialog) return;
 
-    if (dialog instanceof HTMLDialogElement && !dialog.open) {
-      dialog.showModal();
+    if (typeof dialog.showModal === "function") {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      dialog.setAttribute("open", "");
     }
   }
 
   function closeDialog(id) {
     const dialog = $(id);
+    if (!dialog) return;
 
-    if (dialog instanceof HTMLDialogElement && dialog.open) {
+    if (typeof dialog.close === "function" && dialog.open) {
       dialog.close();
+    } else {
+      dialog.removeAttribute("open");
     }
   }
+
+  document.querySelectorAll("[data-close]").forEach(button => {
+    button.addEventListener("click", () => {
+      closeDialog(button.dataset.close);
+    });
+  });
 
   /* ---------- MENU MOBILE ---------- */
 
@@ -275,123 +360,37 @@
     document.body.classList.toggle("sidebar-open", open);
 
     sidebarToggle?.setAttribute("aria-expanded", String(open));
-    sidebarToggle?.setAttribute(
-      "aria-label",
-      open ? "Fermer le menu" : "Ouvrir le menu"
-    );
   }
 
   sidebarToggle?.addEventListener("click", () => {
     setSidebarOpen(!sidebar?.classList.contains("is-open"));
   });
 
-  sidebarBackdrop?.addEventListener("click", () => {
-    setSidebarOpen(false);
-  });
+  sidebarBackdrop?.addEventListener("click", () => setSidebarOpen(false));
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-      setSidebarOpen(false);
-    }
+    if (event.key === "Escape") setSidebarOpen(false);
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
-      setSidebarOpen(false);
-    }
+    if (window.innerWidth > 768) setSidebarOpen(false);
   });
 
-  /* ---------- CHARGEMENT DES DONNÉES ---------- */
-
-  async function refresh() {
-    try {
-      const [loadedTransactions, loadedCategories, loadedBudgets] =
-        await Promise.all([
-          BudgetDB.getTransactions(),
-          BudgetDB.getCategories(),
-          BudgetDB.getBudgets()
-        ]);
-
-      transactions = loadedTransactions;
-      categories = loadedCategories;
-      budgets = loadedBudgets;
-
-      transactions.sort((a, b) =>
-        String(b.date || "").localeCompare(String(a.date || "")) ||
-        String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
-      );
-
-      renderAll();
-    } catch (error) {
-      console.error("Erreur de chargement :", error);
-
-      toast(
-        "Impossible de charger les données. Vérifiez votre connexion."
-      );
-    }
-  }
-
-  function renderAll() {
-    applyTranslations();
-    renderCategoryOptions();
-    renderDashboard();
-    renderTransactions();
-    renderBudgets();
-    updateUserProfileInfo();
-  }
-
-  async function updateUserProfileInfo() {
-    const element = $("user-session-info");
-
-    if (!element || !window.supabaseClient) return;
-
-    try {
-      const { data, error } = await supabaseClient.auth.getUser();
-
-      if (error) throw error;
-
-      const user = data?.user;
-
-      if (!user) {
-        element.textContent = "";
-        return;
-      }
-
-      const metadata = user.user_metadata || {};
-
-      const name = [
-        metadata.first_name,
-        metadata.last_name
-      ].filter(Boolean).join(" ") || "Mon Compte";
-
-      element.innerHTML = `
-        <div class="user-info-card">
-          <strong>👤 ${escapeHTML(name)}</strong>
-          <div><strong>Email :</strong> ${escapeHTML(user.email || "")}</div>
-        </div>
-      `;
-    } catch (error) {
-      console.error("Erreur du profil :", error);
-    }
-  }
-
-  /* ---------- NAVIGATION ENTRE LES PAGES ---------- */
+  /* ---------- NAVIGATION ---------- */
 
   document.querySelectorAll(".nav-link").forEach(button => {
     button.addEventListener("click", () => {
       const page = button.dataset.page;
-
       if (!page) return;
 
-      document.querySelectorAll(".page").forEach(element => {
-        element.classList.toggle(
-          "active",
-          element.id === `page-${page}`
-        );
+      document.querySelectorAll(".page").forEach(section => {
+        section.classList.toggle("active", section.id === `page-${page}`);
       });
 
-      document.querySelectorAll(".nav-link").forEach(element => {
-        element.classList.toggle("active", element === button);
+      document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.toggle("active", link === button);
+        if (link === button) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
       });
 
       const titles = {
@@ -407,127 +406,218 @@
       }
 
       setSidebarOpen(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (page === "statistics") renderStatistics();
+      if (page === "transactions") renderTransactions();
+      if (page === "budgets") renderBudgets();
+    });
+  });
+
+  document.querySelectorAll("[data-goto]").forEach(button => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.goto;
+      document.querySelector(`.nav-link[data-page="${target}"]`)?.click();
     });
   });
 
   /* ---------- CATÉGORIES ---------- */
 
-  function renderCategoryOptions() {
-    function fillSelect(id, filter) {
-      const select = $(id);
+  function fillCategorySelect(id, filter = () => true, includeAll = false) {
+    const select = $(id);
+    if (!select) return;
 
-      if (!select) return;
+    const previous = select.value;
+    const options = categories.filter(filter);
 
-      const previousValue = select.value;
+    select.replaceChildren();
 
-      select.innerHTML = categories
-        .filter(filter)
-        .map(category => `
-          <option value="${escapeHTML(category.id)}">
-            ${escapeHTML(category.name)}
-          </option>
-        `)
-        .join("");
-
-      if ([...select.options].some(option =>
-        option.value === previousValue
-      )) {
-        select.value = previousValue;
-      }
+    if (includeAll) {
+      const all = document.createElement("option");
+      all.value = "";
+      all.textContent = t("filter_all_cats");
+      select.appendChild(all);
     }
 
-    fillSelect("transaction-category", () => true);
+    options.forEach(category => {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.name;
+      select.appendChild(option);
+    });
 
-    fillSelect(
-      "budget-category",
-      category => category.kind === "expense"
+    if ([...select.options].some(option => option.value === previous)) {
+      select.value = previous;
+    }
+  }
+
+  function renderCategoryOptions() {
+    fillCategorySelect("transaction-category");
+    fillCategorySelect(
+      "filter-category",
+      () => true,
+      true
     );
   }
 
   /* ---------- TABLEAU DE BORD ---------- */
 
-  function selectedPeriod() {
-    const date = Finance.localDate(referenceDate);
+  function renderDashboard() {
+    const periodTransactions = getPeriodTransactions();
+    const summary = getSummary(periodTransactions);
 
-    switch (currentRange) {
-      case "day":
-        return date;
+    if ($("metric-net")) {
+      $("metric-net").textContent = formatMoney(summary.net);
+    }
+    if ($("metric-expense")) {
+      $("metric-expense").textContent = formatMoney(summary.expense);
+    }
+    if ($("metric-income")) {
+      $("metric-income").textContent = formatMoney(summary.income);
+    }
+    if ($("metric-saving")) {
+      $("metric-saving").textContent = formatMoney(summary.transfers);
+    }
 
-      case "week":
-        return date;
+    const label = $("period-display-label");
+    if (label) {
+      const { start, end } = getPeriodBounds();
 
-      case "year":
-        return date.slice(0, 4);
+      if (currentRange === "year") {
+        label.textContent = String(referenceDate.getFullYear());
+      } else if (currentRange === "day") {
+        label.textContent = localDate(referenceDate);
+      } else if (currentRange === "week") {
+        label.textContent = `${localDate(start)} – ${localDate(end)}`;
+      } else {
+        label.textContent = referenceDate.toLocaleDateString(
+          currentLang === "fr" ? "fr-FR" : "en-US",
+          { month: "long", year: "numeric" }
+        );
+      }
+    }
 
-      case "month":
-      default:
-        return date.slice(0, 7);
+    renderCharts(periodTransactions);
+    renderRecentTransactions();
+  }
+
+  function renderCharts(items) {
+    if (typeof Chart === "undefined") return;
+
+    const dailyCanvas = $("dailyChart");
+    if (dailyCanvas) {
+      const byDay = new Map();
+
+      items
+        .filter(item => item.type === "expense")
+        .forEach(item => {
+          byDay.set(
+            item.date,
+            (byDay.get(item.date) || 0) + Number(item.amountCents || 0)
+          );
+        });
+
+      const dailyData = [...byDay.entries()].sort((a, b) =>
+        a[0].localeCompare(b[0])
+      );
+
+      dailyChart?.destroy();
+
+      dailyChart = new Chart(dailyCanvas, {
+        type: "line",
+        data: {
+          labels: dailyData.map(item => item[0]),
+          datasets: [{
+            label: t("chart_exp_title"),
+            data: dailyData.map(item => item[1] / 100),
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    const categoryCanvas = $("categoryDoughnutChart");
+    if (categoryCanvas) {
+      const totals = new Map();
+
+      items
+        .filter(item => item.type === "expense")
+        .forEach(item => {
+          const name = getCategoryName(item.categoryId);
+          totals.set(name, (totals.get(name) || 0) + Number(item.amountCents || 0));
+        });
+
+      categoryChart?.destroy();
+
+      categoryChart = new Chart(categoryCanvas, {
+        type: "doughnut",
+        data: {
+          labels: [...totals.keys()],
+          datasets: [{
+            data: [...totals.values()].map(value => value / 100)
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
     }
   }
 
-  function renderDashboard() {
-    const key = selectedPeriod();
+  function renderRecentTransactions() {
+    const container = $("recent-transactions");
+    if (!container) return;
 
-    const summary = Finance.summarize(
-      transactions,
-      currentRange,
-      key
-    );
+    const recent = [...transactions]
+      .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+      .slice(0, 5);
 
-    if ($("metric-net")) {
-      $("metric-net").textContent = customMoney(summary.net);
+    if (!recent.length) {
+      container.innerHTML = '<div class="empty-state">Aucune opération pour le moment.</div>';
+      return;
     }
 
-    if ($("metric-expense")) {
-      $("metric-expense").textContent = customMoney(summary.expense);
-    }
+    container.innerHTML = recent.map(transaction => {
+      const sign = transaction.type === "income" ? "+" :
+        transaction.type === "expense" ? "−" : "";
 
-    if ($("metric-income")) {
-      $("metric-income").textContent = customMoney(summary.income);
-    }
+      const cls = transaction.type === "income" ? "positive" :
+        transaction.type === "expense" ? "negative" : "";
 
-    if ($("metric-saving")) {
-      const savings = summary.transfers;
-
-      $("metric-saving").textContent = customMoney(savings);
-    }
-
-    const periodLabel = $("period-display-label");
-
-    if (periodLabel) {
-      if (currentRange === "year") {
-        periodLabel.textContent = key;
-      } else if (currentRange === "day") {
-        periodLabel.textContent = key;
-      } else if (currentRange === "week") {
-        const range = Finance.getWeekRange(key);
-        periodLabel.textContent = `${range.start} — ${range.end}`;
-      } else {
-        periodLabel.textContent = key;
-      }
-    }
+      return `
+        <div class="transaction-row">
+          <div class="transaction-main">
+            <div class="transaction-icon">
+              ${transaction.type === "income" ? "↗" :
+                transaction.type === "expense" ? "↘" : "⇄"}
+            </div>
+            <div>
+              <strong>${escapeHTML(transaction.description || "Opération")}</strong>
+              <small>${escapeHTML(getCategoryName(transaction.categoryId))}</small>
+            </div>
+          </div>
+          <div class="transaction-meta">${escapeHTML(transaction.date || "")}</div>
+          <div class="amount ${cls}">${sign}${escapeHTML(formatMoney(transaction.amountCents))}</div>
+        </div>
+      `;
+    }).join("");
   }
 
   /* ---------- CHANGEMENT DE PÉRIODE ---------- */
 
-  const rangeButtons = document.querySelectorAll("#range-selector button");
-
-  rangeButtons.forEach(button => {
+  document.querySelectorAll("#range-selector [data-range]").forEach(button => {
     button.addEventListener("click", () => {
-      const possibleRange =
-        button.dataset.range ||
-        button.dataset.period ||
-        button.id.replace("range-", "");
+      currentRange = button.dataset.range;
 
-      const allowedRanges = ["day", "week", "month", "year"];
-
-      if (!allowedRanges.includes(possibleRange)) return;
-
-      currentRange = possibleRange;
-
-      rangeButtons.forEach(item => {
+      document.querySelectorAll("#range-selector [data-range]").forEach(item => {
         item.classList.toggle("active", item === button);
+        item.setAttribute("aria-pressed", String(item === button));
       });
 
       renderDashboard();
@@ -548,45 +638,48 @@
     renderDashboard();
   }
 
-  $("period-prev")?.addEventListener("click", () => movePeriod(-1));
-  $("period-next")?.addEventListener("click", () => movePeriod(1));
+  $("prev-period")?.addEventListener("click", () => movePeriod(-1));
+  $("next-period")?.addEventListener("click", () => movePeriod(1));
 
-  /* ---------- LISTE DES TRANSACTIONS ---------- */
+  /* ---------- LISTE ET FILTRES ---------- */
+
+  function getFilteredTransactions() {
+    const query = ($("search-transactions")?.value || "").trim().toLowerCase();
+    const type = $("filter-type")?.value || "";
+    const category = $("filter-category")?.value || "";
+
+    return transactions.filter(transaction => {
+      const matchesQuery =
+        !query ||
+        String(transaction.description || "").toLowerCase().includes(query);
+
+      const matchesType = !type || transaction.type === type;
+      const matchesCategory = !category || transaction.categoryId === category;
+
+      return matchesQuery && matchesType && matchesCategory;
+    });
+  }
 
   function renderTransactions() {
-    const listElement = $("transaction-list");
+    const container = $("transaction-list");
+    if (!container) return;
 
-    if (!listElement) return;
+    const filtered = getFilteredTransactions();
 
-    if (transactions.length === 0) {
-      listElement.innerHTML = `
-        <div class="empty-state">
-          Aucune transaction enregistrée.
-        </div>
-      `;
-
+    if (!filtered.length) {
+      container.innerHTML = '<div class="empty-state">Aucune transaction trouvée.</div>';
       return;
     }
 
-    listElement.innerHTML = transactions.map(transaction => {
-      const category = categories.find(
-        item => item.id === transaction.categoryId
-      );
-
-      const typeLabel = {
-        expense: "Dépense",
-        income: "Revenu",
-        transfer: "Transfert"
-      }[transaction.type] || "Opération";
-
+    container.innerHTML = filtered.map(transaction => {
       const sign = transaction.type === "income" ? "+" :
         transaction.type === "expense" ? "−" : "";
 
-      const amountClass = transaction.type === "income"
-        ? "positive"
-        : transaction.type === "expense"
-          ? "negative"
-          : "";
+      const cls = transaction.type === "income" ? "positive" :
+        transaction.type === "expense" ? "negative" : "";
+
+      const typeLabel = transaction.type === "income" ? "Revenu" :
+        transaction.type === "expense" ? "Dépense" : "Transfert";
 
       return `
         <div class="transaction-row">
@@ -595,81 +688,101 @@
               ${transaction.type === "income" ? "↗" :
                 transaction.type === "expense" ? "↘" : "⇄"}
             </div>
-
             <div>
-              <strong>
-                ${escapeHTML(transaction.description || "Opération")}
-              </strong>
-
-              <small>
-                ${escapeHTML(category?.name || "Sans catégorie")}
-                · ${escapeHTML(typeLabel)}
-              </small>
+              <strong>${escapeHTML(transaction.description || "Opération")}</strong>
+              <small>${escapeHTML(getCategoryName(transaction.categoryId))} · ${typeLabel}</small>
             </div>
           </div>
-
-          <div class="transaction-meta">
-            ${escapeHTML(transaction.date || "")}
-          </div>
-
-          <div class="amount ${amountClass}">
-            ${sign}${escapeHTML(customMoney(transaction.amountCents))}
-          </div>
+          <div class="transaction-meta">${escapeHTML(transaction.date || "")}</div>
+          <div class="amount ${cls}">${sign}${escapeHTML(formatMoney(transaction.amountCents))}</div>
         </div>
       `;
     }).join("");
   }
 
+  $("search-transactions")?.addEventListener("input", renderTransactions);
+  $("filter-type")?.addEventListener("change", renderTransactions);
+  $("filter-category")?.addEventListener("change", renderTransactions);
+
+  /* ---------- STATISTIQUES ---------- */
+
+  function renderStatistics() {
+    const period = $("stats-period")?.value || "month";
+    const monthValue = $("stats-month")?.value || localDate().slice(0, 7);
+
+    const items = transactions.filter(transaction => {
+      if (!transaction.date) return false;
+
+      if (period === "year") {
+        return transaction.date.slice(0, 4) === monthValue.slice(0, 4);
+      }
+
+      if (period === "day") {
+        return transaction.date === localDate();
+      }
+
+      return transaction.date.slice(0, 7) === monthValue;
+    });
+
+    const summary = getSummary(items);
+
+    if ($("stats-income")) $("stats-income").textContent = formatMoney(summary.income);
+    if ($("stats-expense")) $("stats-expense").textContent = formatMoney(summary.expense);
+    if ($("stats-net")) $("stats-net").textContent = formatMoney(summary.net);
+
+    if ($("stats-heading")) {
+      $("stats-heading").textContent = period === "year"
+        ? `Synthèse ${monthValue.slice(0, 4)}`
+        : period === "day"
+          ? "Synthèse du jour"
+          : `Synthèse ${monthValue}`;
+    }
+  }
+
+  $("stats-period")?.addEventListener("change", renderStatistics);
+  $("stats-month")?.addEventListener("change", renderStatistics);
+
   /* ---------- BUDGETS ---------- */
 
   function renderBudgets() {
-    const container = $("budget-list") || $("budget-grid");
-
+    const container = $("budget-list");
     if (!container) return;
 
     if (!budgets.length) {
-      container.innerHTML = `
-        <div class="empty-state">
-          Les budgets ne sont pas encore configurés.
-        </div>
-      `;
-
+      container.innerHTML = '<div class="empty-state">Aucun budget configuré pour le moment.</div>';
       return;
     }
 
-    // L'affichage complet sera possible lorsque le stockage des
-    // budgets sera défini dans BudgetDB et dans la base Supabase.
-    container.innerHTML = `
-      <div class="empty-state">
-        Les données des budgets doivent encore être configurées.
-      </div>
-    `;
+    container.innerHTML = '<div class="empty-state">La gestion des budgets nécessite une table dédiée dans Supabase.</div>';
   }
+
+  $("add-budget")?.addEventListener("click", () => {
+    toast("La création des budgets n'est pas encore configurée.");
+  });
+
+  $("manage-categories")?.addEventListener("click", () => {
+    toast("La gestion des catégories personnalisées n'est pas encore configurée.");
+  });
+
+  $("clear-data")?.addEventListener("click", () => {
+    toast("Pour éviter toute suppression accidentelle, les données Supabase ne sont pas effacées ici.");
+  });
 
   /* ---------- OUVERTURE DU FORMULAIRE ---------- */
 
   function openTransactionDialog() {
     const form = $("transaction-form");
+    if (form) form.reset();
 
-    if (form) {
-      form.reset();
+    renderCategoryOptions();
 
-      const dateInput = $("transaction-date");
-
-      if (dateInput) {
-        dateInput.value = Finance.localDate();
-      }
-    }
+    const dateInput = $("transaction-date");
+    if (dateInput) dateInput.value = localDate();
 
     showDialog("transaction-dialog");
   }
 
-  [
-    "add-transaction",
-    "btn-add-transaction",
-    "btn-new-transaction",
-    "mobile-add"
-  ].forEach(id => {
+  ["quick-add", "btn_new_op", "mobile-add"].forEach(id => {
     $(id)?.addEventListener("click", openTransactionDialog);
   });
 
@@ -679,8 +792,13 @@
 
   /* ---------- ENREGISTREMENT D'UNE TRANSACTION ---------- */
 
-  $("transaction-form")?.addEventListener("submit", async event => {
+  const transactionForm = $("transaction-form");
+
+  transactionForm?.addEventListener("submit", async event => {
     event.preventDefault();
+
+    const submitButton = transactionForm.querySelector('button[type="submit"]');
+    if (submitButton?.disabled) return;
 
     try {
       const amountInput = $("transaction-amount");
@@ -689,41 +807,140 @@
       const categoryInput = $("transaction-category");
       const descriptionInput = $("transaction-description");
 
-      if (!amountInput || !dateInput || !typeInput) {
-        throw new Error(
-          "Certains champs du formulaire sont introuvables. Vérifiez les identifiants HTML."
-        );
+      if (!amountInput || !dateInput || !typeInput || !categoryInput) {
+        throw new Error("Un champ obligatoire du formulaire est introuvable.");
       }
 
-      const transaction = {
-        id: Finance.uid(),
+      if (!dateInput.value) {
+        throw new Error("Choisis une date pour cette opération.");
+      }
+
+      const amountCents = toCents(amountInput.value);
+
+      if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+        throw new Error("Saisis un montant supérieur à zéro.");
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Enregistrement...";
+      }
+
+      await BudgetDB.putTransaction({
         date: dateInput.value,
         type: typeInput.value,
-        categoryId: categoryInput?.value || null,
-        amountCents: Finance.toCents(amountInput.value),
-        description: descriptionInput?.value.trim() || "",
-        createdAt: new Date().toISOString()
-      };
-
-      await BudgetDB.putTransaction(transaction);
-      await refresh();
+        categoryId: categoryInput.value || null,
+        amountCents,
+        description: descriptionInput?.value.trim() || ""
+      });
 
       closeDialog("transaction-dialog");
+      await refresh();
       toast("Opération enregistrée avec succès !");
     } catch (error) {
       console.error("Erreur d'enregistrement :", error);
-      toast(error.message || "Impossible d'enregistrer l'opération.");
+      toast(`Échec de l'enregistrement : ${error.message || error}`);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Enregistrer";
+      }
     }
   });
 
-  /* ---------- FERMETURE DES FENÊTRES ---------- */
+  /* ---------- ACTUALISATION DES DONNÉES ---------- */
 
-  document.querySelectorAll("[data-close-dialog]").forEach(button => {
-    button.addEventListener("click", () => {
-      const id = button.dataset.closeDialog;
+  async function refresh() {
+    try {
+      const [loadedTransactions, loadedCategories, loadedBudgets] =
+        await Promise.all([
+          BudgetDB.getTransactions(),
+          BudgetDB.getCategories(),
+          BudgetDB.getBudgets()
+        ]);
 
-      if (id) closeDialog(id);
-    });
+      transactions = Array.isArray(loadedTransactions) ? loadedTransactions : [];
+      categories = Array.isArray(loadedCategories) ? loadedCategories : [];
+      budgets = Array.isArray(loadedBudgets) ? loadedBudgets : [];
+
+      transactions.sort((a, b) =>
+        String(b.date || "").localeCompare(String(a.date || ""))
+      );
+
+      applyTranslations();
+      renderCategoryOptions();
+      renderDashboard();
+      renderTransactions();
+      renderBudgets();
+      renderStatistics();
+      await updateUserProfileInfo();
+    } catch (error) {
+      console.error("Erreur de chargement :", error);
+      toast(`Chargement impossible : ${error.message || error}`);
+    }
+  }
+
+  // Rend l'actualisation accessible au reste de l'application.
+  window.refresh = refresh;
+
+  async function updateUserProfileInfo() {
+    const element = $("user-session-info");
+    if (!element) return;
+
+    try {
+      const { data, error } = await client().auth.getUser();
+      if (error) throw error;
+
+      const user = data?.user;
+      if (!user) {
+        element.textContent = "Aucun utilisateur connecté.";
+        return;
+      }
+
+      const metadata = user.user_metadata || {};
+      const name = [
+        metadata.first_name,
+        metadata.last_name
+      ].filter(Boolean).join(" ") || "Mon compte";
+
+      element.textContent = `${name} — ${user.email || ""}`;
+    } catch (error) {
+      console.error("Erreur du profil :", error);
+    }
+  }
+
+  /* ---------- LANGUE ET DEVISE ---------- */
+
+  $("app-lang")?.addEventListener("change", event => {
+    const language = event.target.value;
+    if (!translations[language]) return;
+
+    currentLang = language;
+    localStorage.setItem("user_lang", currentLang);
+
+    applyTranslations();
+    renderDashboard();
+    renderTransactions();
+    renderStatistics();
+  });
+
+  $("auth-lang-select")?.addEventListener("change", event => {
+    const language = event.target.value;
+    if (!translations[language]) return;
+
+    currentLang = language;
+    localStorage.setItem("user_lang", currentLang);
+    applyTranslations();
+  });
+
+  $("app-currency")?.addEventListener("change", event => {
+    currentCurrency = event.target.value;
+    localStorage.setItem("user_currency", currentCurrency);
+
+    renderDashboard();
+    renderTransactions();
+    renderStatistics();
+    renderRecentTransactions();
   });
 
   /* ---------- EXPORT JSON ---------- */
@@ -746,140 +963,87 @@
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = `mon-budget-sauvegarde-${Finance.localDate()}.json`;
+    link.download = `mon-budget-${localDate()}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
 
     URL.revokeObjectURL(url);
-
-    toast("Sauvegarde exportée avec succès !");
+    toast("Sauvegarde téléchargée.");
   });
 
   /* ---------- IMPORT JSON ---------- */
 
   $("import-file")?.addEventListener("change", async event => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     try {
-      const text = await file.text();
-      const backup = JSON.parse(text);
+      const backup = JSON.parse(await file.text());
 
-      if (!backup || !Array.isArray(backup.transactions)) {
-        throw new Error(
-          "Le fichier ne contient pas de liste de transactions valide."
-        );
+      if (!Array.isArray(backup.transactions)) {
+        throw new Error("Le fichier ne contient aucune liste de transactions valide.");
       }
 
-      for (const transaction of backup.transactions) {
+      for (const item of backup.transactions) {
+        const amountCents = Number(item.amountCents);
+
         if (
-          !transaction.date ||
-          !["expense", "income", "transfer"].includes(transaction.type)
+          !item.date ||
+          !["expense", "income", "transfer"].includes(item.type) ||
+          !Number.isSafeInteger(amountCents) ||
+          amountCents <= 0
         ) {
-          throw new Error("Une transaction du fichier est invalide.");
+          throw new Error("Le fichier contient une transaction invalide.");
         }
 
+        // Pas d'identifiant fourni : Supabase en créera un si le schéma le permet.
         await BudgetDB.putTransaction({
-          ...transaction,
-          id: transaction.id || Finance.uid(),
-          amountCents: Number(transaction.amountCents)
+          date: item.date,
+          type: item.type,
+          categoryId: item.categoryId || null,
+          amountCents,
+          description: item.description || ""
         });
       }
 
       await refresh();
-
-      toast("Transactions restaurées avec succès !");
+      toast("Importation terminée.");
     } catch (error) {
-      console.error("Erreur d'importation :", error);
-      toast(error.message || "Impossible de lire le fichier JSON.");
+      console.error("Erreur d'import :", error);
+      toast(`Importation impossible : ${error.message || error}`);
     } finally {
       event.target.value = "";
     }
   });
 
-  /* ---------- LANGUE ET DEVISE ---------- */
-
-  $("app-lang")?.addEventListener("change", event => {
-    const language = event.target.value;
-
-    if (!translations[language]) return;
-
-    currentLang = language;
-    localStorage.setItem("user_lang", currentLang);
-
-    renderAll();
-  });
-
-  $("auth-lang-select")?.addEventListener("change", event => {
-    const language = event.target.value;
-
-    if (!translations[language]) return;
-
-    currentLang = language;
-    localStorage.setItem("user_lang", currentLang);
-
-    applyTranslations();
-  });
-
-  $("app-currency")?.addEventListener("change", event => {
-    const currency = event.target.value;
-
-    if (!/^[A-Z]{3}$/.test(currency)) {
-      toast("Code de devise invalide.");
-      return;
-    }
-
-    currentCurrency = currency;
-    localStorage.setItem("user_currency", currentCurrency);
-
-    renderAll();
-  });
-
   /* ---------- AUTHENTIFICATION ---------- */
 
-  $("tab-login")?.addEventListener("click", () => {
-    $("tab-login")?.classList.add("active");
-    $("tab-signup")?.classList.remove("active");
+  function setAuthMode(mode) {
+    const signup = mode === "signup";
 
-    if ($("signup-fields")) {
-      $("signup-fields").style.display = "none";
+    $("auth-form")?.setAttribute("data-mode", mode);
+    $("tab-login")?.classList.toggle("active", !signup);
+    $("tab-signup")?.classList.toggle("active", signup);
+
+    const fields = $("signup-fields");
+    if (fields) fields.hidden = !signup;
+
+    const password = $("auth-password");
+    if (password) {
+      password.autocomplete = signup ? "new-password" : "current-password";
     }
 
-    if ($("btn-auth-submit")) {
-      $("btn-auth-submit").textContent = "Se connecter";
+    const submit = $("btn-auth-submit");
+    if (submit) {
+      submit.textContent = signup ? "Créer mon compte" : "Se connecter";
     }
 
-    if ($("auth-form")) {
-      $("auth-form").dataset.mode = "login";
-    }
+    if ($("auth-error")) $("auth-error").textContent = "";
+  }
 
-    if ($("auth-error")) {
-      $("auth-error").textContent = "";
-    }
-  });
-
-  $("tab-signup")?.addEventListener("click", () => {
-    $("tab-signup")?.classList.add("active");
-    $("tab-login")?.classList.remove("active");
-
-    if ($("signup-fields")) {
-      $("signup-fields").style.display = "block";
-    }
-
-    if ($("btn-auth-submit")) {
-      $("btn-auth-submit").textContent = "Créer mon compte";
-    }
-
-    if ($("auth-form")) {
-      $("auth-form").dataset.mode = "signup";
-    }
-
-    if ($("auth-error")) {
-      $("auth-error").textContent = "";
-    }
-  });
+  $("tab-login")?.addEventListener("click", () => setAuthMode("login"));
+  $("tab-signup")?.addEventListener("click", () => setAuthMode("signup"));
 
   $("auth-form")?.addEventListener("submit", async event => {
     event.preventDefault();
@@ -888,30 +1052,20 @@
     const errorElement = $("auth-error");
     const submitButton = $("btn-auth-submit");
 
-    const mode = form.dataset.mode || "login";
+    const mode = form?.dataset.mode || "login";
     const email = $("auth-email")?.value.trim() || "";
     const password = $("auth-password")?.value || "";
     const firstName = $("auth-firstname")?.value.trim() || "";
     const lastName = $("auth-lastname")?.value.trim() || "";
 
-    if (!window.supabaseClient) {
-      if (errorElement) {
-        errorElement.textContent = "La connexion Supabase n'est pas initialisée.";
-      }
-      return;
-    }
-
-    if (errorElement) {
-      errorElement.textContent = "Veuillez patienter...";
-    }
-
-    if (submitButton) {
-      submitButton.disabled = true;
-    }
+    if (errorElement) errorElement.textContent = "";
+    if (submitButton) submitButton.disabled = true;
 
     try {
+      const supabase = client();
+
       if (mode === "signup") {
-        const { data, error } = await supabaseClient.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -924,18 +1078,16 @@
 
         if (error) throw error;
 
-        if (data.session) {
+        if (data?.session) {
           closeDialog("auth-dialog");
           await refresh();
-          toast("Compte créé avec succès !");
-        } else {
-          if (errorElement) {
-            errorElement.textContent =
-              "Compte créé. Consultez votre e-mail pour confirmer votre inscription.";
-          }
+          toast("Compte créé avec succès.");
+        } else if (errorElement) {
+          errorElement.textContent =
+            "Compte créé. Consulte ton e-mail pour confirmer l'inscription.";
         }
       } else {
-        const { error } = await supabaseClient.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
@@ -944,49 +1096,49 @@
 
         closeDialog("auth-dialog");
         await refresh();
-        toast("Connexion réussie !");
+        toast("Connexion réussie.");
       }
     } catch (error) {
       console.error("Erreur d'authentification :", error);
-
       if (errorElement) {
-        errorElement.textContent =
-          error.message === "Load failed"
-            ? "Connexion impossible. Vérifiez votre réseau et la configuration Supabase."
-            : error.message;
+        errorElement.textContent = error.message || "Connexion impossible.";
       }
     } finally {
-      if (submitButton) {
-        submitButton.disabled = false;
-      }
+      if (submitButton) submitButton.disabled = false;
     }
   });
 
   $("logout-btn")?.addEventListener("click", async () => {
     try {
-      const { error } = await supabaseClient.auth.signOut();
-
+      const { error } = await client().auth.signOut();
       if (error) throw error;
-
       location.reload();
     } catch (error) {
       console.error("Erreur de déconnexion :", error);
-      toast("Impossible de vous déconnecter.");
+      toast(`Déconnexion impossible : ${error.message || error}`);
     }
   });
 
   /* ---------- DÉMARRAGE ---------- */
 
-  async function checkAuthAndStart() {
+  async function startApp() {
+    applyTranslations();
+
+    // Initialise les dates des sélecteurs de période.
+    if ($("transaction-date")) {
+      $("transaction-date").value = localDate();
+    }
+
+    if ($("budget-month")) {
+      $("budget-month").value = localDate().slice(0, 7);
+    }
+
+    if ($("stats-month")) {
+      $("stats-month").value = localDate().slice(0, 7);
+    }
+
     try {
-      if (!window.supabaseClient) {
-        throw new Error(
-          "Supabase n'est pas initialisé. Vérifiez l'ordre des scripts dans index.html."
-        );
-      }
-
-      const { data, error } = await supabaseClient.auth.getSession();
-
+      const { data, error } = await client().auth.getSession();
       if (error) throw error;
 
       if (!data?.session) {
@@ -1001,155 +1153,5 @@
     }
   }
 
-  applyTranslations();
-  checkAuthAndStart();
-})();
-
-/* =====================================================
-   CORRECTION — OUVERTURE DU FORMULAIRE TRANSACTION
-   ===================================================== */
-
-(function () {
-  "use strict";
-
-  function initTransactionButtons() {
-    const dialog = document.getElementById("transaction-dialog");
-    const form = document.getElementById("transaction-form");
-
-    if (!dialog || !form) {
-      console.error(
-        "Formulaire introuvable : vérifie transaction-dialog et transaction-form dans index.html."
-      );
-      return;
-    }
-
-    // Ouvre la fenêtre d'ajout
-    function openTransactionForm() {
-      if (dialog.open) return;
-
-      form.reset();
-
-      const dateInput = document.getElementById("transaction-date");
-      if (dateInput) {
-        const now = new Date();
-        const localDate = [
-          now.getFullYear(),
-          String(now.getMonth() + 1).padStart(2, "0"),
-          String(now.getDate()).padStart(2, "0")
-        ].join("-");
-
-        dateInput.value = localDate;
-      }
-
-      if (typeof BudgetDB !== "undefined") {
-        Promise.resolve(BudgetDB.getCategories())
-          .then(categories => {
-            const select = document.getElementById("transaction-category");
-            if (!select) return;
-
-            select.replaceChildren();
-
-            categories.forEach(category => {
-              const option = document.createElement("option");
-              option.value = category.id;
-              option.textContent = category.name;
-              select.appendChild(option);
-            });
-          })
-          .catch(error => console.error("Erreur catégories :", error));
-      }
-
-      if (typeof dialog.showModal === "function") {
-        dialog.showModal();
-      } else {
-        dialog.setAttribute("open", "");
-      }
-    }
-
-    // Tous les boutons qui ouvrent la fenêtre
-    [
-      "quick-add",
-      "btn_new_op",
-      "mobile-add",
-      "add-transaction",
-      "btn-add-transaction",
-      "btn-new-transaction"
-    ].forEach(id => {
-      const button = document.getElementById(id);
-      if (button) {
-        button.addEventListener("click", openTransactionForm);
-      }
-    });
-
-    document.querySelectorAll("[data-open-transaction]").forEach(button => {
-      button.addEventListener("click", openTransactionForm);
-    });
-
-    // Fermeture de la fenêtre
-    dialog.querySelectorAll('[data-close="transaction-dialog"]').forEach(button => {
-      button.addEventListener("click", () => dialog.close());
-    });
-
-    // Enregistrement
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-
-      const amount = document.getElementById("transaction-amount");
-      const date = document.getElementById("transaction-date");
-      const type = document.getElementById("transaction-type");
-      const category = document.getElementById("transaction-category");
-      const description = document.getElementById("transaction-description");
-
-      if (!amount || !date || !type || !category || !description) {
-        alert("Un champ du formulaire est introuvable.");
-        return;
-      }
-
-      const amountCents = Math.round(Number(amount.value) * 100);
-
-      if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
-        alert("Entre un montant supérieur à zéro.");
-        amount.focus();
-        return;
-      }
-
-      const submitButton = form.querySelector('button[type="submit"]');
-      if (submitButton) submitButton.disabled = true;
-
-      try {
-        if (typeof BudgetDB === "undefined") {
-          throw new Error("BudgetDB n'est pas chargé. Vérifie db.js dans index.html.");
-        }
-
-        await BudgetDB.putTransaction({
-          date: date.value,
-          type: type.value,
-          categoryId: category.value,
-          amountCents,
-          description: description.value.trim()
-        });
-
-        dialog.close();
-
-        if (typeof window.refresh === "function") {
-          await window.refresh();
-        } else if (typeof refresh === "function") {
-          await refresh();
-        } else {
-          window.location.reload();
-        }
-      } catch (error) {
-        console.error("Erreur lors de l'ajout :", error);
-        alert("Impossible d'enregistrer l'opération : " + (error.message || error));
-      } finally {
-        if (submitButton) submitButton.disabled = false;
-      }
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initTransactionButtons);
-  } else {
-    initTransactionButtons();
-  }
+  startApp();
 })();
