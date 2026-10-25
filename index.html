@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles-fix.css">
   
-  <!-- SDK Supabase et Initialisation -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = 'https://fcsroswxrtlkmttsayrf.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lWjzSW8jq7iIW-yPJWrWqw_fTh0-Ix4';
-    
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 </head>
@@ -29,36 +27,32 @@
         <button class="nav-link" data-page="statistics"><span>▥</span> <span data-i18n="nav_stats">Statistiques</span></button>
         <button class="nav-link" data-page="settings"><span>⚙</span> <span data-i18n="nav_settings">Sauvegarde & réglages</span></button>
       </nav>
-      <div class="privacy-note"><span class="privacy-dot"></span><div><strong data-i18n="privacy_title">Vos données restent privées</strong><small data-i18n="privacy_desc">Stockées dans ce navigateur, sur cet appareil.</small></div></div>
-      <div class="sidebar-footer">MON BUDGET <span>•</span> VERSION 0.1</div>
+      <div class="privacy-note"><span class="privacy-dot"></span><div><strong data-i18n="privacy_title">Vos données restent privées</strong><small data-i18n="privacy_desc">Stockées de manière sécurisée dans le cloud.</small></div></div>
+      <div class="sidebar-footer">MON BUDGET <span>•</span> MVP 0.2</div>
     </aside>
+
     <main class="main">
       <header class="topbar"><div><div class="eyebrow" id="today-label">VOTRE SITUATION</div><h1 id="page-title">Vue d’ensemble</h1></div><button class="primary-btn" id="quick-add"><span data-i18n="btn_add">＋ Ajouter une opération</span></button></header>
       
       <section id="page-dashboard" class="page active">
         <div class="period-row">
-          <div>
-            <h2 id="period-heading">Vue d'ensemble</h2>
-            <p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p>
-          </div>
+          <div><h2 id="period-heading">Vue d'ensemble</h2><p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p></div>
           <div class="dashboard-controls">
             <div class="btn-group" id="range-selector">
               <button type="button" class="range-btn" data-range="week" data-i18n="range_week">Semaine</button>
               <button type="button" class="range-btn active" data-range="month" data-i18n="range_month">Mois</button>
               <button type="button" class="range-btn" data-range="year" data-i18n="range_year">Année</button>
             </div>
-            
             <div class="period-navigator">
               <button type="button" id="prev-period">‹</button>
-              <span id="period-display-label" title="Cliquez pour choisir un mois/année">Novembre 2026</span>
+              <span id="period-display-label">Novembre 2026</span>
               <button type="button" id="next-period">›</button>
-              <input type="month" id="hidden-month-picker">
             </div>
           </div>
         </div>
 
         <div class="metrics">
-          <article class="metric highlight-card" style="border-left: 4px solid #10b981;">
+          <article class="metric" style="border-left: 4px solid #10b981;">
             <div class="metric-top"><span data-i18n="metric_net">Solde Actuel / Net</span><span class="metric-icon balance">±</span></div>
             <strong id="metric-net">0</strong>
             <small data-i18n="metric_net_sub">Capacité nette sur la période</small>
@@ -82,21 +76,12 @@
 
         <div class="dashboard-grid">
           <article class="panel chart-panel">
-            <div class="panel-heading">
-              <div><h3 data-i18n="chart_exp_title">Évolution des dépenses</h3><p data-i18n="chart_exp_sub">Activité & courbe de tendance</p></div>
-            </div>
-            <div style="position: relative; height: 260px;">
-              <canvas id="dailyChart"></canvas>
-            </div>
+            <div class="panel-heading"><div><h3 data-i18n="chart_exp_title">Évolution des dépenses</h3><p data-i18n="chart_exp_sub">Activité & courbe de tendance</p></div></div>
+            <div style="position: relative; height: 260px;"><canvas id="dailyChart"></canvas></div>
           </article>
-
           <article class="panel">
-            <div class="panel-heading">
-              <div><h3 data-i18n="chart_cat_title">Répartition par catégorie</h3><p data-i18n="chart_cat_sub">Vue en camembert</p></div>
-            </div>
-            <div style="position: relative; height: 260px; display: flex; justify-content: center; align-items: center;">
-              <canvas id="categoryDoughnutChart"></canvas>
-            </div>
+            <div class="panel-heading"><div><h3 data-i18n="chart_cat_title">Répartition par catégorie</h3><p data-i18n="chart_cat_sub">Vue en camembert</p></div></div>
+            <div style="position: relative; height: 260px; display: flex; justify-content: center; align-items: center;"><canvas id="categoryDoughnutChart"></canvas></div>
           </article>
         </div>
 
@@ -111,7 +96,7 @@
 
       <section id="page-transactions" class="page">
         <div class="section-intro"><div><h2 data-i18n="nav_transactions">Vos transactions</h2><p data-i18n="trans_intro">Retrouvez, filtrez et corrigez vos opérations.</p></div><button class="primary-btn" id="btn_new_op"><span data-i18n="btn_new_op">＋ Nouvelle opération</span></button></div>
-        <div class="filter-bar"><input id="search-transactions" type="search" placeholder="Rechercher une description…"><select id="filter-type"><option value="" data-i18n="filter_all_types">Tous les types</option><option value="expense" data-i18n="type_expense">Dépenses</option><option value="income" data-i18n="type_income">Revenus</option><option value="transfer" data-i18n="type_transfer">Transferts</option></select><select id="filter-category"><option value="" data-i18n="filter_all_cats">Toutes les catégories</option></select><input type="date" id="filter-from"><input type="date" id="filter-to"></div>
+        <div class="filter-bar"><input id="search-transactions" type="search" placeholder="Rechercher une description…"><select id="filter-type"><option value="" data-i18n="filter_all_types">Tous les types</option><option value="expense" data-i18n="type_expense">Dépenses</option><option value="income" data-i18n="type_income">Revenus</option><option value="transfer" data-i18n="type_transfer">Transferts</option></select><select id="filter-category"><option value="" data-i18n="filter_all_cats">Toutes les catégories</option></select></div>
         <div class="panel table-panel"><div id="transaction-list"></div></div>
       </section>
 
@@ -121,21 +106,21 @@
         <div id="budget-list" class="budget-grid"></div>
       </section>
 
-      <section id="page-statistics" class="page">
-        <div class="section-intro"><div><h2 data-i18n="nav_stats">Historique & statistiques</h2><p data-i18n="stats_intro">Analysez les revenus et dépenses à partir de vos données.</p></div><select id="stats-period"><option value="month" data-i18n="range_month">Mois</option><option value="year" data-i18n="range_year">Année</option><option value="day" data-i18n="range_day">Jour</option></select></div>
-        <div class="period-row"><div><h2 id="stats-heading">Synthèse de la période</h2><p data-i18n="stats_note">Les transferts internes sont exclus des revenus et dépenses.</p></div><input type="month" id="stats-month"></div>
-        <div class="metrics three"><article class="metric"><span data-i18n="type_income">Revenus</span><strong id="stats-income">0</strong></article><article class="metric"><span data-i18n="type_expense">Dépenses</span><strong id="stats-expense">0</strong></article><article class="metric"><span data-i18n="metric_net">Solde net</span><strong id="stats-net">0</strong></article></div>
-        <article class="panel"><div class="panel-heading"><div><h3 data-i18n="stats_activity">Activité de la période</h3><p data-i18n="stats_activity_sub">Comparaison des revenus et dépenses par intervalle</p></div></div><div id="stats-chart" class="chart-area tall"></div></article>
-      </section>
-
       <section id="page-settings" class="page">
         <div class="section-intro"><div><h2 data-i18n="nav_settings">Sauvegarde & réglages</h2><p data-i18n="settings_intro">Gardez le contrôle de vos données personnelles et préférences.</p></div></div>
         
+        <!-- Bloc Profil & Session Pro -->
+        <div class="panel settings-card" style="margin-bottom: 20px; width: 100%;">
+          <h3 style="margin-bottom: 12px;">Profil & Sécurité de session</h3>
+          <div id="user-session-info">Chargement des détails...</div>
+          <button class="danger-btn" id="logout-btn">Déconnexion de la session</button>
+        </div>
+
         <div class="settings-grid" style="margin-bottom: 20px;">
           <article class="panel settings-card">
             <div class="settings-symbol">💱</div>
             <h3 data-i18n="pref_currency">Devise</h3>
-            <p data-i18n="pref_currency_desc">Choisissez la monnaie d’affichage (ex: FCFA pour le Congo, Euro...).</p>
+            <p data-i18n="pref_currency_desc">Choisissez la monnaie d’affichage.</p>
             <select id="app-currency" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 10px;">
               <option value="FCFA">Franc CFA (FCFA)</option>
               <option value="€">Euro (€)</option>
@@ -155,63 +140,60 @@
             </select>
           </article>
         </div>
-
-        <div class="settings-grid">
-          <article class="panel settings-card"><div class="settings-symbol">↓</div><h3 data-i18n="export_title">Exporter une sauvegarde</h3><p data-i18n="export_desc">Téléchargez toutes vos transactions, catégories et budgets dans un fichier JSON.</p><button class="primary-btn" id="export-data"><span data-i18n="btn_export">Exporter mes données</span></button></article>
-          <article class="panel settings-card"><div class="settings-symbol">↑</div><h3 data-i18n="import_title">Restaurer une sauvegarde</h3><p data-i18n="import_desc">Importez un fichier JSON exporté depuis Mon Budget.</p><label class="secondary-btn file-label"><span data-i18n="btn_import">Choisir un fichier JSON</span><input type="file" id="import-file" accept=".json,application/json" hidden></label></article>
-          <article class="panel settings-card"><div class="settings-symbol">⌁</div><h3 data-i18n="cat_title">Catégories</h3><p data-i18n="cat_desc">Ajoutez une catégorie pour adapter l’application à votre quotidien.</p><button class="secondary-btn" id="manage-categories"><span data-i18n="btn_manage_cat">Gérer les catégories</span></button></article>
-          <article class="panel settings-card warning-card"><div class="settings-symbol">!</div><h3 data-i18n="clear_title">Effacer les données locales</h3><p data-i18n="clear_desc">Cette action est irréversible sans sauvegarde.</p><button class="danger-btn" id="clear-data"><span data-i18n="btn_clear">Effacer toutes les données</span></button></article>
-          
-          <!-- Bouton de déconnexion dans les réglages -->
-          <article class="panel settings-card warning-card">
-            <div class="settings-symbol">🔒</div>
-            <h3>Déconnexion</h3>
-            <p>Fermer votre session active sur cet appareil.</p>
-            <button class="danger-btn" id="logout-btn">Se déconnecter</button>
-          </article>
-        </div>
-        <div class="notice"><strong data-i18n="notice_title">À savoir</strong><p data-i18n="notice_desc">Les données sont conservées localement dans ce navigateur.</p></div>
       </section>
-      <footer class="app-footer" data-i18n="footer_text">Conçu pour une gestion simple et privée de vos finances <span>•</span> Aucune connexion bancaire</footer>
     </main>
   </div>
-  <button class="mobile-add" id="mobile-add" aria-label="Ajouter une opération">＋</button>
-  
-  <dialog id="transaction-dialog" class="modal"><form id="transaction-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_quick">SAISIE RAPIDE</div><h2 id="transaction-modal-title">Nouvelle opération</h2></div><button type="button" class="icon-btn" data-close="transaction-dialog">×</button></div>
-    <input type="hidden" id="transaction-id">
-    <label><span data-i18n="modal_type">Type d’opération</span><select id="transaction-type" required><option value="expense" data-i18n="type_expense">Dépense</option><option value="income" data-i18n="type_income">Revenu</option><option value="transfer" data-i18n="type_transfer">Transfert interne</option></select></label>
-    <div class="form-row"><label><span data-i18n="modal_amount">Montant</span><input id="transaction-amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><label><span data-i18n="modal_date">Date</span><input id="transaction-date" type="date" required></label></div>
-    <label><span data-i18n="modal_cat">Catégorie</span><select id="transaction-category" required></select></label>
-    <label><span data-i18n="modal_desc">Description</span> <span class="muted" data-i18n="modal_optional">(facultatif)</span><input id="transaction-description" maxlength="160" placeholder="Ex. courses"></label>
-    <div id="expense-kind-wrap"><label><span data-i18n="modal_nature">Nature de la dépense</span><select id="expense-kind"><option value="variable" data-i18n="nature_var">Variable</option><option value="fixed" data-i18n="nature_fix">Fixe</option></select></label></div>
-    <label class="check-label"><input id="transaction-recurring" type="checkbox"> <span data-i18n="modal_recurring">Opération récurrente</span></label>
-    <div class="modal-actions"><button type="button" class="secondary-btn" data-close="transaction-dialog" data-i18n="btn_cancel">Annuler</button><button class="primary-btn" type="submit" data-i18n="btn_save">Enregistrer</button></div>
-  </form></dialog>
 
-  <dialog id="budget-dialog" class="modal"><form id="budget-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_planning">PLANIFICATION</div><h2 data-i18n="btn_new_budget">Créer un budget</h2></div><button type="button" class="icon-btn" data-close="budget-dialog">×</button></div><label><span data-i18n="modal_cat">Catégorie</span><select id="budget-category" required></select></label><label><span data-i18n="modal_limit">Limite mensuelle</span><input type="number" id="budget-limit" min="0.01" step="0.01" required placeholder="Ex. 250"></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="budget-dialog" data-i18n="btn_cancel">Annuler</button><button class="primary-btn" type="submit" data-i18n="btn_save">Enregistrer</button></div></form></dialog>
-  <dialog id="category-dialog" class="modal"><form id="category-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_custom">PERSONNALISATION</div><h2 data-i18n="btn_manage_cat">Gérer les catégories</h2></div><button type="button" class="icon-btn" data-close="category-dialog">×</button></div><label><span data-i18n="modal_new_cat">Nom d’une nouvelle catégorie</span><input id="new-category" maxlength="50" placeholder="Ex. Animaux" required></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="category-dialog" data-i18n="btn_close">Fermer</button><button class="primary-btn" type="submit" data-i18n="btn_add">Ajouter</button></div><div id="category-manage-list" class="category-manage-list"></div></form></dialog>
-  <dialog id="import-dialog" class="modal"><form id="import-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow" data-i18n="modal_restore">RESTAURATION</div><h2 data-i18n="import_title">Importer une sauvegarde</h2></div><button type="button" class="icon-btn" data-close="import-dialog">×</button></div><p data-i18n="import_prompt">Comment souhaitez-vous restaurer ce fichier ?</p><label class="radio-line"><input type="radio" name="import-mode" value="merge" checked> <span data-i18n="import_merge">Fusionner avec mes données actuelles</span></label><label class="radio-line"><input type="radio" name="import-mode" value="replace"> <span data-i18n="import_replace">Remplacer toutes mes données actuelles</span></label><div class="modal-actions"><button type="button" class="secondary-btn" data-close="import-dialog" data-i18n="btn_cancel">Annuler</button><button class="primary-btn" type="submit" data-i18n="import_confirm">Confirmer l’import</button></div></form></dialog>
-  
-  <!-- Fenêtre modale d'authentification -->
+  <button class="mobile-add" id="mobile-add" aria-label="Ajouter une opération">＋</button>
+
+  <!-- MODALE DE CONNEXION / INSCRIPTION STYLE GMAIL -->
   <dialog id="auth-dialog" class="modal">
-    <form id="auth-form" method="dialog" style="padding: 10px;">
-      <div class="modal-heading">
-        <div>
-          <div class="eyebrow">SÉCURITÉ</div>
-          <h2>Connexion à Mon Budget</h2>
+    <div style="padding: 10px;">
+      
+      <!-- Choix de Langue -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <span style="font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">ACCÈS SÉCURISÉ</span>
+        <select id="auth-lang-select" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 12px;">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="zh">🇨🇳 中文</option>
+        </select>
+      </div>
+
+      <!-- Onglets Connexion / Inscription -->
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="auth-tab active">Se connecter</button>
+        <button type="button" id="tab-signup" class="auth-tab">Créer un compte</button>
+      </div>
+
+      <form id="auth-form" method="dialog" data-mode="login">
+        <!-- Champs d'inscription optionnels -->
+        <div id="signup-fields" style="display: none;">
+          <div class="form-row">
+            <label><span>Prénom</span><input id="auth-firstname" type="text" placeholder="Jean"></label>
+            <label><span>Nom</span><input id="auth-lastname" type="text" placeholder="Dupont"></label>
+          </div>
+          <label style="margin-top: 10px;"><span>Téléphone</span><input id="auth-phone" type="tel" placeholder="+242 06 ..."></label>
         </div>
-      </div>
-      <p style="margin-bottom: 15px; color: #4b5563; font-size: 14px;">Entrez vos identifiants pour accéder à vos données personnelles.</p>
-      
-      <label><span>Email</span><input id="auth-email" type="email" required placeholder="votre@email.com" style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #d1d5db;"></label>
-      
-      <label><span>Mot de passe</span><input id="auth-password" type="password" required placeholder="••••••••" style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #d1d5db;"></label>
-      
-      <div class="modal-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-        <button type="button" class="primary-btn" id="btn-login" style="width: 100%; justify-content: center;">Se connecter</button>
-        <button type="button" class="secondary-btn" id="btn-signup" style="width: 100%; justify-content: center;">Créer un compte</button>
-      </div>
-      <p id="auth-error" style="color: #b74e48; font-size: 13px; margin-top: 15px; text-align: center; font-weight: 500;"></p>
+
+        <label style="margin-top: 10px;"><span>Adresse Email</span><input id="auth-email" type="email" required placeholder="votre@email.com"></label>
+        <label style="margin-top: 10px;"><span>Mot de passe</span><input id="auth-password" type="password" required placeholder="••••••••"></label>
+
+        <button type="submit" id="btn-auth-submit" class="primary-btn" style="width: 100%; justify-content: center; margin-top: 20px;">Se connecter</button>
+        <p id="auth-error" style="color: #ef4444; font-size: 13px; margin-top: 12px; text-align: center; font-weight: 600;"></p>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Modale Transaction -->
+  <dialog id="transaction-dialog" class="modal">
+    <form id="transaction-form" method="dialog">
+      <div class="modal-heading"><h2>Nouvelle opération</h2><button type="button" class="icon-btn" data-close="transaction-dialog">×</button></div>
+      <label><span>Type</span><select id="transaction-type"><option value="expense">Dépense</option><option value="income">Revenu</option></select></label>
+      <div class="form-row"><label><span>Montant</span><input id="transaction-amount" type="number" step="0.01" required></label><label><span>Date</span><input id="transaction-date" type="date" required></label></div>
+      <label><span>Catégorie</span><select id="transaction-category" required></select></label>
+      <label><span>Description</span><input id="transaction-description" placeholder="Ex. Courses"></label>
+      <div class="modal-actions"><button type="button" class="secondary-btn" data-close="transaction-dialog">Annuler</button><button class="primary-btn" type="submit">Enregistrer</button></div>
     </form>
   </dialog>
 
