@@ -8,7 +8,6 @@
   let currentRange = 'month'; 
   let referenceDate = new Date(); 
   let dailyChartInstance = null;
-  let doughnutInstance = null;
 
   let currentLang = localStorage.getItem('user_lang') || 'fr';
   let currentCurrency = localStorage.getItem('user_currency') || 'FCFA';
@@ -84,19 +83,18 @@
   function showLogin() {
     const landingPage = $("landing-page");
     const appDiv = $("app");
-    if (landingPage) landingPage.hidden = false; // Affiche la page d'accueil
-    if (appDiv) appDiv.hidden = true;         // Masque le tableau de bord
+    if (landingPage) landingPage.hidden = false;
+    if (appDiv) appDiv.hidden = true;
   }
 
   function showApp() {
     const landingPage = $("landing-page");
     const appDiv = $("app");
-    if (landingPage) landingPage.hidden = true;  // Masque la page d'accueil
-    if (appDiv) appDiv.hidden = false;        // Affiche le tableau de bord
+    if (landingPage) landingPage.hidden = true;
+    if (appDiv) appDiv.hidden = false;
     refresh();
   }
 
-  // Action du bouton "Annuler" du formulaire d'authentification
   $("btn-cancel-auth")?.addEventListener("click", () => {
     $("auth-form")?.reset();
     const errEl = $("auth-error");
