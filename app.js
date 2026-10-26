@@ -475,5 +475,3 @@ async function checkAuthAndStart() {
   // Lancement initial
   checkAuthAndStart();
 })();
-
-```
