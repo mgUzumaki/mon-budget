@@ -113,6 +113,13 @@
 
   function showDialog(id) { $(id)?.showModal(); }
   function closeDialog(id) { $(id)?.close(); }
+// Permet de fermer les fenêtres modales avec les boutons [data-close] (ex: Croix et Annuler)
+  document.querySelectorAll("[data-close]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const modalId = btn.getAttribute("data-close");
+      closeDialog(modalId);
+    });
+  });
 function showLogin() {
     const appDiv = $("app");
     if (appDiv) appDiv.hidden = true;
@@ -414,7 +421,13 @@ async function checkAuthAndStart() {
 
   $("transaction-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return; // Bloque si déjà en cours
+
     try {
+      submitBtn.disabled = true; // Désactive le bouton pendant le chargement
+      submitBtn.textContent = "Enregistrement...";
+
       const tx = {
         date: $("transaction-date").value || today,
         amountCents: Finance.toCents($("transaction-amount").value),
@@ -428,6 +441,9 @@ async function checkAuthAndStart() {
       toast("Opération enregistrée avec succès");
     } catch (err) {
       toast("Erreur : " + err.message);
+    } finally {
+      submitBtn.disabled = false; // Réactive le bouton
+      submitBtn.textContent = "Enregistrer";
     }
   });
 
@@ -459,3 +475,5 @@ async function checkAuthAndStart() {
   // Lancement initial
   checkAuthAndStart();
 })();
+
+```
