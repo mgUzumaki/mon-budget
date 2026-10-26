@@ -32,6 +32,11 @@ body {
   min-height: 100vh;
 }
 
+/* Force le masquage total de l'application si l'attribut hidden est présent */
+.app-shell[hidden] {
+  display: none !important;
+}
+
 .sidebar {
   width: 260px;
   background-color: var(--sidebar-bg);
