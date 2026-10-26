@@ -726,3 +726,108 @@ dialog form input, dialog form select {
     display: none;
   }
 }
+
+/* =========================================================
+   CORRECTIFS LANDING PAGE & MASQUAGE APPLICATION
+   ========================================================= */
+
+/* 1. Force le masquage complet de l'application et du menu latéral si hidden est présent */
+.app-shell[hidden],
+#app[hidden] {
+  display: none !important;
+}
+
+/* 2. Style propre pour la Landing Page pleine page */
+.landing-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.landing-container[hidden] {
+  display: none !important;
+}
+
+/* 3. Disposition côte à côte (Présentation à gauche, Formulaire à droite) */
+.landing-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: 960px;
+  width: 100%;
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  align-items: center;
+}
+
+/* 4. Fixation des formulaires (Empile le libellé au-dessus du champ de saisie) */
+.landing-auth-card label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-bottom: 16px !important;
+  font-weight: 500;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.landing-auth-card input[type="email"],
+.landing-auth-card input[type="password"],
+.landing-auth-card input[type="text"] {
+  width: 100% !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  box-sizing: border-box !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* 5. Onglets de connexion / inscription bien visibles */
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive pour mobiles et tablettes */
+@media (max-width: 768px) {
+  .landing-content {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .landing-image {
+    display: none;
+  }
+}
