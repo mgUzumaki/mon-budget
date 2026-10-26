@@ -297,7 +297,22 @@ function showLogin() {
     listEl.innerHTML = transactions.length ? transactions.map(t => {
       const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
       const cls = t.type === "income" ? "positive" : "negative";
-      return `<div class="transaction-row"><div><strong>${escapeHTML(t.description || categoryName(t.categoryId))}</strong><small>${escapeHTML(categoryName(t.categoryId))}</small></div><div class="amount ${cls}">${escapeHTML(amountFormatted)}</div></div>`;
+      const catName = categoryName(t.categoryId);
+      
+      // Si une description existe : Description en principal, Catégorie en sous-titre.
+      // Sinon : Catégorie en principal, Date en sous-titre (évite les doublons !).
+      const mainText = t.description ? t.description : catName;
+      const subText = t.description ? catName : t.date;
+
+      return `
+        <div class="transaction-row">
+          <div>
+            <strong>${escapeHTML(mainText)}</strong>
+            <small>${escapeHTML(subText)}</small>
+          </div>
+          <div class="amount ${cls}">${escapeHTML(amountFormatted)}</div>
+        </div>
+      `;
     }).join("") : `<div class="empty-state">Aucune transaction enregistrée.</div>`;
   }
 
@@ -475,3 +490,4 @@ async function checkAuthAndStart() {
   // Lancement initial
   checkAuthAndStart();
 })();
+
