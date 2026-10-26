@@ -215,7 +215,7 @@
 
     if ($("metric-net")) {
       $("metric-net").textContent = customMoney(net);
-      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
+      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981"; // Corrigé ici
     }
     if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
     if ($("metric-income")) $("metric-income").textContent = customMoney(income);
