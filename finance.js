@@ -115,7 +115,6 @@ window.Finance = (() => {
       return date >= range.start && date <= range.end;
     }
 
-    // Par défaut : mois
     return monthKey(date) === String(key).slice(0, 7);
   }
 

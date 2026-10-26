@@ -32,7 +32,6 @@ body {
   min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
   width: 260px;
   background-color: var(--sidebar-bg);
@@ -147,7 +146,6 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Main Content */
 .main {
   flex: 1;
   margin-left: 260px;
@@ -228,7 +226,6 @@ body {
   background-color: #fecaca;
 }
 
-/* Pages */
 .page {
   display: none;
 }
@@ -237,7 +234,6 @@ body {
   display: block;
 }
 
-/* Period Row & Dashboard Controls */
 .period-row {
   display: flex;
   justify-content: space-between;
@@ -319,15 +315,6 @@ body {
   text-decoration: underline dotted;
 }
 
-.period-navigator input[type="month"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  bottom: 0;
-  left: 50%;
-}
-
-/* Metrics Grid */
 .metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -381,7 +368,6 @@ body {
 .metric-icon.income { background: #e0f2fe; color: #0369a1; }
 .metric-icon.saving { background: #fef3c7; color: #92400e; }
 
-/* Dashboard Grids & Panels */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -433,7 +419,6 @@ body {
   text-decoration: underline;
 }
 
-/* Recent Transactions & Rows */
 .transaction-row {
   display: flex;
   align-items: center;
@@ -447,44 +432,15 @@ body {
   border-bottom: none;
 }
 
-.transaction-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.transaction-icon {
-  width: 36px;
-  height: 36px;
-  background: #f3f4f6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.transaction-main strong {
+.transaction-row strong {
   display: block;
   font-size: 14px;
   color: var(--text-main);
 }
 
-.transaction-main small {
+.transaction-row small {
   font-size: 12px;
   color: var(--text-muted);
-}
-
-.transaction-meta {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: right;
-  margin-right: 20px;
-}
-
-.transaction-meta small {
-  display: block;
 }
 
 .amount {
@@ -495,26 +451,6 @@ body {
 .amount.positive { color: #10b981; }
 .amount.negative { color: #ef4444; }
 
-.row-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: 16px;
-}
-
-.row-actions button {
-  background: #f3f4f6;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  cursor: pointer;
-  color: var(--text-main);
-}
-
-.row-actions button:hover {
-  background: #e5e7eb;
-}
-
 .empty-state {
   text-align: center;
   padding: 30px;
@@ -522,7 +458,6 @@ body {
   font-size: 14px;
 }
 
-/* Filter bar & Section intro */
 .section-intro {
   display: flex;
   justify-content: space-between;
@@ -550,75 +485,12 @@ body {
   min-width: 200px;
 }
 
-/* Budgets */
 .budget-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
-.budget-card {
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.budget-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.budget-card-top h3 {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.budget-card-top p {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.budget-amount {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.budget-amount small {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-weight: normal;
-}
-
-.progress-track {
-  background: #f3f4f6;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  background: var(--primary-color);
-  height: 100%;
-  border-radius: 4px;
-}
-
-.progress-fill.warn { background: var(--warning-color); }
-.progress-fill.over { background: var(--danger-color); }
-
-.budget-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-/* Settings */
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -662,25 +534,6 @@ body {
   background: #fffdfd;
 }
 
-.notice {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  padding: 16px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-
-.notice strong {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.notice p {
-  color: var(--text-muted);
-}
-
-/* Modals */
 dialog.modal {
   border: none;
   border-radius: 16px;
@@ -742,18 +595,6 @@ dialog form input, dialog form select {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 24px;
-}
-
-.check-label {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.check-label input {
-  width: auto !important;
-  margin-top: 0 !important;
 }
 
 .mobile-add {

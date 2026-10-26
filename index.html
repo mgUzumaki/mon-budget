@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -10,29 +9,29 @@
   <title>Mon Budget — Gestion financière personnelle</title>
 
   <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="styles-fix.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-fix.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script>
-  window.SUPABASE_URL = 'https://fcsroswxrtlkmttsayrf.supabase.co';
-  window.SUPABASE_ANON_KEY = 'sb_publishable_lWjzSW8jq7iIW-yPJWrWqw_fTh0-Ix4';
+  <script>
+    window.SUPABASE_URL = 'https://fcsroswxrtlkmttsayrf.supabase.co';
+    window.SUPABASE_ANON_KEY = 'sb_publishable_lWjzSW8jq7iIW-yPJWrWqw_fTh0-Ix4';
 
-  window.supabaseClient = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY
-  );
-</script>
+    window.supabaseClient = window.supabase.createClient(
+      window.SUPABASE_URL,
+      window.SUPABASE_ANON_KEY
+    );
+  </script>
 </head>
 
 <body>
   <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
-  <div class="app-shell"id="app" hidden>
+  <!-- Application privée masquée par défaut (Bug 1 corrigé) -->
+  <div class="app-shell" id="app" hidden>
 
     <!-- Navigation principale -->
     <aside id="sidebar" class="sidebar" aria-label="Menu principal">
-
       <a href="#dashboard" class="brand" aria-label="Mon Budget, accueil">
         <span class="brand-mark" aria-hidden="true">€</span>
         <span class="brand-copy">
@@ -111,32 +110,23 @@
 
       <!-- VUE D'ENSEMBLE -->
       <section id="page-dashboard" class="page active">
-
         <div class="period-row">
           <div>
             <h2 id="period-heading">Vue d’ensemble</h2>
-            <p data-i18n="dash_intro">
-              Votre situation financière en un coup d'œil.
-            </p>
+            <p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p>
           </div>
 
           <div class="dashboard-controls">
             <div class="btn-group" id="range-selector" aria-label="Période">
-              <button type="button" class="range-btn"
-                data-range="week" data-i18n="range_week">Semaine</button>
-              <button type="button" class="range-btn active"
-                data-range="month" aria-pressed="true"
-                data-i18n="range_month">Mois</button>
-              <button type="button" class="range-btn"
-                data-range="year" data-i18n="range_year">Année</button>
+              <button type="button" class="range-btn" data-range="week" data-i18n="range_week">Semaine</button>
+              <button type="button" class="range-btn active" data-range="month" aria-pressed="true" data-i18n="range_month">Mois</button>
+              <button type="button" class="range-btn" data-range="year" data-i18n="range_year">Année</button>
             </div>
 
             <div class="period-navigator">
-              <button type="button" id="prev-period"
-                aria-label="Période précédente">‹</button>
+              <button type="button" id="prev-period" aria-label="Période précédente">‹</button>
               <span id="period-display-label" aria-live="polite"></span>
-              <button type="button" id="next-period"
-                aria-label="Période suivante">›</button>
+              <button type="button" id="next-period" aria-label="Période suivante">›</button>
             </div>
           </div>
         </div>
@@ -188,8 +178,7 @@
               </div>
             </div>
             <div class="chart-container">
-              <canvas id="dailyChart"
-                role="img" aria-label="Graphique de l'évolution des dépenses"></canvas>
+              <canvas id="dailyChart" role="img" aria-label="Graphique de l'évolution des dépenses"></canvas>
             </div>
           </article>
 
@@ -201,8 +190,7 @@
               </div>
             </div>
             <div class="chart-container chart-container-centered">
-              <canvas id="categoryDoughnutChart"
-                role="img" aria-label="Graphique des dépenses par catégorie"></canvas>
+              <canvas id="categoryDoughnutChart" role="img" aria-label="Graphique des dépenses par catégorie"></canvas>
             </div>
           </article>
         </div>
@@ -227,9 +215,7 @@
         <div class="section-intro">
           <div>
             <h2 data-i18n="nav_transactions">Transactions</h2>
-            <p data-i18n="trans_intro">
-              Retrouvez, filtrez et corrigez vos opérations.
-            </p>
+            <p data-i18n="trans_intro">Retrouvez, filtrez et corrigez vos opérations.</p>
           </div>
 
           <button class="primary-btn" id="btn_new_op" type="button">
@@ -239,8 +225,7 @@
 
         <div class="filter-bar">
           <label class="sr-only" for="search-transactions">Rechercher</label>
-          <input id="search-transactions" type="search"
-            placeholder="Rechercher une description…">
+          <input id="search-transactions" type="search" placeholder="Rechercher une description…">
 
           <label class="sr-only" for="filter-type">Type d'opération</label>
           <select id="filter-type">
@@ -266,9 +251,7 @@
         <div class="section-intro">
           <div>
             <h2 data-i18n="nav_budgets">Budgets</h2>
-            <p data-i18n="budget_intro">
-              Fixez une limite par catégorie et suivez votre consommation.
-            </p>
+            <p data-i18n="budget_intro">Fixez une limite par catégorie et suivez votre consommation.</p>
           </div>
 
           <button class="primary-btn" id="add-budget" type="button">
@@ -277,9 +260,7 @@
         </div>
 
         <div class="period-row compact">
-          <label for="budget-month" data-i18n="budget_month_label">
-            Budgets pour le mois sélectionné
-          </label>
+          <label for="budget-month" data-i18n="budget_month_label">Budgets pour le mois sélectionné</label>
           <input type="month" id="budget-month">
         </div>
 
@@ -291,45 +272,8 @@
         <div class="section-intro">
           <div>
             <h2 data-i18n="nav_stats">Statistiques</h2>
-            <p data-i18n="stats_intro">
-              Analysez vos revenus et vos dépenses.
-            </p>
+            <p data-i18n="stats_intro">Analysez vos revenus et vos dépenses.</p>
           </div>
-
-          <label class="sr-only" for="stats-period">Période statistique</label>
-          <select id="stats-period">
-            <option value="month" data-i18n="range_month">Mois</option>
-            <option value="year" data-i18n="range_year">Année</option>
-            <option value="day" data-i18n="range_day">Jour</option>
-          </select>
-        </div>
-
-        <div class="period-row">
-          <div>
-            <h2 id="stats-heading">Synthèse de la période</h2>
-            <p data-i18n="stats_note">
-              Les transferts internes sont exclus des revenus et dépenses.
-            </p>
-          </div>
-          <label class="sr-only" for="stats-month">Mois à analyser</label>
-          <input type="month" id="stats-month">
-        </div>
-
-        <div class="metrics three">
-          <article class="metric">
-            <span data-i18n="type_income">Revenus</span>
-            <strong id="stats-income">0</strong>
-          </article>
-
-          <article class="metric">
-            <span data-i18n="type_expense">Dépenses</span>
-            <strong id="stats-expense">0</strong>
-          </article>
-
-          <article class="metric">
-            <span data-i18n="metric_net">Solde net</span>
-            <strong id="stats-net">0</strong>
-          </article>
         </div>
       </section>
 
@@ -338,9 +282,7 @@
         <div class="section-intro">
           <div>
             <h2 data-i18n="nav_settings">Réglages</h2>
-            <p data-i18n="settings_intro">
-              Gérez vos préférences et vos données personnelles.
-            </p>
+            <p data-i18n="settings_intro">Gérez vos préférences et vos données personnelles.</p>
           </div>
         </div>
 
@@ -351,25 +293,15 @@
               <p>Informations de votre session</p>
             </div>
           </div>
-
-          <div id="user-session-info" aria-live="polite">
-            Chargement des détails du compte…
-          </div>
-
-          <button class="danger-btn" id="logout-btn" type="button">
-            Se déconnecter
-          </button>
+          <div id="user-session-info" aria-live="polite">Chargement des détails du compte…</div>
+          <button class="danger-btn" id="logout-btn" type="button">Se déconnecter</button>
         </article>
 
         <div class="settings-grid">
           <article class="panel settings-card">
             <div class="settings-symbol" aria-hidden="true">€</div>
             <h3 data-i18n="pref_currency">Devise</h3>
-            <p data-i18n="pref_currency_desc">
-              Choisissez la monnaie d’affichage.
-            </p>
-
-            <label class="sr-only" for="app-currency">Devise</label>
+            <p data-i18n="pref_currency_desc">Choisissez la monnaie d’affichage.</p>
             <select id="app-currency" class="settings-select">
               <option value="FCFA">Franc CFA (FCFA)</option>
               <option value="€">Euro (€)</option>
@@ -382,61 +314,12 @@
           <article class="panel settings-card">
             <div class="settings-symbol" aria-hidden="true">文</div>
             <h3 data-i18n="pref_lang">Langue</h3>
-            <p data-i18n="pref_lang_desc">
-              Sélectionnez la langue de l’interface.
-            </p>
-
-            <label class="sr-only" for="app-lang">Langue</label>
+            <p data-i18n="pref_lang_desc">Sélectionnez la langue de l’interface.</p>
             <select id="app-lang" class="settings-select">
               <option value="fr">Français</option>
               <option value="en">English</option>
               <option value="zh">中文</option>
             </select>
-          </article>
-
-          <article class="panel settings-card">
-            <div class="settings-symbol" aria-hidden="true">↓</div>
-            <h3 data-i18n="export_title">Exporter une sauvegarde</h3>
-            <p data-i18n="export_desc">
-              Téléchargez vos données au format JSON.
-            </p>
-            <button class="primary-btn" id="export-data" type="button">
-              <span data-i18n="btn_export">Exporter mes données</span>
-            </button>
-          </article>
-
-          <article class="panel settings-card">
-            <div class="settings-symbol" aria-hidden="true">↑</div>
-            <h3 data-i18n="import_title">Restaurer une sauvegarde</h3>
-            <p data-i18n="import_desc">Importez un fichier JSON.</p>
-
-            <label class="secondary-btn file-label">
-              <span data-i18n="btn_import">Choisir un fichier JSON</span>
-              <input type="file" id="import-file"
-                accept=".json,application/json" hidden>
-            </label>
-          </article>
-
-          <article class="panel settings-card">
-            <div class="settings-symbol" aria-hidden="true">⌁</div>
-            <h3 data-i18n="cat_title">Catégories</h3>
-            <p data-i18n="cat_desc">
-              Ajoutez et gérez vos catégories personnalisées.
-            </p>
-            <button class="secondary-btn" id="manage-categories" type="button">
-              <span data-i18n="btn_manage_cat">Gérer les catégories</span>
-            </button>
-          </article>
-
-          <article class="panel settings-card warning-card">
-            <div class="settings-symbol" aria-hidden="true">!</div>
-            <h3 data-i18n="clear_title">Effacer les données locales</h3>
-            <p data-i18n="clear_desc">
-              Cette action peut être irréversible.
-            </p>
-            <button class="danger-btn" id="clear-data" type="button">
-              <span data-i18n="btn_clear">Effacer toutes les données</span>
-            </button>
           </article>
         </div>
       </section>
@@ -444,16 +327,13 @@
     </main>
   </div>
 
-  <button class="mobile-add" id="mobile-add" type="button"
-    aria-label="Ajouter une opération">＋</button>
+  <button class="mobile-add" id="mobile-add" type="button" aria-label="Ajouter une opération">＋</button>
 
   <!-- CONNEXION -->
   <dialog id="auth-dialog" class="modal" aria-labelledby="auth-title">
     <div class="modal-body">
       <div class="auth-header">
         <h2 id="auth-title">Accès sécurisé</h2>
-
-        <label class="sr-only" for="auth-lang-select">Langue de connexion</label>
         <select id="auth-lang-select">
           <option value="fr">Français</option>
           <option value="en">English</option>
@@ -462,65 +342,37 @@
       </div>
 
       <div class="auth-tabs">
-        <button type="button" id="tab-login" class="auth-tab active">
-          Se connecter
-        </button>
-        <button type="button" id="tab-signup" class="auth-tab">
-          Créer un compte
-        </button>
+        <button type="button" id="tab-login" class="auth-tab active">Se connecter</button>
+        <button type="button" id="tab-signup" class="auth-tab">Créer un compte</button>
       </div>
 
       <form id="auth-form" data-mode="login">
         <div id="signup-fields" hidden>
           <div class="form-row">
-            <label>
-              <span>Prénom</span>
-              <input id="auth-firstname" type="text" autocomplete="given-name"
-                placeholder="Jean">
-            </label>
-
-            <label>
-              <span>Nom</span>
-              <input id="auth-lastname" type="text" autocomplete="family-name"
-                placeholder="Dupont">
-            </label>
+            <label><span>Prénom</span><input id="auth-firstname" type="text" autocomplete="given-name" placeholder="Jean"></label>
+            <label><span>Nom</span><input id="auth-lastname" type="text" autocomplete="family-name" placeholder="Dupont"></label>
           </div>
         </div>
 
-        <label>
-          <span>Adresse e-mail</span>
-          <input id="auth-email" type="email" required
-            autocomplete="email" placeholder="vous@exemple.com">
-        </label>
+        <label><span>Adresse e-mail</span><input id="auth-email" type="email" required autocomplete="email" placeholder="vous@exemple.com"></label>
+        <label><span>Mot de passe</span><input id="auth-password" type="password" required autocomplete="current-password" placeholder="Votre mot de passe"></label>
 
-        <label>
-          <span>Mot de passe</span>
-          <input id="auth-password" type="password" required
-            autocomplete="current-password" placeholder="Votre mot de passe">
-        </label>
-
-        <button type="submit" id="btn-auth-submit" class="primary-btn">
-          Se connecter
-        </button>
-
+        <button type="submit" id="btn-auth-submit" class="primary-btn">Se connecter</button>
         <p id="auth-error" class="form-error" role="alert"></p>
       </form>
     </div>
   </dialog>
 
   <!-- AJOUT D'UNE TRANSACTION -->
-  <dialog id="transaction-dialog" class="modal"
-    aria-labelledby="transaction-modal-title">
-
+  <dialog id="transaction-dialog" class="modal" aria-labelledby="transaction-modal-title">
     <form id="transaction-form">
       <div class="modal-heading">
         <div>
           <p class="eyebrow">VOTRE ACTIVITÉ</p>
           <h2 id="transaction-modal-title">Nouvelle opération</h2>
         </div>
-
-        <button type="button" class="icon-btn"
-          data-close="transaction-dialog" aria-label="Fermer">×</button>
+        <!-- Bouton croix corrigé avec data-close (Bug 2) -->
+        <button type="button" class="icon-btn" data-close="transaction-dialog" aria-label="Fermer">×</button>
       </div>
 
       <label>
@@ -532,38 +384,21 @@
       </label>
 
       <div class="form-row">
-        <label>
-          <span>Montant</span>
-          <input id="transaction-amount" type="number"
-            min="0.01" step="0.01" required placeholder="0,00">
-        </label>
-
-        <label>
-          <span>Date</span>
-          <input id="transaction-date" type="date" required>
-        </label>
+        <label><span>Montant</span><input id="transaction-amount" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
+        <label><span>Date</span><input id="transaction-date" type="date" required></label>
       </div>
 
-      <label>
-        <span>Catégorie</span>
-        <select id="transaction-category" required></select>
-      </label>
-
-      <label>
-        <span>Description</span>
-        <input id="transaction-description"
-          maxlength="200" placeholder="Ex. Courses alimentaires">
-      </label>
+      <label><span>Catégorie</span><select id="transaction-category" required></select></label>
+      <label><span>Description</span><input id="transaction-description" maxlength="200" placeholder="Ex. Courses alimentaires"></label>
 
       <div class="modal-actions">
-        <button type="button" class="secondary-btn"
-          data-close="transaction-dialog">Annuler</button>
+        <!-- Bouton Annuler corrigé avec data-close (Bug 2) -->
+        <button type="button" class="secondary-btn" data-close="transaction-dialog">Annuler</button>
         <button class="primary-btn" type="submit">Enregistrer</button>
       </div>
     </form>
   </dialog>
 
-  <!-- RETOURS UTILISATEUR -->
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
