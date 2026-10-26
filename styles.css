@@ -32,11 +32,6 @@ body {
   min-height: 100vh;
 }
 
-/* Force le masquage total de l'application si l'attribut hidden est présent */
-.app-shell[hidden] {
-  display: none !important;
-}
-
 .sidebar {
   width: 260px;
   background-color: var(--sidebar-bg);
@@ -652,4 +647,82 @@ dialog form input, dialog form select {
 
 #toast.show {
   transform: translateX(-50%) translateY(0);
+}
+/* Masque le bouton mobile quand l'application est verrouillée */
+.app-shell[hidden] ~ .mobile-add {
+  display: none !important;
+}
+
+/* Style de la Landing Page */
+.landing-container {
+  min-height: 100vh;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.landing-container[hidden] {
+  display: none !important;
+}
+
+.landing-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  max-width: 1000px;
+  width: 100%;
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  align-items: center;
+}
+
+.landing-hero h1 {
+  font-size: 28px;
+  color: #1e293b;
+  margin: 16px 0 12px;
+}
+
+.landing-hero p {
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.landing-image img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.landing-auth-card {
+  background: #f8fafc;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.auth-buttons button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .landing-content {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .landing-image {
+    display: none;
+  }
 }

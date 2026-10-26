@@ -25,6 +25,63 @@
 </head>
 
 <body>
+<!-- PAGE D'ACCUEIL / LANDING PAGE -->
+<div id="landing-page" class="landing-container">
+  <div class="landing-content">
+    
+    <!-- Section Présentation (Gauche) -->
+    <div class="landing-hero">
+      <div class="brand-logo">
+        <span class="brand-mark">€</span>
+        <strong>Mon Budget</strong>
+      </div>
+      <h1>Gérez vos finances en toute simplicité</h1>
+      <p>Suivez vos dépenses, définissez vos budgets et gardez le contrôle sur votre argent en toute sécurité.</p>
+      
+      <!-- Illustration / Photo de présentation -->
+      <div class="landing-image">
+        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80" alt="Présentation de l'application">
+      </div>
+    </div>
+
+    <!-- Section Connexion (Droite) -->
+    <div class="landing-auth-card">
+      <div class="auth-header">
+        <h2>Accès sécurisé</h2>
+        <select id="auth-lang-select">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="auth-tab active">Se connecter</button>
+        <button type="button" id="tab-signup" class="auth-tab">Créer un compte</button>
+      </div>
+
+      <form id="auth-form" data-mode="login">
+        <div id="signup-fields" hidden>
+          <div class="form-row">
+            <label><span>Prénom</span><input id="auth-firstname" type="text" placeholder="Jean"></label>
+            <label><span>Nom</span><input id="auth-lastname" type="text" placeholder="Dupont"></label>
+          </div>
+        </div>
+
+        <label><span>Adresse e-mail</span><input id="auth-email" type="email" required placeholder="vous@exemple.com"></label>
+        <label><span>Mot de passe</span><input id="auth-password" type="password" required placeholder="Votre mot de passe"></label>
+
+        <div class="auth-buttons">
+          <button type="submit" id="btn-auth-submit" class="primary-btn">Se connecter</button>
+          <button type="button" id="btn-cancel-auth" class="secondary-btn">Annuler</button>
+        </div>
+
+        <p id="auth-error" class="form-error" role="alert"></p>
+      </form>
+    </div>
+
+  </div>
+</div>
   <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
   <!-- Application privée masquée par défaut (Bug 1 corrigé) -->

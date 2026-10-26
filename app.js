@@ -8,6 +8,7 @@
   let currentRange = 'month'; 
   let referenceDate = new Date(); 
   let dailyChartInstance = null;
+  let doughnutInstance = null;
 
   let currentLang = localStorage.getItem('user_lang') || 'fr';
   let currentCurrency = localStorage.getItem('user_currency') || 'FCFA';
@@ -79,18 +80,27 @@
     });
   });
 
+  // --- GESTION DE L'AFFICHAGE (Landing Page vs Application) ---
   function showLogin() {
+    const landingPage = $("landing-page");
     const appDiv = $("app");
+    if (landingPage) landingPage.hidden = false;
     if (appDiv) appDiv.hidden = true;
-    showDialog("auth-dialog");
   }
 
   function showApp() {
+    const landingPage = $("landing-page");
     const appDiv = $("app");
+    if (landingPage) landingPage.hidden = true;
     if (appDiv) appDiv.hidden = false;
-    closeDialog("auth-dialog");
     refresh();
   }
+
+  $("btn-cancel-auth")?.addEventListener("click", () => {
+    $("auth-form")?.reset();
+    const errEl = $("auth-error");
+    if (errEl) errEl.textContent = "";
+  });
 
   const sidebar = $("sidebar");
   const sidebarToggle = $("sidebar-toggle");
@@ -190,6 +200,8 @@
     renderCategoryOptions();
     renderDashboard();
     renderTransactions();
+    renderBudgets();
+    renderStatistics();
     updateUserProfileInfo();
   }
 
@@ -204,7 +216,7 @@
 
     if ($("metric-net")) {
       $("metric-net").textContent = customMoney(net);
-      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
+      $("metric-net"].style.color = net < 0 ? "#b74e48" : "#10b981";
     }
     if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
     if ($("metric-income")) $("metric-income").textContent = customMoney(income);
@@ -249,6 +261,21 @@
         </div>
       `;
     }).join("") : `<div class="empty-state">Aucune transaction enregistrée.</div>`;
+  }
+
+  function renderBudgets() {
+    const listEl = $("budget-list");
+    if (!listEl) return;
+    // Rendu basique des budgets si la vue est présente
+  }
+
+  function renderStatistics() {
+    const statsIncome = $("stats-income");
+    const statsExpense = $("stats-expense");
+    const statsNet = $("stats-net");
+    if (statsIncome) statsIncome.textContent = customMoney(Finance.sum(transactions, "income"));
+    if (statsExpense) statsExpense.textContent = customMoney(Finance.sum(transactions, "expense"));
+    if (statsNet) statsNet.textContent = customMoney(Finance.sum(transactions, "income") - Finance.sum(transactions, "expense"));
   }
 
   async function updateUserProfileInfo() {
@@ -312,7 +339,6 @@
       if (mode === "signup") {
         const { error } = await client.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
         if (error) throw error;
-        closeDialog("auth-dialog");
         toast("Compte créé avec succès ! Connectez-vous.");
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
