@@ -80,22 +80,23 @@
     });
   });
 
-  // --- GESTION DE L'AFFICHAGE (Landing Page vs Application) ---
+  // --- GESTION DE L'AFFICHAGE (Landing Page vs Tableau de bord) ---
   function showLogin() {
     const landingPage = $("landing-page");
     const appDiv = $("app");
-    if (landingPage) landingPage.hidden = false;
-    if (appDiv) appDiv.hidden = true;
+    if (landingPage) landingPage.hidden = false; // Affiche la page d'accueil
+    if (appDiv) appDiv.hidden = true;         // Masque le tableau de bord
   }
 
   function showApp() {
     const landingPage = $("landing-page");
     const appDiv = $("app");
-    if (landingPage) landingPage.hidden = true;
-    if (appDiv) appDiv.hidden = false;
+    if (landingPage) landingPage.hidden = true;  // Masque la page d'accueil
+    if (appDiv) appDiv.hidden = false;        // Affiche le tableau de bord
     refresh();
   }
 
+  // Action du bouton "Annuler" du formulaire d'authentification
   $("btn-cancel-auth")?.addEventListener("click", () => {
     $("auth-form")?.reset();
     const errEl = $("auth-error");
@@ -216,7 +217,7 @@
 
     if ($("metric-net")) {
       $("metric-net").textContent = customMoney(net);
-      $("metric-net"].style.color = net < 0 ? "#b74e48" : "#10b981";
+      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
     }
     if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
     if ($("metric-income")) $("metric-income").textContent = customMoney(income);
@@ -266,7 +267,6 @@
   function renderBudgets() {
     const listEl = $("budget-list");
     if (!listEl) return;
-    // Rendu basique des budgets si la vue est présente
   }
 
   function renderStatistics() {
