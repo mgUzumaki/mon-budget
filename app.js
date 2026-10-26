@@ -33,4 +33,364 @@
       nav_dashboard: "总览", nav_transactions: "交易记录", nav_budgets: "预算管理", nav_stats: "统计分析", nav_settings: "设置",
       btn_add: "添加交易", dash_intro: "一目了然您的财务状况。",
       range_week: "周", range_month: "月", range_year: "年", range_day: "日",
-      metric_net: "净额", metric_exp: "总支出", metric_inc
+      metric_net: "净额", metric_exp: "总支出", metric_inc: "总收入", metric_save: "储蓄",
+      trans_intro: "查找、筛选和修改您的操作。", btn_new_op: "＋ 新建交易",
+      filter_all_types: "所有类型", type_expense: "支出", type_income: "收入", type_transfer: "转账", filter_all_cats: "所有分类"
+    }
+  };
+
+  function t(key) { return translations[currentLang]?.[key] || translations['fr'][key] || key; }
+
+  function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (t(key)) el.textContent = t(key);
+    });
+    if ($("app-currency")) $("app-currency").value = currentCurrency;
+    if ($("app-lang")) $("app-lang").value = currentLang;
+    if ($("auth-lang-select")) $("auth-lang-select").value = currentLang;
+  }
+
+  const today = Finance.localDate();
+  const categoryName = id => categories.find(c => c.id === id)?.name || "Catégorie";
+  const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  
+  function customMoney(cents) {
+    const formatted = (cents / 100).toLocaleString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${formatted} ${currentCurrency}`;
+  }
+
+  function toast(message) {
+    const el = $("toast");
+    if (!el) return;
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  function showDialog(id) { $(id)?.showModal(); }
+  function closeDialog(id) { $(id)?.close(); }
+
+  document.querySelectorAll("[data-close]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const modalId = btn.getAttribute("data-close");
+      closeDialog(modalId);
+    });
+  });
+
+  function showLogin() {
+    const appDiv = $("app");
+    if (appDiv) appDiv.hidden = true;
+    showDialog("auth-dialog");
+  }
+
+  function showApp() {
+    const appDiv = $("app");
+    if (appDiv) appDiv.hidden = false;
+    closeDialog("auth-dialog");
+    refresh();
+  }
+
+  const sidebar = $("sidebar");
+  const sidebarToggle = $("sidebar-toggle");
+  const sidebarBackdrop = $("sidebar-backdrop");
+
+  function toggleSidebar() {
+    sidebar?.classList.toggle("is-open");
+    sidebarBackdrop?.classList.toggle("is-visible");
+    document.body.classList.toggle("sidebar-open");
+    const isOpen = sidebar?.classList.contains("is-open");
+    sidebarToggle?.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+
+  sidebarToggle?.addEventListener("click", toggleSidebar);
+  sidebarBackdrop?.addEventListener("click", toggleSidebar);
+
+  document.querySelectorAll(".nav-link").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const page = btn.dataset.page;
+      document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
+      document.querySelectorAll(".nav-link").forEach(b => {
+        b.classList.toggle("active", b === btn);
+        b.setAttribute("aria-current", b === btn ? "page" : false);
+      });
+      const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), settings: t('nav_settings') };
+      $("page-title").textContent = titles[page] || titles.dashboard;
+      if (sidebar?.classList.contains("is-open")) toggleSidebar();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  function fillCategorySelect(selectId, filterFn, includeAllOption = false) {
+    const sel = $(selectId);
+    if (!sel) return;
+    const old = sel.value;
+    let html = includeAllOption ? `<option value="">${t('filter_all_cats')}</option>` : "";
+    html += categories.filter(filterFn).map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join("");
+    sel.innerHTML = html;
+    if ([...sel.options].some(o => o.value === old)) sel.value = old;
+  }
+
+  function renderCategoryOptions() {
+    const type = $("transaction-type")?.value || "expense";
+    fillCategorySelect("transaction-category", category => category.kind === type);
+    fillCategorySelect("filter-category", () => true, true);
+  }
+
+  $("transaction-type")?.addEventListener("change", renderCategoryOptions);
+
+  const transactionDateInput = $("transaction-date");
+  transactionDateInput?.addEventListener("click", () => {
+    if (typeof transactionDateInput.showPicker === "function") {
+      try { transactionDateInput.showPicker(); } catch (e) {}
+    }
+  });
+
+  $("prev-period")?.addEventListener('click', () => {
+    referenceDate.setMonth(referenceDate.getMonth() - 1);
+    renderDashboard();
+  });
+
+  $("next-period")?.addEventListener('click', () => {
+    referenceDate.setMonth(referenceDate.getMonth() + 1);
+    renderDashboard();
+  });
+
+  document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.range-btn').forEach(b => {
+        b.classList.remove('active');
+        b.removeAttribute('aria-pressed');
+      });
+      e.target.classList.add('active');
+      e.target.setAttribute('aria-pressed', 'true');
+      currentRange = e.target.dataset.range;
+      renderDashboard();
+    });
+  });
+
+  async function refresh() {
+    try {
+      [transactions, categories, budgets] = await Promise.all([
+        BudgetDB.getTransactions(),
+        BudgetDB.getCategories(),
+        BudgetDB.getBudgets()
+      ]);
+      transactions.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || "").localeCompare(a.createdAt || ""));
+      renderAll();
+    } catch (err) {
+      console.error("Erreur de rafraîchissement :", err);
+    }
+  }
+
+  function renderAll() {
+    applyTranslations();
+    renderCategoryOptions();
+    renderDashboard();
+    renderTransactions();
+    updateUserProfileInfo();
+  }
+
+  function renderDashboard() {
+    const income = Finance.sum(transactions, "income");
+    const expense = Finance.sum(transactions, "expense");
+    const net = income - expense;
+    const saving = transactions.filter(t => t.type === "transfer" || /épargne|savings/i.test(categoryName(t.categoryId))).reduce((s, t) => s + t.amountCents, 0);
+
+    const monthFormatted = new Intl.DateTimeFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', { month: 'long', year: 'numeric' }).format(referenceDate);
+    if ($("period-display-label")) $("period-display-label").textContent = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
+
+    if ($("metric-net")) {
+      $("metric-net").textContent = customMoney(net);
+      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
+    }
+    if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
+    if ($("metric-income")) $("metric-income").textContent = customMoney(income);
+    if ($("metric-saving")) $("metric-saving").textContent = customMoney(saving);
+
+    renderCharts(transactions);
+  }
+
+  function renderCharts(items) {
+    const canvasDaily = document.getElementById('dailyChart');
+    if (canvasDaily && window.Chart) {
+      if (dailyChartInstance) dailyChartInstance.destroy();
+      dailyChartInstance = new Chart(canvasDaily.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Activité'],
+          datasets: [{ label: 'Dépenses', data: [Finance.sum(items, "expense") / 100], backgroundColor: '#10b981', borderRadius: 6 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+  }
+
+  function renderTransactions() {
+    const listEl = $("transaction-list");
+    if (!listEl) return;
+    listEl.innerHTML = transactions.length ? transactions.map(t => {
+      const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
+      const cls = t.type === "income" ? "positive" : "negative";
+      const catName = categoryName(t.categoryId);
+      
+      const mainText = t.description ? t.description : catName;
+      const subText = t.description ? catName : t.date;
+
+      return `
+        <div class="transaction-row">
+          <div>
+            <strong>${escapeHTML(mainText)}</strong>
+            <small>${escapeHTML(subText)}</small>
+          </div>
+          <div class="amount ${cls}">${escapeHTML(amountFormatted)}</div>
+        </div>
+      `;
+    }).join("") : `<div class="empty-state">Aucune transaction enregistrée.</div>`;
+  }
+
+  async function updateUserProfileInfo() {
+    const infoEl = $("user-session-info");
+    if (!infoEl) return;
+    try {
+      const client = BudgetDB.client();
+      const { data: { user } } = await client.auth.getUser();
+      if (user) {
+        const meta = user.user_metadata || {};
+        const fullName = (meta.first_name || meta.last_name) ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : 'Mon Compte';
+        infoEl.innerHTML = `<strong>Utilisateur :</strong> ${escapeHTML(fullName)}<br><strong>Email :</strong> ${escapeHTML(user.email)}`;
+      }
+    } catch (e) {
+      infoEl.textContent = "Session non connectée.";
+    }
+  }
+
+  async function checkAuthAndStart() {
+    try {
+      const client = BudgetDB.client();
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) {
+        showLogin();
+      } else {
+        showApp();
+      }
+    } catch (e) {
+      showLogin();
+    }
+  }
+
+  $("tab-login")?.addEventListener("click", () => {
+    $("tab-login").classList.add("active");
+    $("tab-signup").classList.remove("active");
+    $("signup-fields").hidden = true;
+    $("btn-auth-submit").textContent = "Se connecter";
+    $("auth-form").dataset.mode = "login";
+  });
+
+  $("tab-signup")?.addEventListener("click", () => {
+    $("tab-signup").classList.add("active");
+    $("tab-login").classList.remove("active");
+    $("signup-fields").hidden = false;
+    $("btn-auth-submit").textContent = "Créer mon compte";
+    $("auth-form").dataset.mode = "signup";
+  });
+
+  $("auth-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const mode = $("auth-form").dataset.mode || "login";
+    const email = $("auth-email").value.trim();
+    const password = $("auth-password").value.trim();
+    const firstName = $("auth-firstname")?.value.trim() || "";
+    const lastName = $("auth-lastname")?.value.trim() || "";
+    const errEl = $("auth-error");
+    if (errEl) errEl.textContent = "Connexion en cours...";
+
+    try {
+      const client = BudgetDB.client();
+      if (mode === "signup") {
+        const { error } = await client.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
+        if (error) throw error;
+        closeDialog("auth-dialog");
+        toast("Compte créé avec succès ! Connectez-vous.");
+      } else {
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        toast("Connexion réussie !");
+        showApp();
+      }
+    } catch (err) {
+      if (errEl) errEl.textContent = "Erreur : " + err.message;
+    }
+  });
+
+  $("logout-btn")?.addEventListener("click", async () => {
+    try {
+      const client = BudgetDB.client();
+      await client.auth.signOut();
+      location.reload();
+    } catch (e) {
+      location.reload();
+    }
+  });
+
+  $("auth-lang-select")?.addEventListener("change", (e) => {
+    currentLang = e.target.value;
+    localStorage.setItem('user_lang', currentLang);
+    applyTranslations();
+  });
+
+  $("app-lang")?.addEventListener("change", (e) => {
+    currentLang = e.target.value;
+    localStorage.setItem('user_lang', currentLang);
+    renderAll();
+  });
+
+  $("app-currency")?.addEventListener("change", (e) => {
+    currentCurrency = e.target.value;
+    localStorage.setItem('user_currency', currentCurrency);
+    renderAll();
+  });
+
+  function openNewTransactionModal() {
+    $("transaction-form").reset();
+    $("transaction-date").value = today;
+    renderCategoryOptions();
+    showDialog("transaction-dialog");
+  }
+
+  $("quick-add")?.addEventListener("click", openNewTransactionModal);
+  $("btn_new_op")?.addEventListener("click", openNewTransactionModal);
+  $("mobile-add")?.addEventListener("click", openNewTransactionModal);
+
+  $("transaction-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Enregistrement...";
+
+      const tx = {
+        date: $("transaction-date").value || today,
+        amountCents: Finance.toCents($("transaction-amount").value),
+        type: $("transaction-type").value,
+        categoryId: $("transaction-category").value,
+        description: $("transaction-description").value.trim()
+      };
+      await BudgetDB.putTransaction(tx);
+      closeDialog("transaction-dialog");
+      await refresh();
+      toast("Opération enregistrée avec succès");
+    } catch (err) {
+      toast("Erreur : " + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Enregistrer";
+    }
+  });
+
+  checkAuthAndStart();
+})();
