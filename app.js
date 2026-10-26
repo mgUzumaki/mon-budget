@@ -113,14 +113,18 @@
 
   function showDialog(id) { $(id)?.showModal(); }
   function closeDialog(id) { $(id)?.close(); }
+function showLogin() {
+    const appDiv = $("app");
+    if (appDiv) appDiv.hidden = true;
+    showDialog("auth-dialog");
+  }
 
-  // Permet de fermer les fenêtres modales avec les boutons Annuler / X
-document.querySelectorAll("[data-close]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const modalId = btn.getAttribute("data-close");
-    closeDialog(modalId);
-  });
-});
+  function showApp() {
+    const appDiv = $("app");
+    if (appDiv) appDiv.hidden = false;
+    closeDialog("auth-dialog");
+    refresh();
+  }
 
   // --- MENU LATÉRAL MOBILE ---
   const sidebar = $("sidebar");
@@ -308,17 +312,17 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 
 
   // --- GESTION AUTHENTIFICATION (GMAIL STYLE) ---
-  async function checkAuthAndStart() {
+async function checkAuthAndStart() {
     try {
       const client = BudgetDB.client();
       const { data: { session } } = await client.auth.getSession();
       if (!session) {
-        showDialog("auth-dialog");
+        showLogin(); // Utilise notre nouvelle fonction
       } else {
-        refresh();
+        showApp();   // Utilise notre nouvelle fonction
       }
     } catch (e) {
-      showDialog("auth-dialog");
+      showLogin();
     }
   }
 
@@ -355,12 +359,11 @@ document.querySelectorAll("[data-close]").forEach(btn => {
         if (error) throw error;
         closeDialog("auth-dialog");
         toast("Compte créé avec succès ! Connectez-vous.");
-      } else {
+} else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        closeDialog("auth-dialog");
         toast("Connexion réussie !");
-        refresh();
+        showApp(); // Affiche l'application et ferme la modale d'un coup
       }
     } catch (err) {
       if (errEl) errEl.textContent = "Erreur : " + err.message;
@@ -456,3 +459,5 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   // Lancement initial
   checkAuthAndStart();
 })();
+
+```
