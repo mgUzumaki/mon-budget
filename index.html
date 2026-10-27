@@ -541,26 +541,7 @@
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-<dialog id="category-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 400px; width: 100%;">
-  <form id="category-form">
-    <h3 style="margin-top: 0; margin-bottom: 16px;">Ajouter une catégorie</h3>
-    <div class="form-group" style="margin-bottom: 16px;">
-      <label for="new-category-name" style="display: block; margin-bottom: 6px;">Nom de la catégorie</label>
-      <input type="text" id="new-category-name" required placeholder="Ex: Restaurant, Sport..." style="width: 100%; padding: 8px; box-sizing: border-box;">
-    </div>
-    <div style="display: flex; justify-content: flex-end; gap: 8px;">
-      <button type="button" data-close="category-dialog" class="secondary-btn">Annuler</button>
-      <button type="submit" class="primary-btn">Créer</button>
-    </div>
-  </form>
-</dialog>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="db.js"></script>
-  <script src="finance.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
-<!-- Modale de gestion complète des catégories -->
+  <!-- Modale de gestion complète des catégories -->
 <dialog id="manage-categories-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 450px; width: 100%;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
     <h3 style="margin: 0;">Gérer mes catégories</h3>
@@ -589,3 +570,23 @@
     <button type="button" class="secondary-btn" data-close="manage-categories-dialog" style="padding: 8px 16px; cursor:pointer;">Fermer</button>
   </div>
 </dialog>
+
+<dialog id="category-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 400px; width: 100%;">
+  <form id="category-form">
+    <h3 style="margin-top: 0; margin-bottom: 16px;">Ajouter une catégorie</h3>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label for="new-category-name" style="display: block; margin-bottom: 6px;">Nom de la catégorie</label>
+      <input type="text" id="new-category-name" required placeholder="Ex: Restaurant, Sport..." style="width: 100%; padding: 8px; box-sizing: border-box;">
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button type="button" data-close="category-dialog" class="secondary-btn">Annuler</button>
+      <button type="submit" class="primary-btn">Créer</button>
+    </div>
+  </form>
+</dialog>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="db.js"></script>
+  <script src="finance.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
