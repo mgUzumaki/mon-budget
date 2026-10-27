@@ -558,7 +558,7 @@ $("tab-login")?.addEventListener("click", () => {
     }
   });
 
-  checkAuthAndStart();
+
 // --- GESTION DU CHANGEMENT DE DATE ---
   const hiddenDatePicker = document.getElementById('hidden-date-picker');
 
@@ -813,7 +813,7 @@ $("tab-login")?.addEventListener("click", () => {
   });
 
   // Fonction globale pour supprimer une catégorie
-  window.deleteCategory = async function(catId) {
+window.deleteCategory = async function(catId) {
     if (!confirm("Voulez-vous vraiment supprimer cette catégorie ?")) return;
 
     try {
@@ -829,3 +829,8 @@ $("tab-login")?.addEventListener("click", () => {
       toast("Erreur lors de la suppression : " + err.message);
     }
   };
+
+  // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
+  checkAuthAndStart();
+
+})();
