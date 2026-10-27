@@ -557,3 +557,24 @@ body.sidebar-open {
     grid-template-columns: 1fr;
   }
 }
+/* --- CORRECTIF RESPONSIVE MOBILE (Anti-débordement) --- */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+input, select, textarea {
+  max-width: 100%;
+}
