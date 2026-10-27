@@ -578,3 +578,33 @@ img, video, canvas, svg {
 input, select, textarea {
   max-width: 100%;
 }
+.modern-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.clean-transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.clean-transaction-table th {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.clean-transaction-table td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.clean-transaction-table tr:hover {
+  background-color: #f8fafc;
+}
