@@ -326,3 +326,133 @@ body.sidebar-open {
 #period-display-label:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
+/* =========================================================
+   DESIGN CLEAN & STANDARD (STYLE iOS SETTINGS)
+   ========================================================= */
+.settings-container-ios {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.settings-group-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 16px 0 6px 10px;
+  letter-spacing: 0.03em;
+}
+
+.settings-card-group {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.settings-row-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.settings-row-btn:last-child {
+  border-bottom: none;
+}
+
+.settings-icon-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.settings-icon-avatar.large {
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+  margin: 0 auto;
+}
+
+.settings-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.email-bg { background: #3b82f6; }
+.currency-bg { background: #10b981; }
+.lang-bg { background: #8b5cf6; }
+
+.settings-row-content {
+  flex: 1;
+}
+
+.settings-row-content strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.settings-row-content small {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.chevron {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  font-weight: 300;
+  margin-left: 8px;
+}
+
+.settings-select-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.settings-row-action-wrap {
+  padding: 10px 16px;
+  background: #fff;
+}
+
+.danger-btn-ios {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #ef4444;
+  border: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
