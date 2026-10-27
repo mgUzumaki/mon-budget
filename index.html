@@ -183,7 +183,8 @@
 
             <div class="period-navigator">
               <button type="button" id="prev-period" aria-label="Période précédente">‹</button>
-              <span id="period-display-label" aria-live="polite"></span>
+             <span id="period-display-label" aria-live="polite" style="cursor: pointer; text-decoration: underline dotted;"></span>
+<input type="date" id="hidden-date-picker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
               <button type="button" id="next-period" aria-label="Période suivante">›</button>
             </div>
           </div>
