@@ -562,29 +562,30 @@
 </html>
 <!-- Modale de gestion complète des catégories -->
 <dialog id="manage-categories-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 450px; width: 100%;">
-  <div class="modal-heading" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
     <h3 style="margin: 0;">Gérer mes catégories</h3>
-    <button type="button" class="icon-btn" data-close="manage-categories-dialog">×</button>
+    <button type="button" class="icon-btn" data-close="manage-categories-dialog" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">×</button>
   </div>
 
-  <!-- Formulaire d'ajout rapide à l'intérieur -->
-  <form id="manage-category-form" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+  <!-- Formulaire d'ajout rapide corrigé et visible -->
+  <form id="manage-category-form" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+    <input type="text" id="manage-new-cat-name" required placeholder="Nom de la catégorie (ex: Sport, Restaurant...)" style="width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;">
     <div style="display: flex; gap: 8px;">
-      <input type="text" id="manage-new-cat-name" required placeholder="Nom de la nouvelle catégorie..." style="flex: 1; padding: 8px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px;">
-      <select id="manage-new-cat-kind" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+      <select id="manage-new-cat-kind" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
         <option value="expense">Dépense</option>
         <option value="income">Revenu</option>
+        <option value="transfer">Transfert</option>
       </select>
-      <button type="submit" class="primary-btn" style="padding: 8px 16px;">Ajouter</button>
+      <button type="submit" class="primary-btn" style="padding: 10px 16px; cursor:pointer;">Ajouter</button>
     </div>
   </form>
 
   <!-- Liste des catégories existantes -->
-  <div style="max-height: 250px; overflow-y: auto;" id="categories-list-container">
-    <!-- Les catégories s'afficheront ici dynamiquement -->
+  <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;" id="categories-list-container">
+    <!-- Les catégories s'afficheront ici -->
   </div>
 
-  <div class="modal-actions" style="margin-top: 20px; text-align: right;">
-    <button type="button" class="secondary-btn" data-close="manage-categories-dialog">Fermer</button>
+  <div style="margin-top: 20px; text-align: right;">
+    <button type="button" class="secondary-btn" data-close="manage-categories-dialog" style="padding: 8px 16px; cursor:pointer;">Fermer</button>
   </div>
 </dialog>
