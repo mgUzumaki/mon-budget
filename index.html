@@ -166,11 +166,13 @@
         </button>
       </header>
 
-      <!-- VUE D'ENSEMBLE -->
+<!-- VUE D'ENSEMBLE -->
       <section id="page-dashboard" class="page active">
-        <div class="period-row">
+        
+        <!-- En-tête & Contrôles de période -->
+        <div class="dash-header-row">
           <div>
-            <h2 id="period-heading">Vue d’ensemble</h2>
+            <h2>Aperçu Mensuel</h2>
             <p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p>
           </div>
 
@@ -183,52 +185,57 @@
 
             <div class="period-navigator">
               <button type="button" id="prev-period" aria-label="Période précédente">‹</button>
-             <span id="period-display-label" aria-live="polite" style="cursor: pointer; text-decoration: underline dotted;"></span>
-<input type="date" id="hidden-date-picker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+              <span id="period-display-label" aria-live="polite" style="cursor: pointer; text-decoration: underline dotted;"></span>
+              <input type="date" id="hidden-date-picker" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
               <button type="button" id="next-period" aria-label="Période suivante">›</button>
             </div>
           </div>
         </div>
 
-        <div class="metrics">
-          <article class="metric metric-balance">
-            <div class="metric-top">
+        <!-- Cartes d'indicateurs (Solde, Dépenses, Revenus) -->
+        <div class="metrics-grid">
+          <article class="metric-card balance">
+            <div class="metric-header">
               <span data-i18n="metric_net">Solde net</span>
-              <span class="metric-icon balance" aria-hidden="true">±</span>
+              <span class="metric-badge balance-badge">💰</span>
             </div>
             <strong id="metric-net">0</strong>
-            <small>Revenus moins dépenses sur la période</small>
+            <small>Revenus moins dépenses</small>
           </article>
 
-          <article class="metric">
-            <div class="metric-top">
+          <article class="metric-card expense">
+            <div class="metric-header">
               <span data-i18n="metric_exp">Total des dépenses</span>
-              <span class="metric-icon expense" aria-hidden="true">↘</span>
+              <span class="metric-badge expense-badge">💳</span>
             </div>
             <strong id="metric-expense">0</strong>
             <small data-i18n="metric_exp_sub">Consommation enregistrée</small>
           </article>
 
-          <article class="metric">
-            <div class="metric-top">
+          <article class="metric-card income">
+            <div class="metric-header">
               <span data-i18n="metric_inc">Total des revenus</span>
-              <span class="metric-icon income" aria-hidden="true">↗</span>
+              <span class="metric-badge income-badge">💼</span>
             </div>
             <strong id="metric-income">0</strong>
             <small data-i18n="metric_inc_sub">Entrées perçues</small>
           </article>
-
-          <article class="metric">
-            <div class="metric-top">
-              <span data-i18n="metric_save">Épargne</span>
-              <span class="metric-icon saving" aria-hidden="true">◎</span>
-            </div>
-            <strong id="metric-saving">0</strong>
-            <small data-i18n="metric_save_sub">Virements d’épargne</small>
-          </article>
         </div>
 
-        <div class="dashboard-grid">
+        <!-- Zone Graphiques (Camembert + Évolution côte à côte) -->
+        <div class="charts-grid">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <h3 data-i18n="chart_cat_title">Répartition des Dépenses</h3>
+                <p data-i18n="chart_cat_sub">Par catégorie</p>
+              </div>
+            </div>
+            <div class="chart-container chart-container-centered">
+              <canvas id="categoryDoughnutChart" role="img" aria-label="Graphique des dépenses par catégorie"></canvas>
+            </div>
+          </article>
+
           <article class="panel chart-panel">
             <div class="panel-heading">
               <div>
@@ -240,20 +247,9 @@
               <canvas id="dailyChart" role="img" aria-label="Graphique de l'évolution des dépenses"></canvas>
             </div>
           </article>
-
-          <article class="panel chart-panel">
-            <div class="panel-heading">
-              <div>
-                <h3 data-i18n="chart_cat_title">Répartition par catégorie</h3>
-                <p data-i18n="chart_cat_sub">Répartition des dépenses</p>
-              </div>
-            </div>
-            <div class="chart-container chart-container-centered">
-              <canvas id="categoryDoughnutChart" role="img" aria-label="Graphique des dépenses par catégorie"></canvas>
-            </div>
-          </article>
         </div>
 
+        <!-- Opérations Récentes -->
         <article class="panel recent-panel">
           <div class="panel-heading">
             <div>
