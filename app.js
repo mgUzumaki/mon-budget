@@ -213,6 +213,32 @@ function renderCategoryOptions() {
     renderBudgets();
     renderStatistics();
     updateUserProfileInfo();
+    // ---> AJOUTE CE MORCEAU ICI :
+  const customRecentEl = document.getElementById("custom-recent-transactions-list");
+  if (customRecentEl && typeof transactions !== 'undefined') {
+    const latest = transactions.slice(0, 4);
+    customRecentEl.innerHTML = latest.length ? latest.map(t => {
+      const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
+      const cls = t.type === "income" ? "positive" : "negative";
+      const catName = categoryName(t.categoryId);
+      const mainText = t.description ? t.description : catName;
+
+      return `
+        <tr>
+          <td><input type="checkbox"></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="settings-icon-box ${t.type === 'income' ? 'currency-bg' : 'email-bg'}" style="width: 28px; height: 28px; font-size: 12px; margin:0;">💳</div>
+              <strong>${escapeHTML(mainText)}</strong>
+            </div>
+          </td>
+          <td style="color: #64748b; font-size: 0.9rem;">${escapeHTML(t.date)}</td>
+          <td class="amount ${cls}" style="text-align: right;">${escapeHTML(amountFormatted)}</td>
+        </tr>
+      `;
+    }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Aucune transaction récente.</td></tr>`;
+  }
+}
   }
 // Fonction de filtrage par période (Semaine, Mois, Année)
   function getFilteredTransactions() {
