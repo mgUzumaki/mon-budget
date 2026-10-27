@@ -137,10 +137,81 @@ const BudgetDB = {
     }
   },
 
+// Remplace getCategories par ceci dans db.js :
   async getCategories() {
-    return this.defaults.map(category => ({ ...category }));
+    const user = await this.requireUser();
+    const client = this.client();
+
+    const { data, error } = await client
+      .from("categories")
+      .select("*")
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Erreur de chargement des catégories :", error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return this.defaults.map(category => ({ ...category }));
+    }
+
+    return data.map(row => ({
+      id: row.id,
+      name: row.name,
+      kind: row.kind || "expense",
+      user_id: row.user_id
+    }));
   },
 
+  // Ajoute cette fonction juste après pour enregistrer une catégorie :
+  async putCategory(category) {
+    const user = await this.requireUser();
+    const client = this.client();
+
+    if (!category || !category.name) {
+      throw new Error("Le nom de la catégorie est obligatoire.");
+    }
+
+    const payload = {
+      user_id: user.id,
+      name: category.name.trim(),
+      kind: category.kind || "expense"
+    };
+
+    const { data, error } = await client
+      .from("categories")
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erreur d'enregistrement de la catégorie :", error);
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      kind: data.kind || "expense",
+      user_id: data.user_id
+    };
+  },
+
+  // Ajoute aussi celle-ci pour pouvoir les supprimer :
+  async deleteCategory(catId) {
+    if (!catId) throw new Error("Identifiant de catégorie manquant.");
+    const user = await this.requireUser();
+    const client = this.client();
+
+    const { error } = await client
+      .from("categories")
+      .delete()
+      .eq("id", catId)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+  },
   async getBudgets() {
     return [];
   }
