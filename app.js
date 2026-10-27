@@ -624,4 +624,50 @@ function renderCharts(items) {
   
   // Appliquer les traductions dès le chargement de la page
   applyTranslations();
+
+  // --- GESTION DE L'AJOUT D'UNE NOUVELLE CATÉGORIE ---
+  
+  // 1. Ouvrir la modale de catégorie lorsqu'on clique sur le bouton ＋
+  $("btn-add-category")?.addEventListener("click", () => {
+    $("category-form")?.reset();
+    showDialog("category-dialog");
+  });
+
+  // 2. Enregistrer la nouvelle catégorie dans Supabase lors de la soumission
+  $("category-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nameInput = $("new-category-name")?.value.trim();
+    const currentType = $("transaction-type")?.value || "expense"; // Récupère si c'est une dépense ou un revenu
+
+    if (!nameInput) return;
+
+    try {
+      const client = BudgetDB.client();
+      const { data: { user } } = await client.auth.getUser();
+
+      if (!user) throw new Error("Utilisateur non connecté");
+
+      // Insertion dans la table 'categories' de Supabase
+      const { error } = await client.from('categories').insert([
+        { 
+          name: nameInput, 
+          kind: currentType, // 'expense' ou 'income'
+          user_id: user.id, 
+          is_global: false 
+        }
+      ]);
+
+      if (error) throw error;
+
+      closeDialog("category-dialog");
+      toast("Catégorie créée avec succès !");
+      
+      // On recharge les données pour que la nouvelle catégorie apparaisse direct dans le menu
+      await refresh();
+      
+    } catch (err) {
+      console.error("Erreur création catégorie :", err);
+      toast("Erreur : " + err.message);
+    }
+  });
 })();
