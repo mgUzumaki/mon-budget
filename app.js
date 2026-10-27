@@ -13,12 +13,15 @@
   let currentLang = localStorage.getItem('user_lang') || 'fr';
   let currentCurrency = localStorage.getItem('user_currency') || 'FCFA';
 
-  const translations = {
+const translations = {
     fr: {
       nav_dashboard: "Vue d’ensemble", nav_transactions: "Transactions", nav_budgets: "Budgets", nav_stats: "Statistiques", nav_settings: "Réglages",
       btn_add: "Ajouter une opération", dash_intro: "Votre situation financière en un coup d'œil.",
       range_week: "Semaine", range_month: "Mois", range_year: "Année", range_day: "Jour",
       metric_net: "Solde net", metric_exp: "Total des dépenses", metric_inc: "Total des revenus", metric_save: "Épargne",
+      chart_exp_title: "Évolution des dépenses", chart_exp_sub: "Activité et tendance",
+      chart_cat_title: "Répartition des Dépenses", chart_cat_sub: "Par catégorie",
+      recent_title: "Opérations récentes", recent_sub: "Vos dernières opérations", see_all: "Voir tout →",
       trans_intro: "Retrouvez, filtrez et corrigez vos opérations.", btn_new_op: "＋ Nouvelle opération",
       filter_all_types: "Tous les types", type_expense: "Dépenses", type_income: "Revenus", type_transfer: "Transferts", filter_all_cats: "Toutes les catégories"
     },
@@ -27,6 +30,9 @@
       btn_add: "Add transaction", dash_intro: "Your financial situation at a glance.",
       range_week: "Week", range_month: "Month", range_year: "Year", range_day: "Day",
       metric_net: "Net Balance", metric_exp: "Total Expenses", metric_inc: "Total Income", metric_save: "Savings",
+      chart_exp_title: "Expense Trend", chart_exp_sub: "Activity and trend",
+      chart_cat_title: "Expense Breakdown", chart_cat_sub: "By category",
+      recent_title: "Recent transactions", recent_sub: "Your latest operations", see_all: "See all →",
       trans_intro: "Find, filter and edit your operations.", btn_new_op: "＋ New transaction",
       filter_all_types: "All types", type_expense: "Expenses", type_income: "Income", type_transfer: "Transfers", filter_all_cats: "All categories"
     },
@@ -35,6 +41,9 @@
       btn_add: "添加交易", dash_intro: "一目了然您的财务状况。",
       range_week: "周", range_month: "月", range_year: "年", range_day: "日",
       metric_net: "净额", metric_exp: "总支出", metric_inc: "总收入", metric_save: "储蓄",
+      chart_exp_title: "支出趋势", chart_exp_sub: "活动与趋势",
+      chart_cat_title: "支出分布", chart_cat_sub: "按类别",
+      recent_title: "近期交易", recent_sub: "您的最新操作", see_all: "查看全部 →",
       trans_intro: "查找、筛选和修改您的操作。", btn_new_op: "＋ 新建交易",
       filter_all_types: "所有类型", type_expense: "支出", type_income: "收入", type_transfer: "转账", filter_all_cats: "所有分类"
     }
@@ -204,39 +213,101 @@
     renderStatistics();
     updateUserProfileInfo();
   }
+// Fonction de filtrage par période (Semaine, Mois, Année)
+  function getFilteredTransactions() {
+    return transactions.filter(t => {
+      const tDate = new Date(t.date);
+      if (isNaN(tDate.getTime())) return false;
 
-  function renderDashboard() {
-    const income = Finance.sum(transactions, "income");
-    const expense = Finance.sum(transactions, "expense");
+      if (currentRange === 'week') {
+        const startOfWeek = new Date(referenceDate);
+        const day = startOfWeek.getDay();
+        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+        startOfWeek.setDate(diff);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        return tDate >= startOfWeek && tDate <= endOfWeek;
+      } else if (currentRange === 'year') {
+        return tDate.getFullYear() === referenceDate.getFullYear();
+      } else {
+        return tDate.getFullYear() === referenceDate.getFullYear() &&
+               tDate.getMonth() === referenceDate.getMonth();
+      }
+    });
+  }
+function renderDashboard() {
+    const filteredItems = getFilteredTransactions();
+    
+    const income = Finance.sum(filteredItems, "income");
+    const expense = Finance.sum(filteredItems, "expense");
     const net = income - expense;
-    const saving = transactions.filter(t => t.type === "transfer" || /épargne|savings/i.test(categoryName(t.categoryId))).reduce((s, t) => s + t.amountCents, 0);
+    const saving = filteredItems.filter(t => t.type === "transfer" || /épargne|savings/i.test(categoryName(t.categoryId))).reduce((s, t) => s + t.amountCents, 0);
 
-    const monthFormatted = new Intl.DateTimeFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', { month: 'long', year: 'numeric' }).format(referenceDate);
-    if ($("period-display-label")) $("period-display-label").textContent = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
+    let periodText = "";
+    const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+
+    if (currentRange === 'week') {
+      const startOfWeek = new Date(referenceDate);
+      const day = startOfWeek.getDay();
+      const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+      startOfWeek.setDate(diff);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 6);
+      periodText = `Semaine du ${startOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' })} au ${endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    } else if (currentRange === 'year') {
+      periodText = `Année ${referenceDate.getFullYear()}`;
+    } else {
+      const monthFormatted = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(referenceDate);
+      periodText = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
+    }
+
+    if ($("period-display-label")) $("period-display-label").textContent = periodText;
 
     if ($("metric-net")) {
       $("metric-net").textContent = customMoney(net);
-      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981"; // Corrigé ici
+      $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
     }
     if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
     if ($("metric-income")) $("metric-income").textContent = customMoney(income);
     if ($("metric-saving")) $("metric-saving").textContent = customMoney(saving);
 
-    renderCharts(transactions);
+    renderCharts(filteredItems);
   }
 
 function renderCharts(items) {
-    // 1. Graphique d'évolution (Barres)
+    // 1. Histogramme d'évolution des dépenses par date
     const canvasDaily = document.getElementById('dailyChart');
     if (canvasDaily && window.Chart) {
       if (dailyChartInstance) dailyChartInstance.destroy();
+
+      const dateTotals = {};
+      items.filter(t => t.type === 'expense').forEach(t => {
+        dateTotals[t.date] = (dateTotals[t.date] || 0) + (t.amountCents / 100);
+      });
+
+      const labels = Object.keys(dateTotals).sort();
+      const data = labels.map(date => dateTotals[date]);
+
       dailyChartInstance = new Chart(canvasDaily.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: ['Activité'],
-          datasets: [{ label: 'Dépenses', data: [Finance.sum(items, "expense") / 100], backgroundColor: '#10b981', borderRadius: 6 }]
+          labels: labels.length ? labels : ['Aucune donnée'],
+          datasets: [{
+            label: 'Dépenses',
+            data: data.length ? data : [0],
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
       });
     }
 
@@ -245,7 +316,6 @@ function renderCharts(items) {
     if (canvasDoughnut && window.Chart) {
       if (doughnutChartInstance) doughnutChartInstance.destroy();
 
-      // Filtrer les dépenses et grouper par catégorie
       const expenses = items.filter(t => t.type === 'expense');
       const catTotals = {};
       expenses.forEach(t => {
@@ -270,9 +340,7 @@ function renderCharts(items) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' }
-          },
+          plugins: { legend: { position: 'bottom' } },
           cutout: '70%'
         }
       });
@@ -553,4 +621,11 @@ function renderCharts(items) {
 
   // Lancer le décompte initial
   resetInactivityTimer();
+// Lancer le décompte initial
+  resetInactivityTimer();
+  
+  // Appliquer les traductions dès le chargement de la page
+  applyTranslations();
+})();
+  
 })();
