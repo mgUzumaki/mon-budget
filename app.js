@@ -8,6 +8,7 @@
   let currentRange = 'month'; 
   let referenceDate = new Date(); 
   let dailyChartInstance = null;
+  let doughnutChartInstance = null;
 
   let currentLang = localStorage.getItem('user_lang') || 'fr';
   let currentCurrency = localStorage.getItem('user_currency') || 'FCFA';
@@ -224,7 +225,8 @@
     renderCharts(transactions);
   }
 
-  function renderCharts(items) {
+function renderCharts(items) {
+    // 1. Graphique d'évolution (Barres)
     const canvasDaily = document.getElementById('dailyChart');
     if (canvasDaily && window.Chart) {
       if (dailyChartInstance) dailyChartInstance.destroy();
@@ -235,6 +237,44 @@
           datasets: [{ label: 'Dépenses', data: [Finance.sum(items, "expense") / 100], backgroundColor: '#10b981', borderRadius: 6 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    // 2. Graphique Camembert / Donut (Répartition par catégorie)
+    const canvasDoughnut = document.getElementById('categoryDoughnutChart');
+    if (canvasDoughnut && window.Chart) {
+      if (doughnutChartInstance) doughnutChartInstance.destroy();
+
+      // Filtrer les dépenses et grouper par catégorie
+      const expenses = items.filter(t => t.type === 'expense');
+      const catTotals = {};
+      expenses.forEach(t => {
+        const cName = categoryName(t.categoryId);
+        catTotals[cName] = (catTotals[cName] || 0) + (t.amountCents / 100);
+      });
+
+      const labels = Object.keys(catTotals);
+      const data = Object.values(catTotals);
+
+      doughnutChartInstance = new Chart(canvasDoughnut.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: labels.length ? labels : ['Aucune dépense'],
+          datasets: [{
+            data: data.length ? data : [1],
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          },
+          cutout: '70%'
+        }
       });
     }
   }
