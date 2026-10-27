@@ -693,10 +693,6 @@ function renderTransactions() {
   // --- GESTION DES BOUTONS DE RÉGLAGES COMPLÉMENTAIRES ---
 
   // Ouvrir la modale de création de catégorie depuis les réglages
-  $("btn-open-manage-cats")?.addEventListener("click", () => {
-    $("category-form")?.reset();
-    showDialog("category-dialog");
-  });
 
   // Exporter les transactions au format CSV
   $("btn-export-data")?.addEventListener("click", () => {
