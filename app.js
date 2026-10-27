@@ -495,4 +495,35 @@
       toast("Erreur : " + err.message);
     }
   });
+  // --- DÉCONNEXION AUTOMATIQUE APRÈS 15 MINUTES D'INACTIVITÉ ---
+  let inactivityTimer;
+  const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes en millisecondes
+
+  async function logoutDueToInactivity() {
+    try {
+      const client = BudgetDB.client();
+      await client.auth.signOut();
+      toast("Session expirée pour cause d'inactivité.");
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      location.reload();
+    }
+  }
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    // Le minuteur s'active uniquement si l'utilisateur est connecté
+    const appDiv = document.getElementById("app");
+    if (appDiv && !appDiv.hidden) {
+      inactivityTimer = setTimeout(logoutDueToInactivity, INACTIVITY_LIMIT);
+    }
+  }
+
+  // Écouter les interactions de l'utilisateur (souris, clavier, tactile)
+  ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
+    window.addEventListener(event, resetInactivityTimer, { passive: true });
+  });
+
+  // Lancer le décompte initial
+  resetInactivityTimer();
 })();
