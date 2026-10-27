@@ -152,9 +152,10 @@ const translations = {
     if ([...sel.options].some(o => o.value === old)) sel.value = old;
   }
 
-  function renderCategoryOptions() {
+function renderCategoryOptions() {
     const type = $("transaction-type")?.value || "expense";
-    fillCategorySelect("transaction-category", category => category.kind === type);
+    // Affiche les catégories du type correspondant, ou toutes si c'est un transfert
+    fillCategorySelect("transaction-category", category => category.kind === type || type === "transfer" || category.kind === "transfer");
     fillCategorySelect("filter-category", () => true, true);
   }
 
