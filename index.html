@@ -254,19 +254,34 @@
           </article>
         </div>
 
-        <!-- Opérations Récentes -->
+<!-- Opérations Récentes style Tableau Pro -->
         <article class="panel recent-panel">
           <div class="panel-heading">
-            <div>
-              <h3 data-i18n="recent_title">Opérations récentes</h3>
-              <p data-i18n="recent_sub">Vos dernières opérations</p>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="metric-badge income-badge" style="width: 32px; height: 32px; font-size: 14px;">📄</span>
+              <div>
+                <h3 id="welcome-title">Transactions</h3>
+                <p>Vos dernières opérations</p>
+              </div>
             </div>
-            <button class="text-btn" data-goto="transactions" type="button">
-              <span data-i18n="see_all">Voir tout →</span>
-            </button>
+            <button class="text-btn" data-goto="transactions" type="button">Voir tout →</button>
           </div>
 
-          <div id="recent-transactions"></div>
+          <div class="modern-table-container">
+            <table class="clean-transaction-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" disabled></th>
+                  <th>Nom / Description</th>
+                  <th>Date</th>
+                  <th style="text-align: right;">Montant</th>
+                </tr>
+              </thead>
+              <tbody id="custom-recent-transactions-list">
+                <!-- Rempli dynamiquement par JavaScript -->
+              </tbody>
+            </table>
+          </div>
         </article>
       </section>
 
