@@ -347,10 +347,26 @@ function renderCharts(items) {
     }
   }
 
-  function renderTransactions() {
+function renderTransactions() {
     const listEl = $("transaction-list");
     if (!listEl) return;
-    listEl.innerHTML = transactions.length ? transactions.map(t => {
+
+    const searchTerm = ($("search-transactions")?.value || "").toLowerCase();
+    const typeFilter = $("filter-type")?.value || "";
+    const catFilter = $("filter-category")?.value || "";
+
+    const filtered = transactions.filter(t => {
+      const catName = categoryName(t.categoryId).toLowerCase();
+      const desc = (t.description || "").toLowerCase();
+      
+      const matchesSearch = desc.includes(searchTerm) || catName.includes(searchTerm);
+      const matchesType = !typeFilter || t.type === typeFilter;
+      const matchesCat = !catFilter || t.categoryId === catFilter;
+
+      return matchesSearch && matchesType && matchesCat;
+    });
+
+    listEl.innerHTML = filtered.length ? filtered.map(t => {
       const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
       const cls = t.type === "income" ? "positive" : "negative";
       const catName = categoryName(t.categoryId);
@@ -367,7 +383,7 @@ function renderCharts(items) {
           <div class="amount ${cls}">${escapeHTML(amountFormatted)}</div>
         </div>
       `;
-    }).join("") : `<div class="empty-state">Aucune transaction enregistrée.</div>`;
+    }).join("") : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
   }
 
   function renderBudgets() {
@@ -670,4 +686,7 @@ function renderCharts(items) {
       toast("Erreur : " + err.message);
     }
   });
+  $("search-transactions")?.addEventListener("input", renderTransactions);
+  $("filter-type")?.addEventListener("change", renderTransactions);
+  $("filter-category")?.addEventListener("change", renderTransactions);
 })();
