@@ -689,4 +689,36 @@ function renderTransactions() {
   $("search-transactions")?.addEventListener("input", renderTransactions);
   $("filter-type")?.addEventListener("change", renderTransactions);
   $("filter-category")?.addEventListener("change", renderTransactions);
+  // --- GESTION DES BOUTONS DE RÉGLAGES COMPLÉMENTAIRES ---
+
+  // Ouvrir la modale de création de catégorie depuis les réglages
+  $("btn-open-manage-cats")?.addEventListener("click", () => {
+    $("category-form")?.reset();
+    showDialog("category-dialog");
+  });
+
+  // Exporter les transactions au format CSV
+  $("btn-export-data")?.addEventListener("click", () => {
+    if (!transactions.length) {
+      toast("Aucune transaction à exporter.");
+      return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Date,Type,Categorie,Montant,Note\n";
+    transactions.forEach(t => {
+      const amount = (t.amountCents / 100).toFixed(2);
+      const cat = categoryName(t.categoryId);
+      csvContent += `${t.date},${t.type},"${cat}",${amount},"${t.description || ''}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "mon_budget_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast("Exportation réussie !");
+  });
 })();
