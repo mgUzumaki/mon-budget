@@ -443,7 +443,13 @@
         <label><span>Date</span><input id="transaction-date" type="date" required></label>
       </div>
 
-      <label><span>Catégorie</span><select id="transaction-category" required></select></label>
+      <div class="form-group" style="margin-bottom: 12px;">
+  <label style="display: block; margin-bottom: 4px;"><span>Catégorie</span></label>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    <select id="transaction-category" required style="flex: 1;"></select>
+    <button type="button" id="btn-add-category" class="btn-secondary" title="Ajouter une catégorie" style="padding: 0 12px; height: 38px; cursor: pointer;">＋</button>
+  </div>
+</div>
       <label><span>Description</span><input id="transaction-description" maxlength="200" placeholder="Ex. Courses alimentaires"></label>
 
       <div class="modal-actions">
@@ -508,7 +514,19 @@
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-
+<dialog id="category-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 400px; width: 100%;">
+  <form id="category-form">
+    <h3 style="margin-top: 0; margin-bottom: 16px;">Ajouter une catégorie</h3>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label for="new-category-name" style="display: block; margin-bottom: 6px;">Nom de la catégorie</label>
+      <input type="text" id="new-category-name" required placeholder="Ex: Restaurant, Sport..." style="width: 100%; padding: 8px; box-sizing: border-box;">
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button type="button" data-close="category-dialog" class="secondary-btn">Annuler</button>
+      <button type="submit" class="primary-btn">Créer</button>
+    </div>
+  </form>
+</dialog>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="db.js"></script>
   <script src="finance.js"></script>
