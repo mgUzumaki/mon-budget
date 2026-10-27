@@ -213,31 +213,31 @@ function renderCategoryOptions() {
     renderBudgets();
     renderStatistics();
     updateUserProfileInfo();
-    // ---> AJOUTE CE MORCEAU ICI :
-  const customRecentEl = document.getElementById("custom-recent-transactions-list");
-  if (customRecentEl && typeof transactions !== 'undefined') {
-    const latest = transactions.slice(0, 4);
-    customRecentEl.innerHTML = latest.length ? latest.map(t => {
-      const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
-      const cls = t.type === "income" ? "positive" : "negative";
-      const catName = categoryName(t.categoryId);
-      const mainText = t.description ? t.description : catName;
+// Remplissage du tableau moderne des transactions récentes
+    const customRecentEl = document.getElementById("custom-recent-transactions-list");
+    if (customRecentEl) {
+      const latest = transactions.slice(0, 4); // Prend les 4 plus récentes
+      customRecentEl.innerHTML = latest.length ? latest.map(t => {
+        const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
+        const cls = t.type === "income" ? "positive" : "negative";
+        const catName = categoryName(t.categoryId);
+        const mainText = t.description ? t.description : catName;
 
-      return `
-        <tr>
-          <td><input type="checkbox"></td>
-          <td>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="settings-icon-box ${t.type === 'income' ? 'currency-bg' : 'email-bg'}" style="width: 28px; height: 28px; font-size: 12px; margin:0;">💳</div>
-              <strong>${escapeHTML(mainText)}</strong>
-            </div>
-          </td>
-          <td style="color: #64748b; font-size: 0.9rem;">${escapeHTML(t.date)}</td>
-          <td class="amount ${cls}" style="text-align: right;">${escapeHTML(amountFormatted)}</td>
-        </tr>
-      `;
-    }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Aucune transaction récente.</td></tr>`;
-  }
+        return `
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="settings-icon-box ${t.type === 'income' ? 'currency-bg' : 'email-bg'}" style="width: 28px; height: 28px; font-size: 12px; margin:0;">💳</div>
+                <strong>${escapeHTML(mainText)}</strong>
+              </div>
+            </td>
+            <td style="color: #64748b; font-size: 0.9rem;">${escapeHTML(t.date)}</td>
+            <td class="amount ${cls}" style="text-align: right;">${escapeHTML(amountFormatted)}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Aucune transaction récente.</td></tr>`;
+    }
 }
   }
 // Fonction de filtrage par période (Semaine, Mois, Année)
@@ -427,7 +427,7 @@ function renderTransactions() {
     if (statsNet) statsNet.textContent = customMoney(Finance.sum(transactions, "income") - Finance.sum(transactions, "expense"));
   }
 
-  async function updateUserProfileInfo() {
+async function updateUserProfileInfo() {
     const infoEl = $("user-session-info");
     if (!infoEl) return;
     try {
@@ -435,8 +435,16 @@ function renderTransactions() {
       const { data: { user } } = await client.auth.getUser();
       if (user) {
         const meta = user.user_metadata || {};
-        const fullName = (meta.first_name || meta.last_name) ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : 'Mon Compte';
+        const firstName = meta.first_name || '';
+        const lastName = meta.last_name || '';
+        const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : 'Mon Compte';
         infoEl.innerHTML = `<strong>Utilisateur :</strong> ${escapeHTML(fullName)}<br><strong>Email :</strong> ${escapeHTML(user.email)}`;
+        
+        // --- NOUVEAU BLOC ICI ---
+        const welcomeTitle = document.getElementById("welcome-title");
+        if (welcomeTitle) {
+          welcomeTitle.textContent = `Bonjour, ${firstName || fullName}`;
+        }
       }
     } catch (e) {
       infoEl.textContent = "Session non connectée.";
