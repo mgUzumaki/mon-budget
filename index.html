@@ -336,50 +336,79 @@
         </div>
       </section>
 
-      <!-- PARAMÈTRES -->
+<!-- PARAMÈTRES (DESIGN CLEAN & STANDARD) -->
       <section id="page-settings" class="page">
-        <div class="section-intro">
-          <div>
-            <h2 data-i18n="nav_settings">Réglages</h2>
-            <p data-i18n="settings_intro">Gérez vos préférences et vos données personnelles.</p>
-          </div>
-        </div>
+        <div class="settings-container-ios">
 
-        <article class="panel settings-card settings-account">
-          <div class="panel-heading">
-            <div>
-              <h3>Profil et sécurité</h3>
-              <p>Informations de votre session</p>
+          <!-- Section Compte & Sécurité -->
+          <div class="settings-group-title">Compte & Sécurité</div>
+          <div class="settings-card-group">
+            
+            <!-- Row Profil -->
+            <button class="settings-row-btn" type="button" id="btn-open-profile-modal">
+              <div class="settings-icon-avatar">G</div>
+              <div class="settings-row-content">
+                <strong>Profil</strong>
+                <small id="settings-user-name">Mon Compte</small>
+              </div>
+              <span class="chevron">›</span>
+            </button>
+
+            <!-- Row Email -->
+            <button class="settings-row-btn" type="button" id="btn-open-email-modal">
+              <div class="settings-icon-box email-bg">✉</div>
+              <div class="settings-row-content">
+                <strong>Email</strong>
+                <small id="settings-user-email">chargement...</small>
+              </div>
+              <span class="chevron">›</span>
+            </button>
+
+            <!-- Déconnexion -->
+            <div class="settings-row-action-wrap">
+              <button class="danger-btn-ios" id="logout-btn" type="button">Se déconnecter</button>
             </div>
+
           </div>
-          <div id="user-session-info" aria-live="polite">Chargement des détails du compte…</div>
-          <button class="danger-btn" id="logout-btn" type="button">Se déconnecter</button>
-        </article>
 
-        <div class="settings-grid">
-          <article class="panel settings-card">
-            <div class="settings-symbol" aria-hidden="true">€</div>
-            <h3 data-i18n="pref_currency">Devise</h3>
-            <p data-i18n="pref_currency_desc">Choisissez la monnaie d’affichage.</p>
-            <select id="app-currency" class="settings-select">
-              <option value="FCFA">Franc CFA (FCFA)</option>
-              <option value="€">Euro (€)</option>
-              <option value="$">Dollar US ($)</option>
-              <option value="£">Livre sterling (£)</option>
-              <option value="CHF">Franc suisse (CHF)</option>
-            </select>
-          </article>
+          <!-- Section Préférences -->
+          <div class="settings-group-title">Préférences</div>
+          <div class="settings-card-group">
+            
+            <!-- Row Devise -->
+            <div class="settings-row-btn">
+              <div class="settings-icon-box currency-bg">€</div>
+              <div class="settings-row-content">
+                <strong>Devise</strong>
+                <small>Monnaie d'affichage</small>
+              </div>
+              <select id="app-currency" class="settings-select-overlay">
+                <option value="FCFA">Franc CFA (FCFA)</option>
+                <option value="€">Euro (€)</option>
+                <option value="$">Dollar US ($)</option>
+                <option value="£">Livre sterling (£)</option>
+                <option value="CHF">Franc suisse (CHF)</option>
+              </select>
+              <span class="chevron">›</span>
+            </div>
 
-          <article class="panel settings-card">
-            <div class="settings-symbol" aria-hidden="true">文</div>
-            <h3 data-i18n="pref_lang">Langue</h3>
-            <p data-i18n="pref_lang_desc">Sélectionnez la langue de l’interface.</p>
-            <select id="app-lang" class="settings-select">
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-            </select>
-          </article>
+            <!-- Row Langue -->
+            <div class="settings-row-btn">
+              <div class="settings-icon-box lang-bg">🌐</div>
+              <div class="settings-row-content">
+                <strong>Langue</strong>
+                <small>Langue de l'interface</small>
+              </div>
+              <select id="app-lang" class="settings-select-overlay">
+                <option value="fr">Français (FR)</option>
+                <option value="en">English (EN)</option>
+                <option value="zh">中文 (ZH)</option>
+              </select>
+              <span class="chevron">›</span>
+            </div>
+
+          </div>
+
         </div>
       </section>
 
@@ -422,6 +451,59 @@
         <button class="primary-btn" type="submit">Enregistrer</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- MODALE MODIFIER PROFIL -->
+  <dialog id="profile-dialog" class="modal">
+    <form id="profile-form" method="dialog">
+      <div class="modal-heading">
+        <div>
+          <h2 style="font-size:1.1rem; margin:0;">Modifier mon Profil</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close="profile-dialog">×</button>
+      </div>
+
+      <div style="text-align: center; margin: 15px 0;">
+        <div class="settings-icon-avatar large">G</div>
+      </div>
+
+      <label>
+        <span>Prénom</span>
+        <input id="edit-firstname" type="text" placeholder="Prénom">
+      </label>
+      <label style="margin-top:10px;">
+        <span>Nom</span>
+        <input id="edit-lastname" type="text" placeholder="Nom">
+      </label>
+
+      <div class="modal-actions" style="margin-top:20px;">
+        <button type="button" class="secondary-btn" data-close="profile-dialog">Annuler</button>
+        <button type="submit" class="primary-btn">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODALE INFORMATION EMAIL -->
+  <dialog id="email-dialog" class="modal">
+    <div class="modal-heading">
+      <div>
+        <h2 style="font-size:1.1rem; margin:0;">Adresse Email</h2>
+      </div>
+      <button type="button" class="icon-btn" data-close="email-dialog">×</button>
+    </div>
+
+    <div style="padding: 10px 0; text-align: center;">
+      <p style="font-size: 0.95rem; font-weight: 600; color: #1e293b; background: #f1f5f9; padding: 10px; border-radius: 8px;">
+        <span id="info-modal-email">...</span> 🔒
+      </p>
+      <p style="font-size: 0.8rem; color: #64748b; line-height: 1.4; margin-top: 12px;">
+        Cette adresse est utilisée pour votre connexion et ne peut pas être modifiée directement. Pour des raisons de sécurité, veuillez contacter le support pour tout changement.
+      </p>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 15px;">
+      <button type="button" class="secondary-btn" style="width:100%" data-close="email-dialog">Fermer</button>
+    </div>
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
