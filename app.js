@@ -344,8 +344,9 @@
         toast("Connexion réussie !");
         showApp();
       }
-    } catch (err) {
-      if (errEl) errEl.textContent = "Erreur : " + err.message;
+} catch (err) {
+      console.error("Détail complet de l'erreur d'auth :", err);
+      if (errEl) errEl.textContent = "Erreur : " + (err.message || JSON.stringify(err));
     }
   });
 
