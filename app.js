@@ -721,4 +721,73 @@ function renderTransactions() {
 
     toast("Exportation réussie !");
   });
+  // --- GESTIONNAIRE COMPLET DES CATÉGORIES ---
+
+  function renderCategoriesManagementList() {
+    const container = $("categories-list-container");
+    if (!container) return;
+
+    container.innerHTML = categories.length ? categories.map(c => `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+        <div>
+          <strong>${escapeHTML(c.name)}</strong>
+          <span style="font-size: 0.75rem; color: #64748b; margin-left: 6px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
+            ${c.kind === 'income' ? 'Revenu' : 'Dépense'} ${c.is_global ? '(Global)' : ''}
+          </span>
+        </div>
+        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Supprimer</button>` : '<span style="font-size:0.75rem; color:#94a3b8;">Défaut</span>'}
+      </div>
+    `).join("") : '<p style="text-align: center; color: #64748b;">Aucune catégorie trouvée.</p>';
+  }
+
+  // Ouvrir la modale de gestion complète des catégories
+  $("btn-open-manage-cats")?.addEventListener("click", () => {
+    renderCategoriesManagementList();
+    showDialog("manage-categories-dialog");
+  });
+
+  // Ajouter une catégorie depuis la modale de gestion
+  $("manage-category-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nameInput = $("manage-new-cat-name")?.value.trim();
+    const kindInput = $("manage-new-cat-kind")?.value || "expense";
+
+    if (!nameInput) return;
+
+    try {
+      const client = BudgetDB.client();
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error("Utilisateur non connecté");
+
+      const { error } = await client.from('categories').insert([
+        { name: nameInput, kind: kindInput, user_id: user.id, is_global: false }
+      ]);
+
+      if (error) throw error;
+
+      $("manage-new-cat-name").value = "";
+      toast("Catégorie créée avec succès !");
+      await refresh();
+      renderCategoriesManagementList();
+    } catch (err) {
+      toast("Erreur : " + err.message);
+    }
+  });
+
+  // Fonction globale pour supprimer une catégorie
+  window.deleteCategory = async function(catId) {
+    if (!confirm("Voulez-vous vraiment supprimer cette catégorie ?")) return;
+
+    try {
+      const client = BudgetDB.client();
+      const { error } = await client.from('categories').delete().eq('id', catId);
+      if (error) throw error;
+
+      toast("Catégorie supprimée.");
+      await refresh();
+      renderCategoriesManagementList();
+    } catch (err) {
+      toast("Erreur lors de la suppression : " + err.message);
+    }
+  };
 })();
