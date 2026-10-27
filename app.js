@@ -240,7 +240,6 @@ function renderAll() {
       }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Aucune transaction récente.</td></tr>`;
     }
   }
-  }
 // Fonction de filtrage par période (Semaine, Mois, Année)
   function getFilteredTransactions() {
     return transactions.filter(t => {
