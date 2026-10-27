@@ -467,9 +467,9 @@ function renderTransactions() {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast("Connexion réussie !");
-        showApp();
+        showApp(); // <--- Force l'affichage de l'application
       }
-} catch (err) {
+    } catch (err) {
       console.error("Détail complet de l'erreur d'auth :", err);
       if (errEl) errEl.textContent = "Erreur : " + (err.message || JSON.stringify(err));
     }
@@ -759,7 +759,7 @@ function renderTransactions() {
   });
 
 // Ajouter une catégorie depuis la modale de gestion avec affichage instantané
-  $("manage-category-form")?.addEventListener("submit", async (e) => {
+ $("manage-category-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nameInput = $("manage-new-cat-name")?.value.trim();
     const kindInput = $("manage-new-cat-kind")?.value || "expense";
@@ -771,14 +771,14 @@ function renderTransactions() {
       const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
-      // On insère et on récupère la ligne insérée avec .select()
+      // Insertion avec .select() pour récupérer la ligne immédiatement
       const { data, error } = await client.from('categories').insert([
         { name: nameInput, kind: kindInput, user_id: user.id, is_global: false }
       ]).select();
 
       if (error) throw error;
 
-      // Ajout immédiat dans le tableau local pour un affichage instantané
+      // Ajout instantané dans le tableau local
       if (data && data.length > 0) {
         categories.push(data[0]);
       }
@@ -786,7 +786,7 @@ function renderTransactions() {
       $("manage-new-cat-name").value = "";
       toast("Catégorie créée avec succès !");
       
-      // Actualiser l'affichage de la modale et des sélecteurs de l'application
+      // Actualisation immédiate de l'interface
       renderCategoriesManagementList();
       renderCategoryOptions();
       await refresh();
