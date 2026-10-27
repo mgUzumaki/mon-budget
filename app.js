@@ -469,9 +469,11 @@ function renderTransactions() {
         toast("Connexion réussie !");
         showApp(); // <--- Force l'affichage de l'application
       }
-    } catch (err) {
+} catch (err) {
       console.error("Détail complet de l'erreur d'auth :", err);
-      if (errEl) errEl.textContent = "Erreur : " + (err.message || JSON.stringify(err));
+      const errorMsg = err.message || JSON.stringify(err);
+      if (errEl) errEl.textContent = "Erreur : " + errorMsg;
+      alert("Erreur de connexion : " + errorMsg); // <--- Affiche l'erreur en pop-up sur le téléphone
     }
   });
 
