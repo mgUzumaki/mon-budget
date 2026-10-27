@@ -315,3 +315,14 @@ body.sidebar-open {
     z-index: 1000 !important;
   }
 }
+/* Style pour la date cliquable */
+#period-display-label {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+#period-display-label:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
