@@ -666,38 +666,19 @@ $("tab-login")?.addEventListener("click", () => {
     showDialog("category-dialog");
   });
 
-  // 2. Enregistrer la nouvelle catégorie dans Supabase lors de la soumission
+// 2. Enregistrer la nouvelle catégorie via db.js
   $("category-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nameInput = $("new-category-name")?.value.trim();
-    const currentType = $("transaction-type")?.value || "expense"; // Récupère si c'est une dépense ou un revenu
+    const currentType = $("transaction-type")?.value || "expense";
 
     if (!nameInput) return;
 
     try {
-      const client = BudgetDB.client();
-      const { data: { user } } = await client.auth.getUser();
-
-      if (!user) throw new Error("Utilisateur non connecté");
-
-      // Insertion dans la table 'categories' de Supabase
-      const { error } = await client.from('categories').insert([
-        { 
-          name: nameInput, 
-          kind: currentType, // 'expense' ou 'income'
-          user_id: user.id, 
-          is_global: false 
-        }
-      ]);
-
-      if (error) throw error;
-
+      await BudgetDB.putCategory({ name: nameInput, kind: currentType });
       closeDialog("category-dialog");
       toast("Catégorie créée avec succès !");
-      
-      // On recharge les données pour que la nouvelle catégorie apparaisse direct dans le menu
       await refresh();
-      
     } catch (err) {
       console.error("Erreur création catégorie :", err);
       toast("Erreur : " + err.message);
@@ -775,7 +756,7 @@ $("tab-login")?.addEventListener("click", () => {
   });
 
 // Ajouter une catégorie depuis la modale de gestion avec affichage instantané
- $("manage-category-form")?.addEventListener("submit", async (e) => {
+  $("manage-category-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nameInput = $("manage-new-cat-name")?.value.trim();
     const kindInput = $("manage-new-cat-kind")?.value || "expense";
@@ -783,26 +764,12 @@ $("tab-login")?.addEventListener("click", () => {
     if (!nameInput) return;
 
     try {
-      const client = BudgetDB.client();
-      const { data: { user } } = await client.auth.getUser();
-      if (!user) throw new Error("Utilisateur non connecté");
-
-      // Insertion avec .select() pour récupérer la ligne immédiatement
-      const { data, error } = await client.from('categories').insert([
-        { name: nameInput, kind: kindInput, user_id: user.id, is_global: false }
-      ]).select();
-
-      if (error) throw error;
-
-      // Ajout instantané dans le tableau local
-      if (data && data.length > 0) {
-        categories.push(data[0]);
-      }
+      const newCat = await BudgetDB.putCategory({ name: nameInput, kind: kindInput });
+      categories.push(newCat);
 
       $("manage-new-cat-name").value = "";
       toast("Catégorie créée avec succès !");
       
-      // Actualisation immédiate de l'interface
       renderCategoriesManagementList();
       renderCategoryOptions();
       await refresh();
@@ -813,14 +780,11 @@ $("tab-login")?.addEventListener("click", () => {
   });
 
   // Fonction globale pour supprimer une catégorie
-window.deleteCategory = async function(catId) {
+  window.deleteCategory = async function(catId) {
     if (!confirm("Voulez-vous vraiment supprimer cette catégorie ?")) return;
 
     try {
-      const client = BudgetDB.client();
-      const { error } = await client.from('categories').delete().eq('id', catId);
-      if (error) throw error;
-
+      await BudgetDB.deleteCategory(catId);
       toast("Catégorie supprimée.");
       await refresh();
       renderCategoriesManagementList();
