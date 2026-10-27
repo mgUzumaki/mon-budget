@@ -439,11 +439,8 @@ async function updateUserProfileInfo() {
         const lastName = meta.last_name || '';
         const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : 'Mon Compte';
         infoEl.innerHTML = `<strong>Utilisateur :</strong> ${escapeHTML(fullName)}<br><strong>Email :</strong> ${escapeHTML(user.email)}`;
-        const welcomeTitle = document.getElementById("welcome-title");
-        if (welcomeTitle) {
-          welcomeTitle.textContent = `Bonjour, ${firstName || 'Mon Compte'}`;
-        }
-        // --- NOUVEAU BLOC ICI ---
+        
+        // Un seul bloc pour le titre de bienvenue
         const welcomeTitle = document.getElementById("welcome-title");
         if (welcomeTitle) {
           welcomeTitle.textContent = `Bonjour, ${firstName || fullName}`;
