@@ -619,13 +619,9 @@ function renderCharts(items) {
     window.addEventListener(event, resetInactivityTimer, { passive: true });
   });
 
-  // Lancer le décompte initial
-  resetInactivityTimer();
 // Lancer le décompte initial
   resetInactivityTimer();
   
   // Appliquer les traductions dès le chargement de la page
   applyTranslations();
-})();
-  
 })();
