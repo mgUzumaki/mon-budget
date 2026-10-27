@@ -443,4 +443,56 @@
       }
     });
   }
+
+  // Mettre à jour les données du profil dans les réglages
+  async function updateUserProfileInfo() {
+    try {
+      const client = BudgetDB.client();
+      const { data: { user } } = await client.auth.getUser();
+      if (user) {
+        const meta = user.user_metadata || {};
+        const firstName = meta.first_name || '';
+        const lastName = meta.last_name || '';
+        const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : 'Mon Compte';
+        
+        if ($("settings-user-name")) $("settings-user-name").textContent = fullName;
+        if ($("settings-user-email")) $("settings-user-email").textContent = user.email;
+        if ($("info-modal-email")) $("info-modal-email").textContent = user.email;
+
+        // Première lettre pour l'avatar
+        const initial = (firstName || user.email || 'G').charAt(0).toUpperCase();
+        document.querySelectorAll('.settings-icon-avatar').forEach(el => el.textContent = initial);
+
+        if ($("edit-firstname")) $("edit-firstname").value = firstName;
+        if ($("edit-lastname")) $("edit-lastname").value = lastName;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // Ouverture des modales Réglages
+  $("btn-open-profile-modal")?.addEventListener("click", () => showDialog("profile-dialog"));
+  $("btn-open-email-modal")?.addEventListener("click", () => showDialog("email-dialog"));
+
+  // Enregistrement du profil
+  $("profile-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      const client = BudgetDB.client();
+      const first_name = $("edit-firstname").value.trim();
+      const last_name = $("edit-lastname").value.trim();
+
+      const { error } = await client.auth.updateUser({
+        data: { first_name, last_name }
+      });
+
+      if (error) throw error;
+      closeDialog("profile-dialog");
+      await updateUserProfileInfo();
+      toast("Profil mis à jour avec succès !");
+    } catch (err) {
+      toast("Erreur : " + err.message);
+    }
+  });
 })();
