@@ -183,3 +183,135 @@ body.sidebar-open {
     line-height: 1.2;
   }
 }
+/* =========================================================
+   REDESIGN & FIX RESPONSIVE MOBILE (UI/UX PRO)
+   ========================================================= */
+
+/* 1. Masquer proprement le lien d'évitement en haut */
+.skip-link {
+  position: absolute !important;
+  top: -100px !important;
+  left: 0;
+  z-index: 9999;
+}
+.skip-link:focus {
+  top: 0 !important;
+}
+
+@media (max-width: 768px) {
+  /* 2. Réorganisation propre du Header / Topbar */
+  .topbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 16px !important;
+    gap: 8px !important;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f5;
+  }
+
+  /* Ajustement de la zone du titre + bouton burger */
+  .topbar-heading {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0;
+  }
+
+  .topbar-heading .eyebrow {
+    font-size: 0.65rem !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 2px !important;
+    color: #64748b;
+  }
+
+  .topbar-heading h1 {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Masquer le gros bouton d'action dans la topbar sur mobile pour ne garder que le bouton flottant */
+  .topbar #quick-add {
+    display: none !important;
+  }
+
+  /* 3. Re-design des cartes Réglages (Settings) */
+  .settings-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 0 4px !important;
+  }
+
+  .settings-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .settings-card h3 {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    margin-bottom: 4px !important;
+  }
+
+  .settings-card p {
+    font-size: 0.875rem !important;
+    color: #64748b !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Sélecteurs élégants et faciles à toucher au doigt */
+  .settings-select {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+    outline: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%3c64748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+  }
+
+  /* 4. Bouton de déconnexion */
+  .danger-btn {
+    width: 100% !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    margin-top: 12px !important;
+  }
+
+  /* 5. Ajustement du bouton d'ajout flottant en bas à droite */
+  .mobile-add {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 20px !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 28px !important;
+    background: #10b981 !important;
+    color: white !important;
+    font-size: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+    z-index: 1000 !important;
+  }
+}
