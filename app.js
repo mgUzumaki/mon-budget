@@ -214,7 +214,7 @@ function renderAll() {
     renderStatistics();
     updateUserProfileInfo();
 
-    // ---> C'est ici qu'il doit être : il se relancera à chaque chargement de données
+    // ---> AJOUTE UNIQUEMENT CE MORCEAU ICI :
     const customRecentEl = document.getElementById("custom-recent-transactions-list");
     if (customRecentEl) {
       const latest = transactions.slice(0, 4);
