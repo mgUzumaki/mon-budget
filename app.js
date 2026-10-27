@@ -458,23 +458,10 @@ function renderCharts(items) {
   });
 
   checkAuthAndStart();
-  // --- DÉCLENCHEUR DU CALENDRIER NATIF SUR LA DATE ---
-  const periodLabel = document.getElementById('period-display-label');
+// --- GESTION DU CHANGEMENT DE DATE ---
   const hiddenDatePicker = document.getElementById('hidden-date-picker');
 
-  if (periodLabel && hiddenDatePicker) {
-    periodLabel.addEventListener('click', () => {
-      if ('showPicker' in HTMLInputElement.prototype) {
-        try {
-          hiddenDatePicker.showPicker();
-        } catch (e) {
-          hiddenDatePicker.click();
-        }
-      } else {
-        hiddenDatePicker.click();
-      }
-    });
-
+  if (hiddenDatePicker) {
     hiddenDatePicker.addEventListener('change', (e) => {
       const selectedDate = new Date(e.target.value);
       if (!isNaN(selectedDate.getTime())) {
