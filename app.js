@@ -722,7 +722,7 @@ function renderTransactions() {
 
     toast("Exportation réussie !");
   });
-  // --- GESTIONNAIRE COMPLET DES CATÉGORIES ---
+ // --- GESTIONNAIRE COMPLET DES CATÉGORIES (CORRIGÉ) ---
 
   function renderCategoriesManagementList() {
     const container = $("categories-list-container");
@@ -733,7 +733,7 @@ function renderTransactions() {
         <div>
           <strong>${escapeHTML(c.name)}</strong>
           <span style="font-size: 0.75rem; color: #64748b; margin-left: 6px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
-            ${c.kind === 'income' ? 'Revenu' : 'Dépense'} ${c.is_global ? '(Global)' : ''}
+            ${c.kind === 'income' ? 'Revenu' : c.kind === 'transfer' ? 'Transfert' : 'Dépense'} ${c.is_global ? '(Global)' : ''}
           </span>
         </div>
         ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Supprimer</button>` : '<span style="font-size:0.75rem; color:#94a3b8;">Défaut</span>'}
@@ -741,13 +741,28 @@ function renderTransactions() {
     `).join("") : '<p style="text-align: center; color: #64748b;">Aucune catégorie trouvée.</p>';
   }
 
-  // Ouvrir la modale de gestion complète des catégories
+  // Ouvrir la modale proprement
   $("btn-open-manage-cats")?.addEventListener("click", () => {
     renderCategoriesManagementList();
-    showDialog("manage-categories-dialog");
+    const dlg = $("manage-categories-dialog");
+    if (dlg) {
+      if (typeof dlg.showModal === "function") dlg.showModal();
+      else dlg.setAttribute("open", true);
+    }
   });
 
-  // Ajouter une catégorie depuis la modale de gestion
+  // Fermer la modale explicitement (résout le souci de la croix et du bouton fermer)
+  document.querySelectorAll("[data-close='manage-categories-dialog']").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const dlg = $("manage-categories-dialog");
+      if (dlg) {
+        if (typeof dlg.close === "function") dlg.close();
+        else dlg.removeAttribute("open");
+      }
+    });
+  });
+
+// Ajouter une catégorie depuis la modale de gestion avec affichage instantané
   $("manage-category-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nameInput = $("manage-new-cat-name")?.value.trim();
@@ -760,17 +775,27 @@ function renderTransactions() {
       const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
-      const { error } = await client.from('categories').insert([
+      // On insère et on récupère la ligne insérée avec .select()
+      const { data, error } = await client.from('categories').insert([
         { name: nameInput, kind: kindInput, user_id: user.id, is_global: false }
-      ]);
+      ]).select();
 
       if (error) throw error;
 
+      // Ajout immédiat dans le tableau local pour un affichage instantané
+      if (data && data.length > 0) {
+        categories.push(data[0]);
+      }
+
       $("manage-new-cat-name").value = "";
       toast("Catégorie créée avec succès !");
-      await refresh();
+      
+      // Actualiser l'affichage de la modale et des sélecteurs de l'application
       renderCategoriesManagementList();
+      renderCategoryOptions();
+      await refresh();
     } catch (err) {
+      console.error("Erreur ajout catégorie :", err);
       toast("Erreur : " + err.message);
     }
   });
@@ -787,8 +812,8 @@ function renderTransactions() {
       toast("Catégorie supprimée.");
       await refresh();
       renderCategoriesManagementList();
+      renderCategoryOptions();
     } catch (err) {
       toast("Erreur lors de la suppression : " + err.message);
     }
   };
-})();
