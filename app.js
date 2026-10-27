@@ -431,52 +431,66 @@ function renderTransactions() {
     }
   }
 
-  $("tab-login")?.addEventListener("click", () => {
+$("tab-login")?.addEventListener("click", () => {
     $("tab-login").classList.add("active");
     $("tab-signup").classList.remove("active");
-    $("signup-fields").hidden = true;
-    $("btn-auth-submit").textContent = "Se connecter";
-    $("auth-form").dataset.mode = "login";
+    if ($("signup-fields")) $("signup-fields").hidden = true;
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = "Se connecter";
+    if ($("auth-form")) $("auth-form").dataset.mode = "login";
   });
 
   $("tab-signup")?.addEventListener("click", () => {
     $("tab-signup").classList.add("active");
     $("tab-login").classList.remove("active");
-    $("signup-fields").hidden = false;
-    $("btn-auth-submit").textContent = "Créer mon compte";
-    $("auth-form").dataset.mode = "signup";
+    if ($("signup-fields")) $("signup-fields").hidden = false;
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = "Créer mon compte";
+    if ($("auth-form")) $("auth-form").dataset.mode = "signup";
   });
 
-  $("auth-form")?.addEventListener("submit", async (e) => {
+  // Écoute directe du clic sur le bouton de soumission pour forcer l'action sur mobile
+  $("btn-auth-submit")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const mode = $("auth-form").dataset.mode || "login";
-    const email = $("auth-email").value.trim();
-    const password = $("auth-password").value.trim();
+    
+    const mode = $("auth-form")?.dataset.mode || "login";
+    const email = $("auth-email")?.value.trim() || "";
+    const password = $("auth-password")?.value.trim() || "";
     const firstName = $("auth-firstname")?.value.trim() || "";
     const lastName = $("auth-lastname")?.value.trim() || "";
     const errEl = $("auth-error");
+
+    if (!email || !password) {
+      alert("Veuillez remplir l'email et le mot de passe.");
+      return;
+    }
+
     if (errEl) errEl.textContent = "Connexion en cours...";
 
     try {
       const client = BudgetDB.client();
+      if (!client) throw new Error("Client Supabase non initialisé");
+
       if (mode === "signup") {
-        const { error } = await client.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName } } });
+        const { error } = await client.auth.signUp({ 
+          email, 
+          password, 
+          options: { data: { first_name: firstName, last_name: lastName } } 
+        });
         if (error) throw error;
-        toast("Compte créé avec succès ! Connectez-vous.");
+        alert("Compte créé avec succès ! Connectez-vous.");
+        if (errEl) errEl.textContent = "Compte créé avec succès ! Connectez-vous.";
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast("Connexion réussie !");
-        showApp(); // <--- Force l'affichage de l'application
+        alert("Connexion réussie !");
+        showApp();
       }
-} catch (err) {
-      console.error("Détail complet de l'erreur d'auth :", err);
+    } catch (err) {
+      console.error("Erreur d'auth :", err);
       const errorMsg = err.message || JSON.stringify(err);
       if (errEl) errEl.textContent = "Erreur : " + errorMsg;
-      alert("Erreur de connexion : " + errorMsg); // <--- Affiche l'erreur en pop-up sur le téléphone
+      alert("Erreur de connexion : " + errorMsg);
     }
   });
-
   $("logout-btn")?.addEventListener("click", async () => {
     try {
       const client = BudgetDB.client();
