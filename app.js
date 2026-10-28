@@ -83,7 +83,7 @@ const translations = {
   function showDialog(id) { $(id)?.showModal(); }
   function closeDialog(id) { $(id)?.close(); }
 
-  document.q("[data-close]").forEach(btn => {
+document.querySelectorAll("[data-close]").forEach(btn => {
     btn.addEventListener("click", () => {
       const modalId = btn.getAttribute("data-close");
       closeDialog(modalId);
