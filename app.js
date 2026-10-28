@@ -6,6 +6,7 @@
   const $ = id => document.getElementById(id);
   let transactions = [], categories = [], budgets = [], toastTimer;
   let currentRange = 'month'; 
+  let currentChartMode = 'bars';
   let referenceDate = new Date(); 
   let dailyChartInstance = null;
   let doughnutChartInstance = null;
@@ -52,7 +53,7 @@ const translations = {
   function t(key) { return translations[currentLang]?.[key] || translations['fr'][key] || key; }
 
   function applyTranslations() {
-    document.querySelectorAll("[data-i18n]").forEach(el => {
+    document.q("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
       if (t(key)) el.textContent = t(key);
     });
@@ -82,7 +83,7 @@ const translations = {
   function showDialog(id) { $(id)?.showModal(); }
   function closeDialog(id) { $(id)?.close(); }
 
-  document.querySelectorAll("[data-close]").forEach(btn => {
+  document.q("[data-close]").forEach(btn => {
     btn.addEventListener("click", () => {
       const modalId = btn.getAttribute("data-close");
       closeDialog(modalId);
@@ -126,12 +127,12 @@ const translations = {
   sidebarToggle?.addEventListener("click", toggleSidebar);
   sidebarBackdrop?.addEventListener("click", toggleSidebar);
 
-  document.querySelectorAll(".nav-link").forEach(btn => {
+  document.q(".nav-link").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const page = btn.dataset.page;
-      document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
-      document.querySelectorAll(".nav-link").forEach(b => {
+      document.q(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
+      document.q(".nav-link").forEach(b => {
         b.classList.toggle("active", b === btn);
         b.setAttribute("aria-current", b === btn ? "page" : false);
       });
@@ -178,9 +179,9 @@ function renderCategoryOptions() {
     renderDashboard();
   });
 
-  document.querySelectorAll('.range-btn').forEach(btn => {
+  document.q('.range-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.range-btn').forEach(b => {
+      document.q('.range-btn').forEach(b => {
         b.classList.remove('active');
         b.removeAttribute('aria-pressed');
       });
@@ -190,7 +191,19 @@ function renderCategoryOptions() {
       renderDashboard();
     });
   });
-
+// --- Écouteurs pour les boutons du graphique (Barres + Tendance / Courbe seule) ---
+  document.querySelectorAll('#chart-view-mode button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('#chart-view-mode button').forEach(b => {
+        b.classList.remove('active');
+        b.removeAttribute('aria-pressed');
+      });
+      e.target.classList.add('active');
+      e.target.setAttribute('aria-pressed', 'true');
+      currentChartMode = e.target.dataset.view;
+      renderDashboard();
+    });
+  });
   async function refresh() {
     try {
       [transactions, categories, budgets] = await Promise.all([
@@ -306,43 +319,114 @@ function renderDashboard() {
   }
 
 function renderCharts(items) {
-    // 1. Histogramme d'évolution des dépenses par date
     const canvasDaily = document.getElementById('dailyChart');
     if (canvasDaily && window.Chart) {
       if (dailyChartInstance) dailyChartInstance.destroy();
 
-      const dateTotals = {};
-      items.filter(t => t.type === 'expense').forEach(t => {
-        dateTotals[t.date] = (dateTotals[t.date] || 0) + (t.amountCents / 100);
+      const dateMap = {};
+      items.forEach(t => {
+        if (!dateMap[t.date]) {
+          dateMap[t.date] = { expense: 0, income: 0 };
+        }
+        if (t.type === 'expense') {
+          dateMap[t.date].expense += (t.amountCents / 100);
+        } else if (t.type === 'income') {
+          dateMap[t.date].income += (t.amountCents / 100);
+        }
       });
 
-      const labels = Object.keys(dateTotals).sort();
-      const data = labels.map(date => dateTotals[date]);
+      const labels = Object.keys(dateMap).sort();
+      const expenseData = labels.map(date => dateMap[date].expense);
+      const incomeData = labels.map(date => dateMap[date].income);
+      const netData = labels.map(date => dateMap[date].income - dateMap[date].expense);
+
+      let datasets = [];
+
+      if (currentChartMode === 'bars') {
+        datasets = [
+          {
+            type: 'bar',
+            label: 'Barres Dépenses',
+            data: expenseData.length ? expenseData : [0],
+            backgroundColor: '#0f766e',
+            borderRadius: 6,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          },
+          {
+            type: 'bar',
+            label: 'Barres Revenus',
+            data: incomeData.length ? incomeData : [0],
+            backgroundColor: '#6ee7b7',
+            borderRadius: 6,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          },
+          {
+            type: 'line',
+            label: 'Ligne Tendance (Net)',
+            data: netData.length ? netData : [0],
+            borderColor: '#7c2d12',
+            backgroundColor: '#7c2d12',
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 4,
+            yAxisID: 'y'
+          }
+        ];
+      } else {
+        datasets = [
+          {
+            type: 'line',
+            label: 'Tendance Revenus',
+            data: incomeData.length ? incomeData : [0],
+            borderColor: '#0f766e',
+            backgroundColor: 'rgba(15, 118, 110, 0.1)',
+            fill: true,
+            borderWidth: 3,
+            tension: 0.4
+          }
+        ];
+      }
 
       dailyChartInstance = new Chart(canvasDaily.getContext('2d'), {
-        type: 'bar',
         data: {
           labels: labels.length ? labels : ['Aucune donnée'],
-          datasets: [{
-            label: 'Dépenses',
-            data: data.length ? data : [0],
-            backgroundColor: '#10b981',
-            borderRadius: 6
-          }]
+          datasets: datasets
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } }
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { boxWidth: 12, font: { size: 11 } }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false } // Supprime les lignes verticales pour ne pas surcharger
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f1f5f9' }, // Grille horizontale discrète
+              ticks: {
+                maxTicksLimit: 6, // Espace l'échelle des ordonnées
+                callback: function(value) {
+                  return value.toLocaleString() + ' ' + currentCurrency;
+                }
+              }
+            }
+          }
         }
       });
     }
 
-    // 2. Graphique Camembert / Donut (Répartition par catégorie)
+    // Graphique Donut (Répartition par catégorie)
     const canvasDoughnut = document.getElementById('categoryDoughnutChart');
     if (canvasDoughnut && window.Chart) {
       if (doughnutChartInstance) doughnutChartInstance.destroy();
-
       const expenses = items.filter(t => t.type === 'expense');
       const catTotals = {};
       expenses.forEach(t => {
@@ -350,16 +434,13 @@ function renderCharts(items) {
         catTotals[cName] = (catTotals[cName] || 0) + (t.amountCents / 100);
       });
 
-      const labels = Object.keys(catTotals);
-      const data = Object.values(catTotals);
-
       doughnutChartInstance = new Chart(canvasDoughnut.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: labels.length ? labels : ['Aucune dépense'],
+          labels: Object.keys(catTotals).length ? Object.keys(catTotals) : ['Aucune dépense'],
           datasets: [{
-            data: data.length ? data : [1],
-            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+            data: Object.values(catTotals).length ? Object.values(catTotals) : [1],
+            backgroundColor: ['#0f766e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
@@ -623,7 +704,7 @@ $("tab-login")?.addEventListener("click", () => {
 
         // Première lettre pour l'avatar
         const initial = (firstName || user.email || 'G').charAt(0).toUpperCase();
-        document.querySelectorAll('.settings-icon-avatar').forEach(el => el.textContent = initial);
+        document.q('.settings-icon-avatar').forEach(el => el.textContent = initial);
 
         if ($("edit-firstname")) $("edit-firstname").value = firstName;
         if ($("edit-lastname")) $("edit-lastname").value = lastName;
@@ -779,7 +860,7 @@ $("tab-login")?.addEventListener("click", () => {
   });
 
   // Fermer la modale explicitement (résout le souci de la croix et du bouton fermer)
-  document.querySelectorAll("[data-close='manage-categories-dialog']").forEach(btn => {
+  document.q("[data-close='manage-categories-dialog']").forEach(btn => {
     btn.addEventListener("click", () => {
       const dlg = $("manage-categories-dialog");
       if (dlg) {
