@@ -52,8 +52,8 @@ const translations = {
 
   function t(key) { return translations[currentLang]?.[key] || translations['fr'][key] || key; }
 
-  function applyTranslations() {
-    document.q("[data-i18n]").forEach(el => {
+function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
       if (t(key)) el.textContent = t(key);
     });
@@ -179,18 +179,13 @@ function renderCategoryOptions() {
     renderDashboard();
   });
 
-  document.q('.range-btn').forEach(btn => {
+document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.q('.range-btn').forEach(b => {
+      document.querySelectorAll('.range-btn').forEach(b => {
         b.classList.remove('active');
         b.removeAttribute('aria-pressed');
       });
-      e.target.classList.add('active');
-      e.target.setAttribute('aria-pressed', 'true');
-      currentRange = e.target.dataset.range;
-      renderDashboard();
-    });
-  });
+...
 // --- Écouteurs pour les boutons du graphique (Barres + Tendance / Courbe seule) ---
   document.querySelectorAll('#chart-view-mode button').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -518,8 +513,9 @@ async function updateUserProfileInfo() {
         const meta = user.user_metadata || {};
         const firstName = meta.first_name || '';
         const lastName = meta.last_name || '';
-        const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : 'Mon Compte';
-        infoEl.innerHTML = `<strong>Utilisateur :</strong> ${escapeHTML(fullName)}<br><strong>Email :</strong> ${escapeHTML(user.email)}`;
+ // Première lettre pour l'avatar
+        const initial = (firstName || user.email || 'G').charAt(0).toUpperCase();
+        document.querySelectorAll('.settings-icon-avatar').forEach(el => el.textContent = initial);
         
         // Un seul bloc pour le titre de bienvenue
         const welcomeTitle = document.getElementById("welcome-title");
