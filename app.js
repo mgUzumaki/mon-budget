@@ -185,7 +185,7 @@ document.querySelectorAll('.range-btn').forEach(btn => {
         b.classList.remove('active');
         b.removeAttribute('aria-pressed');
       });
-...
+
 // --- Écouteurs pour les boutons du graphique (Barres + Tendance / Courbe seule) ---
   document.querySelectorAll('#chart-view-mode button').forEach(btn => {
     btn.addEventListener('click', (e) => {
