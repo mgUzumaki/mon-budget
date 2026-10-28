@@ -240,17 +240,26 @@
             </div>
           </article>
 
-          <article class="panel chart-panel">
-            <div class="panel-heading">
-              <div>
-                <h3 data-i18n="chart_exp_title">Évolution des dépenses</h3>
-                <p data-i18n="chart_exp_sub">Activité et tendance</p>
-              </div>
-            </div>
-            <div class="chart-container">
-              <canvas id="dailyChart" role="img" aria-label="Graphique de l'évolution des dépenses"></canvas>
-            </div>
-          </article>
+<article class="panel chart-panel">
+  <div class="panel-heading" style="flex-wrap: wrap; gap: 10px;">
+    <div>
+      <h3>Évolution des flux</h3>
+      <p>Dépenses, revenus et tendance</p>
+    </div>
+
+    <!-- Boutons de contrôle pour basculer de vue -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <div class="btn-group" id="chart-view-mode">
+        <button type="button" class="range-btn active" data-view="bars" style="padding: 6px 12px; font-size: 0.85rem;">Barres + Tendance</button>
+        <button type="button" class="range-btn" data-view="line" style="padding: 6px 12px; font-size: 0.85rem;">Courbe seule</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="dailyChart" role="img" aria-label="Graphique des flux financiers"></canvas>
+  </div>
+</article>
         </div>
 
 <!-- Opérations Récentes style Tableau Pro -->
