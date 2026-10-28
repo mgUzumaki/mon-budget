@@ -127,15 +127,15 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   sidebarToggle?.addEventListener("click", toggleSidebar);
   sidebarBackdrop?.addEventListener("click", toggleSidebar);
 
-  document.q(".nav-link").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const page = btn.dataset.page;
-      document.q(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
-      document.q(".nav-link").forEach(b => {
-        b.classList.toggle("active", b === btn);
-        b.setAttribute("aria-current", b === btn ? "page" : false);
-      });
+document.querySelectorAll(".nav-link").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const page = btn.dataset.page;
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
+    document.querySelectorAll(".nav-link").forEach(b => {
+      b.classList.toggle("active", b === btn);
+      b.setAttribute("aria-current", b === btn ? "page" : "false");
+    });
       const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), settings: t('nav_settings') };
       $("page-title").textContent = titles[page] || titles.dashboard;
       if (sidebar?.classList.contains("is-open")) toggleSidebar();
