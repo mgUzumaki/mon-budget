@@ -70,13 +70,12 @@
             </div>
           </div>
 
-          <label><span>Adresse e-mail</span><input id="auth-email" type="email" required placeholder="vous@exemple.com"></label>
-          <label><span>Mot de passe</span><input id="auth-password" type="password" required placeholder="Votre mot de passe"></label>
-
-          <div class="auth-buttons">
-            <button type="button" id="btn-auth-submit" class="primary-btn" style="cursor: pointer;">Se connecter</button>
-            <button type="button" id="btn-cancel-auth" class="secondary-btn">Annuler</button>
-          </div>
+<label><span>Adresse e-mail</span><input id="auth-email" type="email" autocomplete="email" required placeholder="vous@exemple.com"></label>
+<label><span>Mot de passe</span><input id="auth-password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe"></label>
+<div class="auth-buttons">
+  <button type="submit" id="btn-auth-submit" class="primary-btn" style="cursor: pointer;">Se connecter</button>
+  <button type="button" id="btn-cancel-auth" class="secondary-btn">Annuler</button>
+</div>
 
           <p id="auth-error" class="form-error" role="alert"></p>
         </form>
