@@ -215,4 +215,55 @@ const BudgetDB = {
   async getBudgets() {
     return [];
   }
+   // --- FINANCEMENTS / PROJETS ---
+  async getFinancings() {
+    const user = await this.requireUser();
+    const client = this.client();
+
+    const { data, error } = await client
+      .from("financings")
+      .select("*")
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Erreur chargement financements :", error);
+      return [];
+    }
+
+    return (data || []).map(row => ({
+      id: row.id,
+      name: row.name,
+      targetAmount: Number(row.target_amount || 0),
+      currentAmount: Number(row.current_amount || 0),
+      months: Number(row.months || 1),
+      monthlyEffort: Number(row.monthly_effort || 0),
+      status: row.status || "simulation"
+    }));
+  },
+
+  async putFinancing(proj) {
+    const user = await this.requireUser();
+    const client = this.client();
+
+    const payload = {
+      user_id: user.id,
+      name: proj.name,
+      target_amount: proj.targetAmount,
+      current_amount: proj.currentAmount,
+      months: proj.months,
+      monthly_effort: proj.monthlyEffort,
+      status: proj.status || "simulation"
+    };
+
+    if (proj.id) payload.id = proj.id;
+
+    const { data, error } = await client
+      .from("financings")
+      .upsert(payload)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
 };
