@@ -379,17 +379,27 @@
               <span class="chevron">›</span>
             </button>
 
-            <!-- Export des données -->
-            <button class="settings-row-btn" type="button" id="btn-export-data">
+<!-- Export des données en JSON -->
+            <button class="settings-row-btn" type="button" id="btn-export-json">
               <div class="settings-icon-box" style="background-color: #3b82f6; color: white;">📥</div>
               <div class="settings-row-content">
-                <strong>Exporter mes données</strong>
-                <small>Télécharger un fichier CSV</small>
+                <strong>Exporter mes données (JSON)</strong>
+                <small>Sauvegarder toutes vos données</small>
               </div>
               <span class="chevron">›</span>
             </button>
 
-          </div>
+            <!-- Import des données en JSON -->
+            <button class="settings-row-btn" type="button" id="btn-import-json">
+              <div class="settings-icon-box" style="background-color: #8b5cf6; color: white;">📤</div>
+              <div class="settings-row-content">
+                <strong>Importer mes données (JSON)</strong>
+                <small>Restaurer depuis une sauvegarde</small>
+              </div>
+              <span class="chevron">›</span>
+            </button>
+            <!-- Champ de fichier invisible pour l'import -->
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
 
           <!-- Section Compte & Sécurité -->
           <div class="settings-group-title">Compte & Sécurité</div>
