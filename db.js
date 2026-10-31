@@ -266,4 +266,17 @@ const BudgetDB = {
     if (error) throw error;
     return data;
   }
+   async deleteFinancing(id) {
+    if (!id) throw new Error("Identifiant du projet manquant.");
+    const user = await this.requireUser();
+    const client = this.client();
+
+    const { error } = await client
+      .from("financings")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+  },
 };
