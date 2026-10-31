@@ -214,7 +214,7 @@ const BudgetDB = {
   },
   async getBudgets() {
     return [];
-  }
+  },
    // --- FINANCEMENTS / PROJETS ---
   async getFinancings() {
     const user = await this.requireUser();
