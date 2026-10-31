@@ -306,13 +306,19 @@ function renderDashboard() {
       periodText = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
     }
 
-    if ($("period-display-label")) $("period-display-label").textContent = periodText;
+if ($("period-display-label")) $("period-display-label").textContent = periodText;
 
     if ($("metric-net")) {
       $("metric-net").textContent = customMoney(net);
       $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
     }
-    if ($("metric-expense")) $("metric-expense").textContent = customMoney(expense);
+    
+    // --- MODIFICATION ICI POUR LES DÉPENSES ---
+    if ($("metric-expense")) {
+      $("metric-expense").textContent = "− " + customMoney(expense);
+      $("metric-expense").style.color = "#ef4444"; // Couleur rouge
+    }
+
     if ($("metric-income")) $("metric-income").textContent = customMoney(income);
     if ($("metric-saving")) $("metric-saving").textContent = customMoney(saving);
 
