@@ -712,7 +712,7 @@ $("tab-login")?.addEventListener("click", () => {
 
         // Première lettre pour l'avatar
         const initial = (firstName || user.email || 'G').charAt(0).toUpperCase();
-        document.q('.settings-icon-avatar').forEach(el => el.textContent = initial);
+        document.querySelectorAll('.settings-icon-avatar').forEach(el => el.textContent = initial);
 
         if ($("edit-firstname")) $("edit-firstname").value = firstName;
         if ($("edit-lastname")) $("edit-lastname").value = lastName;
@@ -867,8 +867,8 @@ $("tab-login")?.addEventListener("click", () => {
     }
   });
 
-  // Fermer la modale explicitement (résout le souci de la croix et du bouton fermer)
-  document.q("[data-close='manage-categories-dialog']").forEach(btn => {
+// Fermer la modale explicitement (résout le souci de la croix et du bouton fermer)
+  document.querySelectorAll("[data-close='manage-categories-dialog']").forEach(btn => {
     btn.addEventListener("click", () => {
       const dlg = $("manage-categories-dialog");
       if (dlg) {
@@ -877,7 +877,6 @@ $("tab-login")?.addEventListener("click", () => {
       }
     });
   });
-
 // Ajouter une catégorie depuis la modale de gestion avec affichage instantané
   $("manage-category-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
