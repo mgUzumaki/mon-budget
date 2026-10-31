@@ -180,25 +180,31 @@ function renderCategoryOptions() {
   });
 
 document.querySelectorAll('.range-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.range-btn').forEach(b => {
-        b.classList.remove('active');
-        b.removeAttribute('aria-pressed');
-      });
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.range-btn').forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-pressed');
+    });
+    e.target.classList.add('active');
+    e.target.setAttribute('aria-pressed', 'true');
+    currentRange = e.target.dataset.range;
+    renderDashboard();
+  });
+});
 
 // --- Écouteurs pour les boutons du graphique (Barres + Tendance / Courbe seule) ---
-  document.querySelectorAll('#chart-view-mode button').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('#chart-view-mode button').forEach(b => {
-        b.classList.remove('active');
-        b.removeAttribute('aria-pressed');
-      });
-      e.target.classList.add('active');
-      e.target.setAttribute('aria-pressed', 'true');
-      currentChartMode = e.target.dataset.view;
-      renderDashboard();
+document.querySelectorAll('#chart-view-mode button').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('#chart-view-mode button').forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-pressed');
     });
+    e.target.classList.add('active');
+    e.target.setAttribute('aria-pressed', 'true');
+    currentChartMode = e.target.dataset.view;
+    renderDashboard();
   });
+});
   async function refresh() {
     try {
       [transactions, categories, budgets] = await Promise.all([
