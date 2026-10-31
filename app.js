@@ -910,6 +910,74 @@ $("tab-login")?.addEventListener("click", () => {
       toast("Erreur lors de la suppression : " + err.message);
     }
   };
+  // --- EXPORTATION DES DONNÉES EN JSON ---
+  $("btn-export-json")?.addEventListener("click", async () => {
+    try {
+      const allTransactions = await BudgetDB.getTransactions();
+      const allCategories = await BudgetDB.getCategories();
+      
+      const exportData = {
+        version: "1.0",
+        date: new Date().toISOString(),
+        transactions: allTransactions,
+        categories: allCategories
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `mon_budget_backup_${Finance.localDate()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      toast("Exportation JSON réussie !");
+    } catch (err) {
+      console.error("Erreur export JSON :", err);
+      toast("Erreur lors de l'exportation.");
+    }
+  });
+
+  // --- IMPORTATION DES DONNÉES EN JSON ---
+  $("btn-import-json")?.addEventListener("click", () => {
+    $("import-file-input")?.click();
+  });
+
+  $("import-file-input")?.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+
+        // Importer les catégories d'abord si elles existent
+        if (data.categories && Array.isArray(data.categories)) {
+          for (const cat of data.categories) {
+            // Évite de recréer les catégories globales par défaut si besoin
+            if (!cat.is_global) {
+              try { await BudgetDB.putCategory(cat); } catch (e) {}
+            }
+          }
+        }
+
+        // Importer les transactions ensuite
+        if (data.transactions && Array.isArray(data.transactions)) {
+          for (const t of data.transactions) {
+            await BudgetDB.putTransaction(t);
+          }
+        }
+
+        toast("Importation et restauration réussies !");
+        await refresh();
+      } catch (err) {
+        console.error("Erreur d'import JSON :", err);
+        toast("Erreur : le fichier JSON est invalide.");
+      }
+    };
+    reader.readAsText(file);
+  });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
 
