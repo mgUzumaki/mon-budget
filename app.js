@@ -136,8 +136,7 @@ document.querySelectorAll(".nav-link").forEach(btn => {
       b.classList.toggle("active", b === btn);
       b.setAttribute("aria-current", b === btn ? "page" : "false");
     });
-      const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), settings: t('nav_settings') };
-      $("page-title").textContent = titles[page] || titles.dashboard;
+const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), financing: "Simulateur", settings: t('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
       if (sidebar?.classList.contains("is-open")) toggleSidebar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -983,6 +982,24 @@ $("tab-login")?.addEventListener("click", () => {
       }
     };
     reader.readAsText(file);
+  });
+  // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT ---
+  $("financing-sim-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = $("sim-name").value.trim();
+    const target = parseFloat($("sim-target").value) || 0;
+    const current = parseFloat($("sim-current").value) || 0;
+    const months = parseInt($("sim-months").value) || 1;
+
+    const remainingCents = Math.max(0, Finance.toCents(target - current));
+    const monthlyEffortCents = Math.round(remainingCents / months);
+
+    $("res-proj-name").textContent = name;
+    $("res-rem-amount").textContent = customMoney(remainingCents);
+    $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + " / mois";
+
+    $("sim-result-card").style.display = "block";
   });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
