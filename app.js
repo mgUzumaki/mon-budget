@@ -1001,7 +1001,7 @@ $("tab-login")?.addEventListener("click", () => {
       toast("Erreur lors de la suppression.");
     }
   };
- // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT ---
+// --- LOGIQUE DU SIMULATEUR DE FINANCEMENT & ANALYSE DE FAISABILITÉ ---
   $("financing-sim-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -1013,9 +1013,40 @@ $("tab-login")?.addEventListener("click", () => {
     const remainingCents = Math.max(0, Finance.toCents(target - current));
     const monthlyEffortCents = Math.round(remainingCents / months);
 
+    // --- CALCUL DE LA CAPACITÉ RÉELLE DU MOIS ---
+    // On récupère les revenus et dépenses des transactions actuelles du mois
+    const filteredItems = getFilteredTransactions();
+    const realIncome = Finance.sum(filteredItems, "income");
+    const realExpense = Finance.sum(filteredItems, "expense");
+    const realNetBalance = realIncome - realExpense; // Ce qu'il reste vraiment ce mois-ci
+
+    // Analyse de faisabilité
+    const canAfford = realNetBalance >= monthlyEffortCents;
+    const diffCents = realNetBalance - monthlyEffortCents;
+
+    // Affichage des résultats de base
     $("res-proj-name").textContent = name;
     $("res-rem-amount").textContent = customMoney(remainingCents);
     $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + " / mois";
+
+    // --- AJOUT DU BLOC DE FAISABILITÉ DANS LA CARTE DE RÉSULTAT ---
+    let feasibilityEl = $("sim-feasibility-alert");
+    if (!feasibilityEl) {
+      feasibilityEl = document.createElement("div");
+      feasibilityEl.id = "sim-feasibility-alert";
+      feasibilityEl.style.cssText = "margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.9rem;";
+      $("sim-result-card").appendChild(feasibilityEl);
+    }
+
+    if (canAfford) {
+      feasibilityEl.style.background = "#e6f4ea";
+      feasibilityEl.style.color = "#065f46";
+      feasibilityEl.innerHTML = `✅ <strong>Projet faisable ce mois-ci !</strong> Votre solde net actuel (${customMoney(realNetBalance)}) couvre largement l'effort d'épargne demandé. Il vous restera même ${customMoney(diffCents)}.`;
+    } else {
+      feasibilityEl.style.background = "#fee2e2";
+      feasibilityEl.style.color = "#dc2626";
+      feasibilityEl.innerHTML = `⚠️ <strong>Attention, tension budgétaire :</strong> Il vous manque ${customMoney(Math.abs(diffCents))} ce mois-ci par rapport à votre solde net (${customMoney(realNetBalance)}) pour tenir cet effort d'épargne.`;
+    }
 
     $("sim-result-card").style.display = "block";
 
@@ -1027,9 +1058,9 @@ $("tab-login")?.addEventListener("click", () => {
         currentAmount: current,
         months: months,
         monthlyEffort: monthlyEffortCents / 100,
-        status: "simulation"
+        status: canAfford ? "faisable" : "tendu"
       });
-      toast("Simulation enregistrée avec succès !");
+      toast("Simulation et analyse enregistrées !");
       renderFinancings();
     } catch (err) {
       console.error("Erreur sauvegarde projet :", err);
