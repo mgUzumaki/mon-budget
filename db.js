@@ -265,7 +265,7 @@ const BudgetDB = {
 
     if (error) throw error;
     return data;
-  }
+  },
    async deleteFinancing(id) {
     if (!id) throw new Error("Identifiant du projet manquant.");
     const user = await this.requireUser();
