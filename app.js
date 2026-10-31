@@ -983,8 +983,8 @@ $("tab-login")?.addEventListener("click", () => {
     };
     reader.readAsText(file);
   });
-  // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT ---
-  $("financing-sim-form")?.addEventListener("submit", (e) => {
+ // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT ---
+  $("financing-sim-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const name = $("sim-name").value.trim();
@@ -1000,6 +1000,22 @@ $("tab-login")?.addEventListener("click", () => {
     $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + " / mois";
 
     $("sim-result-card").style.display = "block";
+
+    // Enregistrement automatique en mode simulation dans Supabase
+    try {
+      await BudgetDB.putFinancing({
+        name: name,
+        targetAmount: target,
+        currentAmount: current,
+        months: months,
+        monthlyEffort: monthlyEffortCents / 100,
+        status: "simulation"
+      });
+      toast("Simulation enregistrée avec succès !");
+    } catch (err) {
+      console.error("Erreur sauvegarde projet :", err);
+      toast("Erreur lors de l'enregistrement du projet.");
+    }
   });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
