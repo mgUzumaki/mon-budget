@@ -1013,6 +1013,7 @@ $("tab-login")?.addEventListener("click", () => {
         status: "simulation"
       });
       toast("Simulation enregistrée avec succès !");
+      renderFinancings();
     } catch (err) {
       console.error("Erreur sauvegarde projet :", err);
       toast("Erreur lors de l'enregistrement du projet.");
