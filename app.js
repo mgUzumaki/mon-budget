@@ -225,6 +225,7 @@ function renderAll() {
     renderTransactions();
     renderBudgets();
     renderStatistics();
+  renderFinancings();
     updateUserProfileInfo();
 
     // ---> AJOUTE UNIQUEMENT CE MORCEAU ICI :
@@ -1017,6 +1018,33 @@ $("tab-login")?.addEventListener("click", () => {
       toast("Erreur lors de l'enregistrement du projet.");
     }
   });
+  // --- CHARGEMENT ET AFFICHAGE DES FINANCEMENTS ---
+  async function renderFinancings() {
+    const container = $("financing-projects-list");
+    if (!container) return;
+
+    try {
+      const projects = await BudgetDB.getFinancings();
+
+      container.innerHTML = projects.length ? projects.map(p => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+          <div>
+            <strong>${escapeHTML(p.name)}</strong>
+            <small style="display: block; color: #64748b; font-size: 0.85rem;">
+              Objectif : ${p.targetAmount} ${currentCurrency} • ${p.months} mois • Épargne : ${customMoney(p.monthlyEffort * 100)}/mois
+            </small>
+          </div>
+          <div style="text-align: right;">
+            <span style="background: #e6f4ea; color: #065f46; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+              ${p.status}
+            </span>
+          </div>
+        </div>
+      `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">Aucun projet de financement pour le moment.</p>`;
+    } catch (err) {
+      console.error("Erreur affichage financements :", err);
+    }
+  }
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
 
