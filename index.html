@@ -117,7 +117,15 @@
           <span class="nav-icon" aria-hidden="true">▥</span>
           <span data-i18n="nav_stats">Statistiques</span>
         </button>
+<button class="nav-link" data-page="financing">
+          <span class="nav-icon" aria-hidden="true">🎯</span>
+          <span>Simulateur</span>
+        </button>
 
+        <button class="nav-link" data-page="settings">
+          <span class="nav-icon" aria-hidden="true">⚙</span>
+          <span data-i18n="nav_settings">Réglages</span>
+        </button>
         <button class="nav-link" data-page="settings">
           <span class="nav-icon" aria-hidden="true">⚙</span>
           <span data-i18n="nav_settings">Réglages</span>
@@ -359,7 +367,66 @@
           </div>
         </div>
       </section>
+<!-- SIMULATEUR DE FINANCEMENT -->
+      <section id="page-financing" class="page">
+        <div class="section-intro">
+          <div>
+            <h2>Simulateur de Financement</h2>
+            <p>Définissez votre projet et évaluez l'effort d'épargne nécessaire.</p>
+          </div>
+        </div>
 
+        <div class="panel" style="max-width: 600px; margin: 0 auto;">
+          <form id="financing-sim-form">
+            <label>
+              <span>Nom du projet</span>
+              <input type="text" id="sim-name" required placeholder="Ex: Achat ordinateur, Voiture, Voyage...">
+            </label>
+
+            <div class="form-row" style="margin-top: 12px;">
+              <label>
+                <span>Montant nécessaire</span>
+                <input type="number" id="sim-target" min="1" step="0.01" required placeholder="Ex: 3000">
+              </label>
+              <label>
+                <span>Déjà disponible</span>
+                <input type="number" id="sim-current" min="0" step="0.01" value="0" placeholder="Ex: 500">
+              </label>
+            </div>
+
+            <div class="form-row" style="margin-top: 12px;">
+              <label>
+                <span>Durée souhaitée (en mois)</span>
+                <input type="number" id="sim-months" min="1" max="120" value="6" required placeholder="Ex: 6">
+              </label>
+            </div>
+
+            <button class="primary-btn" type="submit" style="width: 100%; margin-top: 20px; justify-content: center;">
+              Calculer la simulation
+            </button>
+          </form>
+
+          <!-- Zone de résultat de la simulation -->
+          <div id="sim-result-card" style="display: none; margin-top: 24px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h3 style="margin-bottom: 12px; color: #0f172a;" id="res-proj-name">Projet</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <div>
+                <small style="color: #64748b;">Reste à financer</small>
+                <strong style="display: block; font-size: 1.2rem; color: #0f172a;" id="res-rem-amount">0</strong>
+              </div>
+              <div>
+                <small style="color: #64748b;">Effort mensuel d'épargne</small>
+                <strong style="display: block; font-size: 1.2rem; color: #10b981;" id="res-monthly-effort">0 / mois</strong>
+              </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">
+              Sans intérêts ni frais, basé sur des versements réguliers.
+            </p>
+          </div>
+        </div>
+      </section>
 <!-- PARAMÈTRES (DESIGN CLEAN & STANDARD) -->
       <section id="page-settings" class="page">
         <div class="settings-container-ios">
