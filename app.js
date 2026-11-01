@@ -506,16 +506,31 @@ function renderTransactions() {
       const mainText = t.description ? t.description : catName;
       const subText = t.description ? catName : t.date;
 
-      return `
-        <div class="transaction-row">
-          <div>
-            <strong>${escapeHTML(mainText)}</strong>
-            <small>${escapeHTML(subText)}</small>
-          </div>
-          <div class="amount ${cls}">${escapeHTML(amountFormatted)}</div>
-        </div>
-      `;
+return `
+  <div
+    class="transaction-row"
+    role="button"
+    tabindex="0"
+    data-transaction-id="${escapeHTML(t.id)}"
+    style="cursor: pointer;"
+    aria-label="Ouvrir les détails de l'opération"
+  >
+    <div>
+      <strong>${escapeHTML(mainText)}</strong>
+      <small>${escapeHTML(subText)}</small>
+    </div>
+    <div class="amount ${cls}">
+      ${escapeHTML(amountFormatted)}
+    </div>
+  </div>
+`;
     }).join("") : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
+  listEl.onclick = (event) => {
+  const row = event.target.closest("[data-transaction-id]");
+  if (!row) return;
+
+  openEditTransactionModal(row.dataset.transactionId);
+};
   }
 
   function renderBudgets() {
@@ -784,7 +799,55 @@ function openNewTransactionModal() {
   showDialog("transaction-dialog");
   updateTransactionConversion();
 }
+// Ouvrir une opération existante pour la consulter ou la modifier
+function openEditTransactionModal(transactionId) {
+  const t = transactions.find(item => String(item.id) === String(transactionId));
 
+  if (!t) {
+    toast("Opération introuvable.");
+    return;
+  }
+
+  const form = $("transaction-form");
+
+  form.reset();
+
+  // Indiquer que nous modifions une opération existante
+  form.dataset.transactionId = t.id;
+
+  $("transaction-modal-title").textContent = "Modifier l'opération";
+
+  $("transaction-date").value = t.date;
+  $("transaction-type").value = t.type;
+  $("transaction-amount").value = (
+    (t.originalAmountCents ?? t.amountCents) / 100
+  ).toFixed(2);
+
+  $("transaction-currency").value =
+    t.originalCurrency || currentCurrency;
+
+  $("transaction-description").value = t.description || "";
+
+  renderCategoryOptions();
+  $("transaction-category").value = t.categoryId || "";
+
+  // Afficher les informations de conversion déjà enregistrées
+  const panel = $("transaction-conversion");
+
+  if (panel) {
+    panel.hidden = false;
+    panel.style.display = "block";
+  }
+  $("transaction-exchange-rate").textContent =
+    `1 ${t.originalCurrency || currentCurrency} = ${Number(t.exchangeRate || 1).toFixed(6)} ${t.baseCurrency || currentCurrency}`;
+  $("transaction-converted-amount").textContent =
+    `${(t.amountCents / 100).toFixed(2)} ${t.baseCurrency || currentCurrency}`;
+
+  $("transaction-rate-date").textContent =
+    `Taux enregistré le ${t.exchangeRateDate || t.date}`;
+
+  showDialog("transaction-dialog");
+}
   $("quick-add")?.addEventListener("click", openNewTransactionModal);
   $("btn_new_op")?.addEventListener("click", openNewTransactionModal);
   $("mobile-add")?.addEventListener("click", openNewTransactionModal);
