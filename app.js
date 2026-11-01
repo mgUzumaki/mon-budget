@@ -575,6 +575,30 @@ return `
 
   openEditTransactionModal(row.dataset.transactionId);
 };
+  const deleteButton = $("delete-selected-transactions");
+
+if (deleteButton) {
+  deleteButton.hidden = selectedTransactionIds.size === 0;
+  deleteButton.textContent =
+    `Supprimer la sélection (${selectedTransactionIds.size})`;
+}
+  if (deleteButton) {
+  deleteButton.onclick = async () => {
+    const ids = [...selectedTransactionIds];
+    if (ids.length === 0) return;
+
+    if (!confirm(`Supprimer définitivement ${ids.length} opération(s) ?`)) return;
+
+    try {
+      await BudgetDB.deleteTransactions(ids);
+      selectedTransactionIds.clear();
+      await refresh();
+      toast("Opérations supprimées.");
+    } catch (error) {
+      toast("Erreur : " + error.message);
+    }
+  };
+}
   }
 
   function renderBudgets() {
