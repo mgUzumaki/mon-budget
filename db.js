@@ -49,6 +49,25 @@ const BudgetDB = {
     if (error) throw error;
     return data.user.user_metadata.main_currency;
   },
+   async deleteTransactions(ids) {
+  const user = await this.requireUser();
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new Error("Aucune transaction sélectionnée.");
+  }
+
+  const client = this.client();
+
+  const { error } = await client
+    .from("transactions")
+    .delete()
+    .eq("user_id", user.id)
+    .in("id", ids);
+
+  if (error) throw error;
+
+  return true;
+},
   async getTransactions() {
     const user = await this.requireUser();
     const client = this.client();
