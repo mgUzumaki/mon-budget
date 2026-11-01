@@ -305,18 +305,34 @@
             <p data-i18n="trans_intro">Retrouvez, filtrez et corrigez vos opérations.</p>
           </div>
 
-          <button class="primary-btn" id="btn_new_op" type="button">
-            <span data-i18n="btn_new_op">＋ Nouvelle opération</span>
-          </button>
-        </div>
-        <button
+<button class="primary-btn" id="btn_new_op" type="button">
+  <span data-i18n="btn_new_op">＋ Nouvelle opération</span>
+</button>
+
+<button
   id="delete-selected-transactions"
   type="button"
   class="btn-danger"
-  style="display: none;"
+  style="
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(220, 38, 38, 0.15);
+  "
+  hidden
 >
-  Supprimer la sélection
+  🗑 Supprimer la sélection
 </button>
+</div>
 
         <div class="filter-bar">
           <label class="sr-only" for="search-transactions">Rechercher</label>
