@@ -12,7 +12,7 @@
   let doughnutChartInstance = null;
 
   let currentLang = localStorage.getItem('user_lang') || 'fr';
-  let currentCurrency = localStorage.getItem('user_currency') || 'FCFA';
+ let currentCurrency = 'EUR';
 
 const translations = {
     fr: {
