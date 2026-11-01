@@ -98,13 +98,15 @@ document.querySelectorAll("[data-close]").forEach(btn => {
     if (appDiv) appDiv.hidden = true;
   }
 
-  function showApp() {
-    const landingPage = $("landing-page");
-    const appDiv = $("app");
-    if (landingPage) landingPage.hidden = true;
-    if (appDiv) appDiv.hidden = false;
-    refresh();
-  }
+function showApp() {
+  const landingPage = $("landing-page");
+  const appDiv = $("app");
+
+  if (landingPage) landingPage.hidden = true;
+  if (appDiv) appDiv.hidden = false;
+
+  refresh();
+}
 
   $("btn-cancel-auth")?.addEventListener("click", () => {
     $("auth-form")?.reset();
