@@ -98,14 +98,29 @@ document.querySelectorAll("[data-close]").forEach(btn => {
     if (appDiv) appDiv.hidden = true;
   }
 
-function showApp() {
+async function showApp() {
   const landingPage = $("landing-page");
   const appDiv = $("app");
 
   if (landingPage) landingPage.hidden = true;
   if (appDiv) appDiv.hidden = false;
 
-  refresh();
+  try {
+    // Récupérer la devise principale du compte connecté
+    currentCurrency = await BudgetDB.getMainCurrency();
+
+    // Mettre à jour le sélecteur dans les paramètres
+    if ($("app-currency")) {
+      $("app-currency").value = currentCurrency;
+    }
+
+    // Actualiser les données de l'application
+    await refresh();
+
+  } catch (error) {
+    console.error("Erreur de chargement de la devise :", error);
+    toast("Impossible de charger les paramètres de devise.");
+  }
 }
 
   $("btn-cancel-auth")?.addEventListener("click", () => {
