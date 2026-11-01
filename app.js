@@ -653,11 +653,26 @@ $("tab-login")?.addEventListener("click", () => {
     renderAll();
   });
 
-  $("app-currency")?.addEventListener("change", (e) => {
-    currentCurrency = e.target.value;
-    localStorage.setItem('user_currency', currentCurrency);
+$("app-currency")?.addEventListener("change", async (e) => {
+  const newCurrency = e.target.value;
+
+  try {
+    await BudgetDB.setMainCurrency(newCurrency);
+
+    currentCurrency = newCurrency;
+    localStorage.setItem("user_currency", currentCurrency);
+
     renderAll();
-  });
+    toast("Devise principale mise à jour !");
+  } catch (error) {
+    console.error("Erreur de changement de devise :", error);
+
+    // Remettre l'ancienne devise dans le sélecteur
+    e.target.value = currentCurrency;
+
+    toast("Erreur : impossible de modifier la devise.");
+  }
+});
 
   function openNewTransactionModal() {
     $("transaction-form").reset();
