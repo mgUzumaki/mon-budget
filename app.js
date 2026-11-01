@@ -5,6 +5,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   let transactions = [], categories = [], budgets = [], toastTimer;
+  let selectedTransactionIds = new Set();
   let currentRange = 'month'; 
   let currentChartMode = 'bars';
   let referenceDate = new Date(); 
@@ -498,7 +499,15 @@ function renderTransactions() {
       return matchesSearch && matchesType && matchesCat;
     });
 
-    listEl.innerHTML = filtered.length ? filtered.map(t => {
+   listEl.innerHTML = filtered.length ? `
+  <div class="transaction-selection-toolbar">
+    <label>
+      <input type="checkbox" class="select-all-transactions">
+      Tout sélectionner
+    </label>
+    <span>${selectedTransactionIds.size} sélectionnée(s)</span>
+  </div>
+  ${filtered.map(t => {
       const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
       const cls = t.type === "income" ? "positive" : "negative";
       const catName = categoryName(t.categoryId);
@@ -516,6 +525,7 @@ return `
       type="checkbox"
       class="transaction-select"
       data-transaction-id="${escapeHTML(t.id)}"
+      checked="${selectedTransactionIds.has(String(t.id)) ? "checked" : ""}"
       aria-label="Sélectionner cette transaction"
     >
 
@@ -529,7 +539,8 @@ return `
     </div>
   </div>
 `;
-    }).join("") : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
+      }).join("")}
+` : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
   listEl.onclick = (event) => {
     if (event.target.closest(".transaction-select")) return;
   const row = event.target.closest("[data-transaction-id]");
