@@ -525,7 +525,7 @@ return `
       type="checkbox"
       class="transaction-select"
       data-transaction-id="${escapeHTML(t.id)}"
-      checked="${selectedTransactionIds.has(String(t.id)) ? "checked" : ""}"
+      ${selectedTransactionIds.has(String(t.id)) ? "checked" : ""}
       aria-label="Sélectionner cette transaction"
     >
 
@@ -541,8 +541,35 @@ return `
 `;
       }).join("")}
 ` : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
+  listEl.onchange = (event) => {
+  if (event.target.matches(".transaction-select")) {
+    const id = String(event.target.dataset.transactionId);
+
+    if (event.target.checked) {
+      selectedTransactionIds.add(id);
+    } else {
+      selectedTransactionIds.delete(id);
+    }
+
+    renderTransactions();
+  }
+
+  if (event.target.matches(".select-all-transactions")) {
+    filtered.forEach(t => {
+      const id = String(t.id);
+
+      if (event.target.checked) {
+        selectedTransactionIds.add(id);
+      } else {
+        selectedTransactionIds.delete(id);
+      }
+    });
+
+    renderTransactions();
+  }
+};
   listEl.onclick = (event) => {
-    if (event.target.closest(".transaction-select")) return;
+  if (event.target.closest(".transaction-select, .select-all-transactions")) return;
   const row = event.target.closest("[data-transaction-id]");
   if (!row) return;
 
