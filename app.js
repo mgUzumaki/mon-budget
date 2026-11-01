@@ -677,7 +677,100 @@ $("app-currency")?.addEventListener("change", async (e) => {
     toast("Erreur : impossible de modifier la devise.");
   }
 });
+// Récupérer le taux de change historique
+async function getExchangeRate(from, to, date) {
+  // Même devise : aucun calcul de conversion nécessaire
+  if (from === to) {
+    return {
+      rate: 1,
+      date: date
+    };
+  }
+  const url = `https://api.frankfurter.dev/v2/rate/${encodeURIComponent(from)}/${encodeURIComponent(to)}?date=${encodeURIComponent(date)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Taux de change indisponible pour ${from} vers ${to} à la date du ${date}.`
+    );
+  }
+  const result = await response.json();
+  if (!result.rate || !Number.isFinite(Number(result.rate))) {
+    throw new Error("Le taux de change reçu est invalide.");
+  }
+  return {
+    rate: Number(result.rate),
+    date: result.date || date
+  };
+}
+  // Mettre à jour l'aperçu de conversion
+async function updateTransactionConversion() {
+  const amountInput = $("transaction-amount");
+  const currencyInput = $("transaction-currency");
+  const dateInput = $("transaction-date");
+  const panel = $("transaction-conversion");
 
+  if (!amountInput || !currencyInput || !dateInput || !panel) return;
+
+  const amount = Number(amountInput.value.replace(",", "."));
+  const fromCurrency = currencyInput.value;
+  const toCurrency = currentCurrency;
+  const date = dateInput.value;
+
+  // Masquer l'aperçu si les informations sont incomplètes
+  if (!amount || amount <= 0 || !date || !fromCurrency) {
+    panel.hidden = true;
+    return;
+  }
+
+  panel.hidden = false;
+
+  $("transaction-exchange-rate").textContent = "Calcul en cours...";
+  $("transaction-converted-amount").textContent = "Calcul en cours...";
+  $("transaction-rate-date").textContent = "";
+
+  try {
+    const conversion = await getExchangeRate(
+      fromCurrency,
+      toCurrency,
+      date
+    );
+
+    const convertedAmount = amount * conversion.rate;
+
+    $("transaction-exchange-rate").textContent =
+      `1 ${fromCurrency} = ${conversion.rate.toFixed(6)} ${toCurrency}`;
+
+    $("transaction-converted-amount").textContent =
+      `${convertedAmount.toFixed(2)} ${toCurrency}`;
+
+    $("transaction-rate-date").textContent =
+      `Taux applicable au ${conversion.date}`;
+
+  } catch (error) {
+    $("transaction-exchange-rate").textContent =
+      "Taux indisponible";
+
+    $("transaction-converted-amount").textContent =
+      "Conversion impossible";
+
+    $("transaction-rate-date").textContent = error.message;
+  }
+}
+  // Actualiser la conversion lorsque l'utilisateur modifie les champs
+$("transaction-amount")?.addEventListener(
+  "input",
+  updateTransactionConversion
+);
+
+$("transaction-currency")?.addEventListener(
+  "change",
+  updateTransactionConversion
+);
+
+$("transaction-date")?.addEventListener(
+  "change",
+  updateTransactionConversion
+);
   function openNewTransactionModal() {
     $("transaction-form").reset();
     $("transaction-date").value = today;
