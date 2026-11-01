@@ -92,14 +92,32 @@ const BudgetDB = {
       throw new Error("Le montant doit être positif et valide.");
     }
 
-    const payload = {
-      user_id: user.id,
-      date: transaction.date,
-      type: transaction.type,
-      category: transaction.categoryId || null,
-      amount: amountCents / 100,
-      note: String(transaction.description || "").trim()
-    };
+const baseCurrency = transaction.baseCurrency
+  || user.user_metadata?.main_currency
+  || "EUR";
+
+const originalCurrency = transaction.originalCurrency || baseCurrency;
+
+const payload = {
+  user_id: user.id,
+  date: transaction.date,
+  type: transaction.type,
+  category: transaction.categoryId || null,
+
+  // Montant converti dans la devise principale
+  amount: Number(transaction.convertedAmountCents ?? amountCents) / 100,
+
+  // Informations sur le montant d'origine
+  original_amount: Number(transaction.originalAmountCents ?? amountCents) / 100,
+  original_currency: originalCurrency,
+
+  // Informations sur la conversion
+  base_currency: baseCurrency,
+  exchange_rate: transaction.exchangeRate ?? 1,
+  exchange_rate_date: transaction.exchangeRateDate || transaction.date,
+
+  note: String(transaction.description || "").trim()
+};
 
     if (transaction.id) {
       payload.id = transaction.id;
