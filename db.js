@@ -26,22 +26,32 @@ const BudgetDB = {
 
   async requireUser() {
     const client = this.client();
-
     const { data, error } = await client.auth.getUser();
-
     if (error) throw error;
-
     if (!data || !data.user) {
       throw new Error("Vous devez être connecté.");
     }
-
     return data.user;
   },
-
+  async getMainCurrency() {
+    const user = await this.requireUser();
+    return user.user_metadata?.main_currency || "EUR";
+  },
+  async setMainCurrency(currency) {
+    const allowed = ["EUR", "CNY", "USD", "GBP", "CHF", "XOF", "XAF"];
+    if (!allowed.includes(currency)) {
+      throw new Error("Devise principale invalide.");
+    }
+    const client = this.client();
+    const { data, error } = await client.auth.updateUser({
+      data: { main_currency: currency }
+    });
+    if (error) throw error;
+    return data.user.user_metadata.main_currency;
+  },
   async getTransactions() {
     const user = await this.requireUser();
     const client = this.client();
-
     const { data, error } = await client
       .from("transactions")
       .select("*")
