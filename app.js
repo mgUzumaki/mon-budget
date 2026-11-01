@@ -771,44 +771,92 @@ $("transaction-date")?.addEventListener(
   "change",
   updateTransactionConversion
 );
-  function openNewTransactionModal() {
-    $("transaction-form").reset();
-    $("transaction-date").value = today;
-    renderCategoryOptions();
-    showDialog("transaction-dialog");
+function openNewTransactionModal() {
+  $("transaction-form").reset();
+  $("transaction-date").value = today;
+  if ($("transaction-currency")) {
+    $("transaction-currency").value = currentCurrency;
   }
+  if ($("transaction-conversion")) {
+    $("transaction-conversion").hidden = true;
+  }
+  renderCategoryOptions();
+  showDialog("transaction-dialog");
+  updateTransactionConversion();
+}
 
   $("quick-add")?.addEventListener("click", openNewTransactionModal);
   $("btn_new_op")?.addEventListener("click", openNewTransactionModal);
   $("mobile-add")?.addEventListener("click", openNewTransactionModal);
 
-  $("transaction-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (submitBtn.disabled) return;
+$("transaction-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Enregistrement...";
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn.disabled) return;
 
-      const tx = {
-        date: $("transaction-date").value || today,
-        amountCents: Finance.toCents($("transaction-amount").value),
-        type: $("transaction-type").value,
-        categoryId: $("transaction-category").value,
-        description: $("transaction-description").value.trim()
-      };
-      await BudgetDB.putTransaction(tx);
-      closeDialog("transaction-dialog");
-      await refresh();
-      toast("Opération enregistrée avec succès");
-    } catch (err) {
-      toast("Erreur : " + err.message);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Enregistrer";
-    }
-  });
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enregistrement...";
+
+    const date = $("transaction-date").value || today;
+
+    // Montant saisi et devise d'origine
+    const originalAmountCents = Finance.toCents(
+      $("transaction-amount").value
+    );
+
+    const originalCurrency =
+      $("transaction-currency")?.value || currentCurrency;
+
+    // Récupération du taux historique
+    const conversion = await getExchangeRate(
+      originalCurrency,
+      currentCurrency,
+      date
+    );
+
+    // Conversion vers la devise principale du compte
+    const convertedAmountCents = Math.round(
+      originalAmountCents * conversion.rate
+    );
+
+    const tx = {
+      date,
+
+      // Montant utilisé par les graphiques et les budgets
+      amountCents: convertedAmountCents,
+
+      // Informations originales
+      originalAmountCents,
+      originalCurrency,
+
+      // Informations de conversion
+      convertedAmountCents,
+      baseCurrency: currentCurrency,
+      exchangeRate: conversion.rate,
+      exchangeRateDate: conversion.date,
+
+      type: $("transaction-type").value,
+      categoryId: $("transaction-category").value,
+      description: $("transaction-description").value.trim()
+    };
+
+    await BudgetDB.putTransaction(tx);
+
+    closeDialog("transaction-dialog");
+    await refresh();
+
+    toast("Opération enregistrée avec succès");
+
+  } catch (err) {
+    toast("Erreur : " + err.message);
+
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Enregistrer";
+  }
+});
 
 
 // --- GESTION DU CHANGEMENT DE DATE ---
