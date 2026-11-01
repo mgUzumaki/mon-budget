@@ -509,16 +509,21 @@ function renderTransactions() {
 return `
   <div
     class="transaction-row"
-    role="button"
-    tabindex="0"
     data-transaction-id="${escapeHTML(t.id)}"
     style="cursor: pointer;"
-    aria-label="Ouvrir les détails de l'opération"
   >
+    <input
+      type="checkbox"
+      class="transaction-select"
+      data-transaction-id="${escapeHTML(t.id)}"
+      aria-label="Sélectionner cette transaction"
+    >
+
     <div>
       <strong>${escapeHTML(mainText)}</strong>
       <small>${escapeHTML(subText)}</small>
     </div>
+
     <div class="amount ${cls}">
       ${escapeHTML(amountFormatted)}
     </div>
@@ -526,6 +531,7 @@ return `
 `;
     }).join("") : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
   listEl.onclick = (event) => {
+    if (event.target.closest(".transaction-select")) return;
   const row = event.target.closest("[data-transaction-id]");
   if (!row) return;
 
