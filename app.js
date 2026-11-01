@@ -788,6 +788,8 @@ $("transaction-date")?.addEventListener(
 );
 function openNewTransactionModal() {
   $("transaction-form").reset();
+  delete $("transaction-form").dataset.transactionId;
+$("transaction-modal-title").textContent = "Nouvelle opération";
   $("transaction-date").value = today;
   if ($("transaction-currency")) {
     $("transaction-currency").value = currentCurrency;
@@ -855,7 +857,9 @@ function openEditTransactionModal(transactionId) {
 $("transaction-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+
   if (submitBtn.disabled) return;
 
   try {
@@ -864,7 +868,6 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
     const date = $("transaction-date").value || today;
 
-    // Montant saisi et devise d'origine
     const originalAmountCents = Finance.toCents(
       $("transaction-amount").value
     );
@@ -872,40 +875,34 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     const originalCurrency =
       $("transaction-currency")?.value || currentCurrency;
 
-    // Récupération du taux historique
     const conversion = await getExchangeRate(
       originalCurrency,
       currentCurrency,
       date
     );
 
-    // Conversion vers la devise principale du compte
     const convertedAmountCents = Math.round(
       originalAmountCents * conversion.rate
     );
 
     const tx = {
+      id: form.dataset.transactionId || undefined,
       date,
-
-      // Montant utilisé par les graphiques et les budgets
       amountCents: convertedAmountCents,
-
-      // Informations originales
       originalAmountCents,
       originalCurrency,
-
-      // Informations de conversion
       convertedAmountCents,
       baseCurrency: currentCurrency,
       exchangeRate: conversion.rate,
       exchangeRateDate: conversion.date,
-
       type: $("transaction-type").value,
       categoryId: $("transaction-category").value,
       description: $("transaction-description").value.trim()
     };
 
     await BudgetDB.putTransaction(tx);
+
+    delete form.dataset.transactionId;
 
     closeDialog("transaction-dialog");
     await refresh();
