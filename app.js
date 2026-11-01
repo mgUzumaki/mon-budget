@@ -613,7 +613,11 @@ $("tab-login")?.addEventListener("click", () => {
         const { error } = await client.auth.signUp({ 
           email, 
           password, 
-          options: { data: { first_name: firstName, last_name: lastName } } 
+          options: { data: {
+  first_name: firstName,
+  last_name: lastName,
+  main_currency: "EUR"
+} } 
         });
         if (error) throw error;
         alert("Compte créé avec succès ! Connectez-vous.");
