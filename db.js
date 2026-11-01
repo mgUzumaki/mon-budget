@@ -63,15 +63,31 @@ const BudgetDB = {
       throw error;
     }
 
-    return (data || []).map(row => ({
-      id: row.id,
-      date: row.date,
-      type: row.type || "expense",
-      categoryId: row.category,
-      amountCents: Math.round(Number(row.amount || 0) * 100),
-      description: row.note || "",
-      createdAt: row.created_at || ""
-    }));
+const baseCurrency = user.user_metadata?.main_currency || "EUR";
+
+return (data || []).map(row => ({
+  id: row.id,
+  date: row.date,
+  type: row.type || "expense",
+  categoryId: row.category,
+
+  // Montant utilisé par les graphiques et les budgets
+  amountCents: Math.round(Number(row.amount || 0) * 100),
+
+  // Informations sur la devise d'origine
+  originalAmountCents: Math.round(
+    Number(row.original_amount ?? row.amount ?? 0) * 100
+  ),
+  originalCurrency: row.original_currency || row.base_currency || baseCurrency,
+
+  // Informations sur la conversion
+  baseCurrency: row.base_currency || baseCurrency,
+  exchangeRate: Number(row.exchange_rate ?? 1),
+  exchangeRateDate: row.exchange_rate_date || row.date,
+
+  description: row.note || "",
+  createdAt: row.created_at || ""
+}));
   },
 
   async putTransaction(transaction) {
