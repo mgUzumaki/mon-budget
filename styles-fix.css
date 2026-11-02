@@ -608,3 +608,141 @@ input, select, textarea {
 .clean-transaction-table tr:hover {
   background-color: #f8fafc;
 }
+/* Formulaire de saisie */
+#transaction-dialog {
+  width: min(480px, calc(100vw - 24px));
+  box-sizing: border-box;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 24px;
+}
+
+#transaction-dialog .modal-heading {
+  margin-bottom: 20px;
+}
+
+#transaction-dialog .eyebrow {
+  color: #059669;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+#transaction-dialog .operation-type {
+  margin-bottom: 18px;
+}
+
+#transaction-dialog .operation-type > span {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+#transaction-dialog .operation-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#transaction-dialog .operation-buttons button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 4px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+#transaction-dialog [data-operation="expense"] {
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+#transaction-dialog [data-operation="income"] {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+#transaction-dialog [data-operation="transfer"] {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+#transaction-dialog .operation-buttons [aria-pressed="true"] {
+  border-color: currentColor;
+  box-shadow: 0 3px 8px #00000012;
+}
+
+#transaction-dialog .operation-buttons button:active {
+  transform: scale(0.97);
+}
+
+#transaction-dialog .operation-buttons button:focus-visible {
+  outline: 3px solid #7c3aed;
+  outline-offset: 3px;
+}
+
+#transaction-dialog input,
+#transaction-dialog select:not([hidden]) {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  font: inherit;
+}
+
+#transaction-dialog input:focus,
+#transaction-dialog select:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+#transaction-dialog #transaction-amount {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+#transaction-dialog .form-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#transaction-dialog .form-row > label {
+  min-width: 0;
+}
+
+#transaction-dialog #transaction-category {
+  min-width: 0;
+}
+
+#transaction-dialog #btn-add-category {
+  flex-shrink: 0;
+  height: 46px !important;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+#transaction-dialog .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#transaction-dialog .modal-actions button {
+  min-height: 46px;
+  border-radius: 12px;
+}
+
+#transaction-dialog .modal-actions .primary-btn {
+  flex: 1;
+  background: #059669;
+  color: #fff;
+}
