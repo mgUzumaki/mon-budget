@@ -1004,3 +1004,331 @@ input, select, textarea {
     width: 100%;
   }
 }
+/* PAGE TRANSACTIONS — JOURNAL */
+
+/* Remplacer le grand accueil par une petite signature.
+   Le bouton du menu mobile reste accessible. */
+#main-content:has(#page-transactions.active) > .topbar {
+  padding: 8px 0;
+  margin-bottom: 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#main-content:has(#page-transactions.active) > .topbar::before {
+  display: none;
+}
+
+#main-content:has(#page-transactions.active) #welcome-title,
+#main-content:has(#page-transactions.active) .welcome-subtitle,
+#main-content:has(#page-transactions.active) #quick-add {
+  display: none;
+}
+
+#main-content:has(#page-transactions.active) #today-label {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Titre et actions */
+#page-transactions .section-intro {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+#page-transactions .section-intro > div {
+  flex: 1;
+  min-width: 220px;
+}
+
+#page-transactions .section-intro h2 {
+  margin: 0;
+  color: #064e3b;
+  font-size: clamp(25px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+#page-transactions .section-intro p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#page-transactions #btn_new_op {
+  min-height: 46px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 13px;
+  background: #047857;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#delete-selected-transactions[hidden] {
+  display: none !important;
+}
+
+#page-transactions #delete-selected-transactions:not([hidden]) {
+  padding: 10px 14px;
+  border: 1px solid #fecdd3;
+  border-radius: 11px;
+  background: #fff1f2;
+  color: #9f1239;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Filtres alignés */
+#page-transactions .filter-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px;
+  margin-bottom: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: white;
+}
+
+/* Les libellés restent accessibles aux lecteurs d’écran. */
+#page-transactions .filter-bar .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+#page-transactions .filter-bar input,
+#page-transactions .filter-bar select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #dbe2e8;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font: inherit;
+  font-size: 14px;
+}
+
+#page-transactions .filter-bar input:focus,
+#page-transactions .filter-bar select:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Retirer le grand cadre autour de toute la liste */
+#page-transactions .table-panel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#page-transactions .transaction-selection-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+#page-transactions .transaction-selection-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Dates du journal */
+#page-transactions .journal-date {
+  display: table;
+  margin: 22px 0 10px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #e1f5eb;
+  color: #065f46;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Case | Icône | Description | Montant */
+#page-transactions .journal-row {
+  display: grid;
+  grid-template-columns: 20px 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  background: white;
+  cursor: pointer;
+}
+
+#page-transactions .journal-row:hover {
+  border-color: #a7d9c3;
+  background: #fbfefc;
+}
+
+#page-transactions .journal-row.is-selected {
+  border-color: #059669;
+  background: #f0fdf7;
+}
+
+#page-transactions .transaction-select,
+#page-transactions .select-all-transactions {
+  appearance: auto;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: #059669;
+  cursor: pointer;
+}
+
+#page-transactions .journal-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: #fff2e5;
+  font-size: 23px;
+}
+
+#page-transactions .income .journal-icon {
+  background: #dcfce7;
+}
+
+#page-transactions .transfer .journal-icon {
+  background: #e0f2fe;
+}
+
+#page-transactions .journal-details {
+  min-width: 0;
+}
+
+#page-transactions .journal-details strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #172c24;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+#page-transactions .journal-category {
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #526175;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+#page-transactions .journal-amount {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+#page-transactions .expense .journal-amount {
+  color: #be123c;
+}
+
+#page-transactions .income .journal-amount {
+  color: #047857;
+}
+
+#page-transactions .transfer .journal-amount {
+  color: #0369a1;
+}
+
+/* Un seul bouton d’ajout sur ordinateur */
+body:has(#page-transactions.active) #mobile-add {
+  display: none;
+}
+
+/* Sur mobile, conserver uniquement le + flottant */
+@media (max-width: 640px) {
+  #page-transactions #btn_new_op {
+    display: none;
+  }
+
+  body:has(#page-transactions.active) #mobile-add {
+    display: grid;
+    place-items: center;
+  }
+
+  #page-transactions {
+    padding-bottom: 85px;
+  }
+
+  #page-transactions .filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #page-transactions #search-transactions {
+    grid-column: 1 / -1;
+  }
+
+  #page-transactions .journal-row {
+    grid-template-columns: 18px 36px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 12px;
+  }
+
+  #page-transactions .journal-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  #page-transactions .journal-details strong,
+  #page-transactions .journal-amount {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  #page-transactions .journal-row {
+    grid-template-columns: 18px 36px minmax(0, 1fr);
+  }
+
+  #page-transactions .journal-amount {
+    grid-column: 3;
+    justify-self: end;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
