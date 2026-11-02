@@ -16,6 +16,7 @@ const BudgetDB = {
   },
 
 defaults: [
+    // Dépenses
     { id: "cat-alimentation", name: "Alimentation & Boissons", kind: "expense" },
     { id: "cat-shopping", name: "Shopping", kind: "expense" },
     { id: "cat-taxi", name: "Taxi", kind: "expense" },
@@ -38,10 +39,20 @@ defaults: [
     { id: "cat-appart", name: "Achat appart", kind: "expense" },
     { id: "cat-transport-commun", name: "Transport en commun", kind: "expense" },
     { id: "cat-autre", name: "Autre", kind: "expense" },
+
+    // Revenus
     { id: "cat-salaire", name: "Salaire", kind: "income" },
+    { id: "cat-business", name: "Business", kind: "income" },
+    { id: "cat-cadeaux-rev", name: "Cadeaux", kind: "income" },
+    { id: "cat-extra", name: "Revenus supplémentaires", kind: "income" },
+    { id: "cat-pret-rev", name: "Prêt", kind: "income" },
+    { id: "cat-parental", name: "Congé parental", kind: "income" },
+    { id: "cat-assurance", name: "Indemnité d'assurance", kind: "income" },
+    { id: "cat-autre-rev", name: "Autre", kind: "income" },
+
+    // Transfert / Épargne
     { id: "cat-epargne", name: "Épargne", kind: "transfer" }
   ],
-
   async requireUser() {
     const client = this.client();
     const { data, error } = await client.auth.getUser();
