@@ -850,3 +850,157 @@ input, select, textarea {
     grid-template-columns: 1fr;
   }
 }
+/* Accueil menthe */
+#main-content > .topbar {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 26px 30px;
+  margin-bottom: 22px;
+  border: 1px solid #d1fae5;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #effcf7, #dcf5e7);
+  box-shadow: 0 6px 24px #065f4608;
+}
+
+/* Décoration légère derrière le contenu */
+#main-content > .topbar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 72% 100%,
+      #10b98112 0 80px,
+      transparent 81px
+    ),
+    radial-gradient(
+      circle at 84% 10%,
+      #22c55e12 0 55px,
+      transparent 56px
+    );
+}
+
+#main-content .topbar .topbar-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+#main-content .topbar #today-label {
+  margin: 0 0 8px;
+  color: #047857;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+#main-content .topbar #welcome-title {
+  margin: 0;
+  color: #064e3b;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+#main-content .topbar #welcome-title::after {
+  content: " ☀️";
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.8em;
+}
+
+#main-content .topbar .welcome-subtitle {
+  margin: 9px 0 0;
+  color: #376354;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+#main-content .topbar #quick-add {
+  min-height: 46px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: #059669;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 5px 14px #05966920;
+}
+
+#main-content .topbar #quick-add:hover {
+  background: #047857;
+}
+
+/* Barre de période plus compacte */
+#page-dashboard .dash-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  border: 1px solid #e5ece8;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+#page-dashboard .dash-header-row h2 {
+  margin: 0;
+  color: #18392e;
+  font-size: 20px;
+}
+
+#page-dashboard .dash-header-row p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+#page-dashboard .dashboard-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#page-dashboard #range-selector {
+  border-radius: 12px;
+  background: #f1f5f3;
+  padding: 4px;
+}
+
+#page-dashboard #range-selector .range-btn.active {
+  border-radius: 9px;
+  background: #047857;
+  color: white;
+}
+
+@media (max-width: 640px) {
+  #main-content > .topbar {
+    padding: 20px;
+    gap: 12px;
+    border-radius: 20px;
+  }
+
+  #main-content .topbar .welcome-subtitle {
+    font-size: 14px;
+  }
+
+  #page-dashboard .dash-header-row {
+    padding: 15px;
+  }
+
+  #page-dashboard .dashboard-controls {
+    width: 100%;
+  }
+}
