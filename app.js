@@ -165,8 +165,18 @@ const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transaction
     if (!sel) return;
     const old = sel.value;
     let html = includeAllOption ? `<option value="">${t('filter_all_cats')}</option>` : "";
-    html += categories.filter(filterFn).map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join("");
-    sel.innerHTML = html;
+html += categories
+  .filter(filterFn)
+  .sort((a, b) =>
+    a.name.localeCompare(b.name, "fr", {
+      sensitivity: "base",
+      numeric: true
+    })
+  )
+  .map(c =>
+    `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`
+  )
+  .join("");    sel.innerHTML = html;
     if ([...sel.options].some(o => o.value === old)) sel.value = old;
   }
 
@@ -175,9 +185,22 @@ function renderCategoryOptions() {
     // Affiche les catégories du type correspondant, ou toutes si c'est un transfert
     fillCategorySelect("transaction-category", category => category.kind === type || type === "transfer" || category.kind === "transfer");
     fillCategorySelect("filter-category", () => true, true);
+    document.querySelectorAll("[data-operation]").forEach(button => {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.operation === $("transaction-type").value)
+    );
+  });
   }
 
   $("transaction-type")?.addEventListener("change", renderCategoryOptions);
+  document.querySelectorAll("[data-operation]").forEach(button => {
+  button.addEventListener("click", () => {
+    const select = $("transaction-type");
+    select.value = button.dataset.operation;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+});
 
   const transactionDateInput = $("transaction-date");
   transactionDateInput?.addEventListener("click", () => {
