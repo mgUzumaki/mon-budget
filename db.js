@@ -15,11 +15,29 @@ const BudgetDB = {
     return client;
   },
 
-  defaults: [
-    { id: "cat-alimentation", name: "Alimentation", kind: "expense" },
+defaults: [
+    { id: "cat-alimentation", name: "Alimentation & Boissons", kind: "expense" },
+    { id: "cat-shopping", name: "Shopping", kind: "expense" },
+    { id: "cat-taxi", name: "Taxi", kind: "expense" },
     { id: "cat-logement", name: "Logement", kind: "expense" },
-    { id: "cat-transport", name: "Transport", kind: "expense" },
-    { id: "cat-loisirs", name: "Loisirs", kind: "expense" },
+    { id: "cat-sortie", name: "Sortie", kind: "expense" },
+    { id: "cat-voiture", name: "Voiture", kind: "expense" },
+    { id: "cat-voyage", name: "Voyage", kind: "expense" },
+    { id: "cat-famille", name: "Famille & Personnel", kind: "expense" },
+    { id: "cat-sante", name: "Santé", kind: "expense" },
+    { id: "cat-pro", name: "Professionnel", kind: "expense" },
+    { id: "cat-cadeaux", name: "Cadeaux", kind: "expense" },
+    { id: "cat-sport", name: "Sport & Loisirs", kind: "expense" },
+    { id: "cat-beaute", name: "Beauté", kind: "expense" },
+    { id: "cat-electricite", name: "Électricité", kind: "expense" },
+    { id: "cat-impots", name: "Impôt sur le revenu", kind: "expense" },
+    { id: "cat-taxe", name: "Taxe d'habitation", kind: "expense" },
+    { id: "cat-abonnement", name: "Abonnement", kind: "expense" },
+    { id: "cat-tel", name: "Téléphone", kind: "expense" },
+    { id: "cat-pret", name: "Prêt conso", kind: "expense" },
+    { id: "cat-appart", name: "Achat appart", kind: "expense" },
+    { id: "cat-transport-commun", name: "Transport en commun", kind: "expense" },
+    { id: "cat-autre", name: "Autre", kind: "expense" },
     { id: "cat-salaire", name: "Salaire", kind: "income" },
     { id: "cat-epargne", name: "Épargne", kind: "transfer" }
   ],
