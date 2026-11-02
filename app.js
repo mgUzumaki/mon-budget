@@ -550,48 +550,123 @@ function renderTransactions() {
       return matchesSearch && matchesType && matchesCat;
     });
 
-   listEl.innerHTML = filtered.length ? `
+   // Les dates sont enregistrées au format AAAA-MM-JJ.
+const ordered = [...filtered].sort((a, b) =>
+  b.date.localeCompare(a.date)
+);
+
+const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric"
+});
+
+let previousDate = "";
+
+const journalHTML = ordered.map(t => {
+  const catName = categoryName(t.categoryId);
+  const title = t.description || catName;
+
+  const icon = typeof categoryIcon === "function"
+    ? categoryIcon(catName)
+    : ({ expense: "🛒", income: "💰", transfer: "🔄" }[t.type] || "🏷️");
+
+  const kind = ["expense", "income", "transfer"].includes(t.type)
+    ? t.type
+    : "expense";
+
+  const sign = {
+    expense: "−",
+    income: "+",
+    transfer: "↔"
+  }[kind];
+
+  const selected = selectedTransactionIds.has(String(t.id));
+
+  let dateHeading = "";
+
+  if (t.date !== previousDate) {
+    previousDate = t.date;
+
+    const dateLabel = dateFormatter.format(
+      new Date(`${t.date}T12:00:00`)
+    );
+
+    dateHeading = `
+      <h3 class="journal-date">
+        ${escapeHTML(dateLabel)}
+      </h3>
+    `;
+  }
+
+  return `
+    ${dateHeading}
+
+    <div
+      class="transaction-row journal-row ${kind}${selected ? " is-selected" : ""}"
+      data-transaction-id="${escapeHTML(t.id)}"
+    >
+      <input
+        type="checkbox"
+        class="transaction-select"
+        data-transaction-id="${escapeHTML(t.id)}"
+        ${selected ? "checked" : ""}
+        aria-label="${escapeHTML("Sélectionner : " + title)}"
+      >
+
+      <span class="journal-icon" aria-hidden="true">
+        ${icon}
+      </span>
+
+      <div class="journal-details">
+        <strong>${escapeHTML(title)}</strong>
+        <span class="journal-category">
+          ${escapeHTML(catName)}
+        </span>
+      </div>
+
+      <div class="amount journal-amount">
+        ${escapeHTML(sign + " " + customMoney(t.amountCents))}
+      </div>
+    </div>
+  `;
+}).join("");
+
+listEl.innerHTML = ordered.length ? `
   <div class="transaction-selection-toolbar">
     <label>
       <input type="checkbox" class="select-all-transactions">
       Tout sélectionner
     </label>
-    <span>${selectedTransactionIds.size} sélectionnée(s)</span>
+
+    <span>
+      ${selectedTransactionIds.size
+        ? selectedTransactionIds.size + " sélectionnée(s)"
+        : ordered.length + " opération(s)"}
+    </span>
   </div>
-  ${filtered.map(t => {
-      const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
-      const cls = t.type === "income" ? "positive" : "negative";
-      const catName = categoryName(t.categoryId);
-      
-      const mainText = t.description ? t.description : catName;
-      const subText = t.description ? catName : t.date;
 
-return `
-  <div
-    class="transaction-row"
-    data-transaction-id="${escapeHTML(t.id)}"
-    style="cursor: pointer;"
-  >
-    <input
-      type="checkbox"
-      class="transaction-select"
-      data-transaction-id="${escapeHTML(t.id)}"
-      ${selectedTransactionIds.has(String(t.id)) ? "checked" : ""}
-      aria-label="Sélectionner cette transaction"
-    >
-
-    <div>
-      <strong>${escapeHTML(mainText)}</strong>
-      <small>${escapeHTML(subText)}</small>
-    </div>
-
-    <div class="amount ${cls}">
-      ${escapeHTML(amountFormatted)}
-    </div>
+  ${journalHTML}
+` : `
+  <div class="empty-state">
+    Aucune opération ne correspond à vos filtres.
   </div>
 `;
-      }).join("")}
-` : `<div class="empty-state">Aucune transaction ne correspond à vos filtres.</div>`;
+
+// Synchroniser la case « Tout sélectionner ».
+const selectAll = listEl.querySelector(".select-all-transactions");
+
+if (selectAll) {
+  const selectedVisible = ordered.filter(t =>
+    selectedTransactionIds.has(String(t.id))
+  ).length;
+
+  selectAll.checked =
+    ordered.length > 0 && selectedVisible === ordered.length;
+
+  selectAll.indeterminate =
+    selectedVisible > 0 && selectedVisible < ordered.length;
+}
   listEl.onchange = (event) => {
   if (event.target.matches(".transaction-select")) {
     const id = String(event.target.dataset.transactionId);
