@@ -159,7 +159,35 @@ const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transaction
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+function categoryIcon(name) {
+  const text = String(name)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 
+  const icons = [
+    [/abonnement|streaming|netflix|spotify/, "📺"],
+    [/aliment|course|boisson|supermarche/, "🛒"],
+    [/restaurant|resto|cafe/, "🍽️"],
+    [/transport|voiture|carburant|essence|train/, "🚗"],
+    [/logement|loyer|maison|habitation/, "🏠"],
+    [/sante|medecin|pharmacie/, "💊"],
+    [/loisir|sortie|cinema|jeu/, "🎮"],
+    [/sport|fitness/, "🏋️"],
+    [/voyage|vacance/, "✈️"],
+    [/shopping|vetement|habillement/, "🛍️"],
+    [/salaire|revenu|paie/, "💰"],
+    [/epargne|placement|investissement/, "🐷"],
+    [/cadeau|don/, "🎁"],
+    [/facture|electricite|energie|eau/, "💡"],
+    [/telephone|internet|mobile/, "📱"],
+    [/assurance/, "🛡️"],
+    [/impot|taxe/, "🏛️"],
+    [/education|formation|ecole/, "📚"]
+  ];
+
+  return icons.find(([pattern]) => pattern.test(text))?.[1] || "🏷️";
+}
   function fillCategorySelect(selectId, filterFn, includeAllOption = false) {
     const sel = $(selectId);
     if (!sel) return;
@@ -174,7 +202,7 @@ html += categories
     })
   )
   .map(c =>
-    `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`
+    `<option value="${escapeHTML(c.id)}">${categoryIcon(c.name)} ${escapeHTML(c.name)}</option>`
   )
   .join("");    sel.innerHTML = html;
     if ([...sel.options].some(o => o.value === old)) sel.value = old;
