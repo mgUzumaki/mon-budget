@@ -746,3 +746,107 @@ input, select, textarea {
   background: #059669;
   color: #fff;
 }
+/* Harmonisation du formulaire */
+#transaction-dialog #transaction-form {
+  font-family: inherit;
+}
+
+#transaction-dialog #transaction-form label,
+#transaction-dialog .operation-type > span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#transaction-dialog #transaction-form input,
+#transaction-dialog #transaction-form select:not([hidden]) {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+  box-shadow: none;
+}
+
+/* Flèche identique pour les deux listes */
+#transaction-dialog #transaction-form select:not([hidden]) {
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+#transaction-dialog #transaction-form label {
+  gap: 7px;
+}
+
+#transaction-dialog #transaction-form .form-group {
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+}
+
+#transaction-dialog .form-group > label {
+  display: block;
+  margin-bottom: 7px;
+}
+
+/* Donner davantage de largeur à la date */
+#transaction-dialog .form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
+#transaction-dialog #transaction-date {
+  font-size: 16px;
+  text-align: left;
+}
+
+#transaction-dialog #transaction-date::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+#transaction-dialog #transaction-amount {
+  font-size: 22px;
+  font-weight: 700;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+#transaction-dialog #transaction-amount::-webkit-inner-spin-button,
+#transaction-dialog #transaction-amount::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#transaction-dialog #btn-add-category {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px !important;
+  padding: 0 !important;
+  border: 1px solid #a7f3d0;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 22px;
+  box-shadow: none;
+}
+
+@media (max-width: 360px) {
+  #transaction-dialog .form-row {
+    grid-template-columns: 1fr;
+  }
+}
