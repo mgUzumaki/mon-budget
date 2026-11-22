@@ -1624,3 +1624,81 @@ body:has(#app:not([hidden]) #page-dashboard:not([data-load-state="ready"])) {
   border-radius: 0;
   background: #f3faf6;
 }
+.budget-folder-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.budget-folder-field {
+  display: grid;
+  flex: 1 1 180px;
+  min-width: 0;
+  gap: 6px;
+}
+
+.budget-folder-field[hidden] {
+  display: none;
+}
+
+.budget-folder-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.budget-folder-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #d6dee5;
+  border-radius: 10px;
+  background: #f6f8fa;
+  color: inherit;
+  font: inherit;
+}
+
+#open-budget-folder {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid #b7e2d2;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+#transaction-dialog .modal-heading:has(#capture-import-open) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+#transaction-dialog #capture-import-open {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: start;
+}
+
+#transaction-dialog .modal-heading:has(#capture-import-open) .icon-btn {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+@media (max-width: 520px) {
+  .budget-folder-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #open-budget-folder,
+  #transaction-dialog #capture-import-open {
+    width: 100%;
+  }
+}
