@@ -250,7 +250,38 @@
       "budget_intro": "Fixez une limite par catégorie et suivez votre consommation.",
       "btn_new_budget": "＋ Créer un budget",
       "budget_month_label": "Budgets pour le mois sélectionné",
-      "stats_intro": "Analysez vos revenus et vos dépenses."
+      "stats_intro": "Analysez vos revenus et vos dépenses.",
+      "cat_alimentation": "Alimentation & Boissons",
+      "cat_shopping": "Shopping",
+      "cat_taxi": "Taxi",
+      "cat_logement": "Logement",
+      "cat_sortie": "Sortie",
+      "cat_voiture": "Voiture",
+      "cat_voyage": "Voyage",
+      "cat_famille": "Famille & Personnel",
+      "cat_sante": "Santé",
+      "cat_pro": "Professionnel",
+      "cat_cadeaux": "Cadeaux",
+      "cat_sport": "Sport & Loisirs",
+      "cat_beaute": "Beauté",
+      "cat_electricite": "Électricité",
+      "cat_impots": "Impôt sur le revenu",
+      "cat_taxe": "Taxe d'habitation",
+      "cat_abonnement": "Abonnement",
+      "cat_tel": "Téléphone",
+      "cat_pret": "Prêt conso",
+      "cat_appart": "Achat appart",
+      "cat_transport_commun": "Transport en commun",
+      "cat_autre": "Autre",
+      "cat_salaire": "Salaire",
+      "cat_business": "Business",
+      "cat_cadeaux_rev": "Cadeaux",
+      "cat_extra": "Revenus supplémentaires",
+      "cat_pret_rev": "Prêt",
+      "cat_parental": "Congé parental",
+      "cat_assurance": "Indemnité d'assurance",
+      "cat_autre_rev": "Autre",
+      "cat_epargne": "Épargne"
     },
     "en": {
       "capture_open": "Import an image",
@@ -501,7 +532,38 @@
       "budget_intro": "Set limits by category and track your spending.",
       "btn_new_budget": "＋ Create budget",
       "budget_month_label": "Budgets for the selected month",
-      "stats_intro": "Analyze your income and expenses."
+      "stats_intro": "Analyze your income and expenses.",
+      "cat_alimentation": "Food & drinks",
+      "cat_shopping": "Shopping",
+      "cat_taxi": "Taxi",
+      "cat_logement": "Housing",
+      "cat_sortie": "Going out",
+      "cat_voiture": "Car",
+      "cat_voyage": "Travel",
+      "cat_famille": "Family & personal",
+      "cat_sante": "Health",
+      "cat_pro": "Business expenses",
+      "cat_cadeaux": "Gifts",
+      "cat_sport": "Sports & leisure",
+      "cat_beaute": "Beauty",
+      "cat_electricite": "Electricity",
+      "cat_impots": "Income tax",
+      "cat_taxe": "Residence tax",
+      "cat_abonnement": "Subscriptions",
+      "cat_tel": "Phone",
+      "cat_pret": "Consumer loan",
+      "cat_appart": "Apartment purchase",
+      "cat_transport_commun": "Public transport",
+      "cat_autre": "Other",
+      "cat_salaire": "Salary",
+      "cat_business": "Business income",
+      "cat_cadeaux_rev": "Gifts received",
+      "cat_extra": "Additional income",
+      "cat_pret_rev": "Loan proceeds",
+      "cat_parental": "Parental leave",
+      "cat_assurance": "Insurance payout",
+      "cat_autre_rev": "Other income",
+      "cat_epargne": "Savings"
     },
     "zh": {
       "capture_open": "导入图片",
@@ -752,7 +814,38 @@
       "budget_intro": "按类别设置限额并跟踪支出。",
       "btn_new_budget": "＋ 创建预算",
       "budget_month_label": "所选月份的预算",
-      "stats_intro": "分析您的收入和支出。"
+      "stats_intro": "分析您的收入和支出。",
+      "cat_alimentation": "餐饮",
+      "cat_shopping": "购物",
+      "cat_taxi": "出租车",
+      "cat_logement": "住房",
+      "cat_sortie": "外出娱乐",
+      "cat_voiture": "汽车",
+      "cat_voyage": "旅行",
+      "cat_famille": "家庭与个人",
+      "cat_sante": "医疗健康",
+      "cat_pro": "工作支出",
+      "cat_cadeaux": "礼物",
+      "cat_sport": "运动与休闲",
+      "cat_beaute": "美容",
+      "cat_electricite": "电费",
+      "cat_impots": "所得税",
+      "cat_taxe": "居住税",
+      "cat_abonnement": "订阅",
+      "cat_tel": "电话费",
+      "cat_pret": "消费贷款",
+      "cat_appart": "购买公寓",
+      "cat_transport_commun": "公共交通",
+      "cat_autre": "其他",
+      "cat_salaire": "工资",
+      "cat_business": "经营收入",
+      "cat_cadeaux_rev": "收到的礼物",
+      "cat_extra": "额外收入",
+      "cat_pret_rev": "贷款收入",
+      "cat_parental": "育儿假",
+      "cat_assurance": "保险赔付",
+      "cat_autre_rev": "其他收入",
+      "cat_epargne": "储蓄"
     }
   }; 
   const locales = { fr: "fr-FR", en: "en-US", zh: "zh-CN" };
@@ -768,6 +861,17 @@
     return message.replace(/\{(\w+)\}/g, (match, name) =>
       Object.hasOwn(values, name) ? String(values[name]) : match
     );
+  }
+
+  function categoryLabel(category, standardCategories = []) {
+    if (!category) return t("category");
+    const normalize = value => String(value ?? "").normalize("NFC").trim().toLowerCase();
+    const standard = standardCategories.find(item => item.id === category.id)
+      ?? standardCategories.find(item =>
+        item.kind === category.kind && normalize(item.name) === normalize(category.name)
+      );
+    if (!standard) return category.name;
+    return t(standard.id.replace(/-/g, "_"), {}, category.name);
   }
 
   function apply(root = document) {
@@ -797,6 +901,7 @@
 
   window.BudgetI18n = {
     t,
+    categoryLabel,
     apply,
     setLanguage,
     get language() { return language; },

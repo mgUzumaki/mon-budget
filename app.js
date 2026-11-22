@@ -15,7 +15,7 @@
   let currentLang = window.BudgetI18n.language;
  let currentCurrency = 'EUR';
 
-const { t } = window.BudgetI18n;
+const { t: translate } = window.BudgetI18n;
 
 function applyTranslations() {
     window.BudgetI18n.apply();
@@ -24,19 +24,21 @@ function applyTranslations() {
     if ($("auth-lang-select")) $("auth-lang-select").value = currentLang;
     if ($("btn-auth-submit")) {
       $("btn-auth-submit").textContent = $("auth-form").dataset.mode === "signup"
-        ? t("create_my_account")
-        : t("sign_in");
+        ? translate("create_my_account")
+        : translate("sign_in");
     }
     const dashboardStatus = $("dashboard-load-status");
     if (dashboardStatus) {
       dashboardStatus.textContent = $("page-dashboard").dataset.loadState === "error"
-        ? t("could_not_load_your_data_refresh_the_page_to_try_again")
-        : t("loading_your_data");
+        ? translate("could_not_load_your_data_refresh_the_page_to_try_again")
+        : translate("loading_your_data");
     }
   }
 
   const today = Finance.localDate();
-  const categoryName = id => categories.find(c => c.id === id)?.name || t("category");
+  const categoryName = id => categories.find(c => c.id === id)?.name || translate("category");
+  const categoryLabel = category => window.BudgetI18n.categoryLabel(category, BudgetDB.defaults);
+  const displayCategoryName = id => categoryLabel(categories.find(category => category.id === id));
   const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   
   function customMoney(cents) {
@@ -78,7 +80,7 @@ async function showApp() {
   const status = $("dashboard-load-status");
 
   dashboard.dataset.loadState = "loading";
-  status.textContent = t("loading_your_data");
+  status.textContent = translate("loading_your_data");
 
   if (landingPage) landingPage.hidden = true;
   if (appDiv) appDiv.hidden = false;
@@ -98,7 +100,7 @@ async function showApp() {
   } catch (error) {
     dashboard.dataset.loadState = "error";
     status.textContent =
-      t("could_not_load_your_data_refresh_the_page_to_try_again");
+      translate("could_not_load_your_data_refresh_the_page_to_try_again");
     console.error("Erreur de chargement du tableau de bord :", error);
   }
 }
@@ -133,7 +135,7 @@ document.querySelectorAll(".nav-link").forEach(btn => {
       b.classList.toggle("active", b === btn);
       b.setAttribute("aria-current", b === btn ? "page" : "false");
     });
-const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), financing: t("simulator"), settings: t('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
+const titles = { dashboard: translate('nav_dashboard'), transactions: translate('nav_transactions'), budgets: translate('nav_budgets'), statistics: translate('nav_stats'), financing: translate("simulator"), settings: translate('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
       if (sidebar?.classList.contains("is-open")) toggleSidebar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -171,17 +173,17 @@ function categoryIcon(name) {
     const sel = $(selectId);
     if (!sel) return;
     const old = sel.value;
-    let html = includeAllOption ? `<option value="">${t('filter_all_cats')}</option>` : "";
+    let html = includeAllOption ? `<option value="">${translate('filter_all_cats')}</option>` : "";
 html += categories
   .filter(filterFn)
   .sort((a, b) =>
-    a.name.localeCompare(b.name, "fr", {
+    categoryLabel(a).localeCompare(categoryLabel(b), window.BudgetI18n.locale, {
       sensitivity: "base",
       numeric: true
     })
   )
   .map(c =>
-    `<option value="${escapeHTML(c.id)}">${categoryIcon(c.name)} ${escapeHTML(c.name)}</option>`
+    `<option value="${escapeHTML(c.id)}">${categoryIcon(c.name)} ${escapeHTML(categoryLabel(c))}</option>`
   )
   .join("");    sel.innerHTML = html;
     if ([...sel.options].some(o => o.value === old)) sel.value = old;
@@ -208,7 +210,8 @@ function renderCategoryOptions() {
 }
 
 window.getTransactionCategoryOptions = type =>
-  categories.filter(category => categoryMatchesOperation(category, type));
+  categories.filter(category => categoryMatchesOperation(category, type))
+    .map(category => ({ ...category, name: categoryLabel(category) }));
 
   $("transaction-type")?.addEventListener("change", renderCategoryOptions);
   document.querySelectorAll("[data-operation]").forEach(button => {
@@ -295,7 +298,7 @@ function renderAll() {
       customRecentEl.innerHTML = latest.length ? latest.map(t => {
         const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
         const cls = t.type === "income" ? "positive" : "negative";
-        const catName = categoryName(t.categoryId);
+        const catName = displayCategoryName(t.categoryId);
         const mainText = t.description ? t.description : catName;
 
         return `
@@ -311,7 +314,7 @@ function renderAll() {
             <td class="amount ${cls}" style="text-align: right;">${escapeHTML(amountFormatted)}</td>
           </tr>
         `;
-      }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">${t("no_recent_transactions")}</td></tr>`;
+      }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">${translate("no_recent_transactions")}</td></tr>`;
     }
   }
 // Fonction de filtrage par période (Semaine, Mois, Année)
@@ -358,9 +361,9 @@ function renderDashboard() {
       startOfWeek.setDate(diff);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(endOfWeek.getDate() + 6);
-      periodText = t("week_of_start_to_end", { start: startOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' }), end: endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) });
+      periodText = translate("week_of_start_to_end", { start: startOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' }), end: endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) });
     } else if (currentRange === 'year') {
-      periodText = t("year_year", { year: referenceDate.getFullYear() });
+      periodText = translate("year_year", { year: referenceDate.getFullYear() });
     } else {
       const monthFormatted = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(referenceDate);
       periodText = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
@@ -413,7 +416,7 @@ function renderCharts(items) {
         datasets = [
           {
             type: 'bar',
-            label: t("expense_bars"),
+            label: translate("expense_bars"),
             data: expenseData.length ? expenseData : [0],
             backgroundColor: '#0f766e',
             borderRadius: 6,
@@ -422,7 +425,7 @@ function renderCharts(items) {
           },
           {
             type: 'bar',
-            label: t("income_bars"),
+            label: translate("income_bars"),
             data: incomeData.length ? incomeData : [0],
             backgroundColor: '#6ee7b7',
             borderRadius: 6,
@@ -445,7 +448,7 @@ function renderCharts(items) {
         datasets = [
           {
             type: 'line',
-            label: t("income_trend"),
+            label: translate("income_trend"),
             data: incomeData.length ? incomeData : [0],
             borderColor: '#0f766e',
             backgroundColor: 'rgba(15, 118, 110, 0.1)',
@@ -458,7 +461,7 @@ function renderCharts(items) {
 
       dailyChartInstance = new Chart(canvasDaily.getContext('2d'), {
         data: {
-          labels: labels.length ? labels : [t("no_data")],
+          labels: labels.length ? labels : [translate("no_data")],
           datasets: datasets
         },
         options: {
@@ -504,7 +507,12 @@ function renderCharts(items) {
       doughnutChartInstance = new Chart(canvasDoughnut.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: Object.keys(catTotals).length ? Object.keys(catTotals) : [t("no_expenses")],
+          labels: Object.keys(catTotals).length
+            ? Object.keys(catTotals).map(name => {
+                const category = categories.find(item => item.name === name && item.kind === "expense");
+                return category ? categoryLabel(category) : name;
+              })
+            : [translate("no_expenses")],
           datasets: [{
             data: Object.values(catTotals).length ? Object.values(catTotals) : [1],
             backgroundColor: ['#0f766e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
@@ -534,7 +542,8 @@ function renderTransactions() {
       const catName = categoryName(t.categoryId).toLowerCase();
       const desc = (t.description || "").toLowerCase();
       
-      const matchesSearch = desc.includes(searchTerm) || catName.includes(searchTerm);
+      const matchesSearch = desc.includes(searchTerm) || catName.includes(searchTerm)
+        || displayCategoryName(t.categoryId).toLowerCase().includes(searchTerm);
       const matchesType = !typeFilter || t.type === typeFilter;
       const matchesCat = !catFilter || t.categoryId === catFilter;
 
@@ -556,7 +565,7 @@ let previousDate = "";
 
 const journalHTML = ordered.map(t => {
   const catName = categoryName(t.categoryId);
-  const title = t.description || catName;
+  const title = t.description || displayCategoryName(t.categoryId);
 
   const icon = typeof categoryIcon === "function"
     ? categoryIcon(catName)
@@ -602,7 +611,7 @@ const journalHTML = ordered.map(t => {
         class="transaction-select"
         data-transaction-id="${escapeHTML(t.id)}"
         ${selected ? "checked" : ""}
-        aria-label="${escapeHTML(window.BudgetI18n.t("select_title", { title }))}"
+        aria-label="${escapeHTML(translate("select_title", { title }))}"
       >
 
       <span class="journal-icon" aria-hidden="true">
@@ -612,7 +621,7 @@ const journalHTML = ordered.map(t => {
       <div class="journal-details">
         <strong>${escapeHTML(title)}</strong>
         <span class="journal-category">
-          ${escapeHTML(catName)}
+          ${escapeHTML(displayCategoryName(t.categoryId))}
         </span>
       </div>
 
@@ -627,20 +636,20 @@ listEl.innerHTML = ordered.length ? `
   <div class="transaction-selection-toolbar">
     <label>
       <input type="checkbox" class="select-all-transactions">
-      ${t("select_all")}
+      ${translate("select_all")}
     </label>
 
     <span>
       ${selectedTransactionIds.size
-        ? t("selected_count", { count: selectedTransactionIds.size })
-        : t("transactions_count", { count: ordered.length })}
+        ? translate("selected_count", { count: selectedTransactionIds.size })
+        : translate("transactions_count", { count: ordered.length })}
     </span>
   </div>
 
   ${journalHTML}
 ` : `
   <div class="empty-state">
-    ${t("no_transactions_match_your_filters")}
+    ${translate("no_transactions_match_your_filters")}
   </div>
 `;
 
@@ -697,22 +706,22 @@ if (selectAll) {
 if (deleteButton) {
   deleteButton.hidden = selectedTransactionIds.size === 0;
   deleteButton.textContent =
-    t("delete_selected_count", { count: selectedTransactionIds.size });
+    translate("delete_selected_count", { count: selectedTransactionIds.size });
 }
   if (deleteButton) {
   deleteButton.onclick = async () => {
     const ids = [...selectedTransactionIds];
     if (ids.length === 0) return;
 
-    if (!confirm(t("permanently_delete_these_transactions_count", { count: ids.length }))) return;
+    if (!confirm(translate("permanently_delete_these_transactions_count", { count: ids.length }))) return;
 
     try {
       await BudgetDB.deleteTransactions(ids);
       selectedTransactionIds.clear();
       await refresh();
-      toast(t("transactions_deleted"));
+      toast(translate("transactions_deleted"));
     } catch (error) {
-      toast(t("error") + error.message);
+      toast(translate("error") + error.message);
     }
   };
 }
@@ -749,11 +758,11 @@ async function updateUserProfileInfo() {
         // Un seul bloc pour le titre de bienvenue
         const welcomeTitle = document.getElementById("welcome-title");
         if (welcomeTitle) {
-          welcomeTitle.textContent = t("hello_name", { name: firstName || fullName });
+          welcomeTitle.textContent = translate("hello_name", { name: firstName || fullName });
         }
       }
     } catch (e) {
-      infoEl.textContent = t("not_signed_in");
+      infoEl.textContent = translate("not_signed_in");
     }
   }
 
@@ -775,7 +784,7 @@ $("tab-login")?.addEventListener("click", () => {
     $("tab-login").classList.add("active");
     $("tab-signup").classList.remove("active");
     if ($("signup-fields")) $("signup-fields").hidden = true;
-    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = t("sign_in");
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = translate("sign_in");
     if ($("auth-form")) $("auth-form").dataset.mode = "login";
   });
 
@@ -783,7 +792,7 @@ $("tab-login")?.addEventListener("click", () => {
     $("tab-signup").classList.add("active");
     $("tab-login").classList.remove("active");
     if ($("signup-fields")) $("signup-fields").hidden = false;
-    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = t("create_my_account");
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = translate("create_my_account");
     if ($("auth-form")) $("auth-form").dataset.mode = "signup";
   });
 
@@ -799,15 +808,15 @@ $("tab-login")?.addEventListener("click", () => {
     const errEl = $("auth-error");
 
     if (!email || !password) {
-      alert(t("enter_your_email_and_password"));
+      alert(translate("enter_your_email_and_password"));
       return;
     }
 
-    if (errEl) errEl.textContent = t("signing_in");
+    if (errEl) errEl.textContent = translate("signing_in");
 
     try {
       const client = BudgetDB.client();
-      if (!client) throw new Error(t("could_not_initialize_the_sign_in_service"));
+      if (!client) throw new Error(translate("could_not_initialize_the_sign_in_service"));
 
       if (mode === "signup") {
         const { error } = await client.auth.signUp({ 
@@ -820,19 +829,19 @@ $("tab-login")?.addEventListener("click", () => {
 } } 
         });
         if (error) throw error;
-        alert(t("account_created_please_sign_in"));
-        if (errEl) errEl.textContent = t("account_created_please_sign_in");
+        alert(translate("account_created_please_sign_in"));
+        if (errEl) errEl.textContent = translate("account_created_please_sign_in");
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        alert(t("signed_in_successfully"));
+        alert(translate("signed_in_successfully"));
         showApp();
       }
     } catch (err) {
       console.error("Erreur d'auth :", err);
       const errorMsg = err.message || JSON.stringify(err);
-      if (errEl) errEl.textContent = t("error") + errorMsg;
-      alert(t("sign_in_error") + errorMsg);
+      if (errEl) errEl.textContent = translate("error") + errorMsg;
+      alert(translate("sign_in_error") + errorMsg);
     }
   });
   $("logout-btn")?.addEventListener("click", async () => {
@@ -865,14 +874,14 @@ $("app-currency")?.addEventListener("change", async (e) => {
     localStorage.setItem("user_currency", currentCurrency);
 
     renderAll();
-    toast(t("display_currency_updated"));
+    toast(translate("display_currency_updated"));
   } catch (error) {
     console.error("Erreur de changement de devise :", error);
 
     // Remettre l'ancienne devise dans le sélecteur
     e.target.value = currentCurrency;
 
-    toast(t("could_not_update_the_currency"));
+    toast(translate("could_not_update_the_currency"));
   }
 });
 // Récupérer le taux de change historique
@@ -888,12 +897,12 @@ async function getExchangeRate(from, to, date) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
-      t("no_exchange_rate_from_from_to_to_on_date", { from, to, date })
+      translate("no_exchange_rate_from_from_to_to_on_date", { from, to, date })
     );
   }
   const result = await response.json();
   if (!result.rate || !Number.isFinite(Number(result.rate))) {
-    throw new Error(t("invalid_exchange_rate"));
+    throw new Error(translate("invalid_exchange_rate"));
   }
   return {
     rate: Number(result.rate),
@@ -922,8 +931,8 @@ async function updateTransactionConversion() {
 
   panel.hidden = false;
 
-  $("transaction-exchange-rate").textContent = t("calculating");
-  $("transaction-converted-amount").textContent = t("calculating");
+  $("transaction-exchange-rate").textContent = translate("calculating");
+  $("transaction-converted-amount").textContent = translate("calculating");
   $("transaction-rate-date").textContent = "";
 
   try {
@@ -942,11 +951,11 @@ async function updateTransactionConversion() {
       `${convertedAmount.toFixed(2)} ${toCurrency}`;
 
     $("transaction-rate-date").textContent =
-      t("rate_on_date", { date: conversion.date });
+      translate("rate_on_date", { date: conversion.date });
 
   } catch (error) {
     $("transaction-exchange-rate").textContent =
-      t("exchange_rate_unavailable");
+      translate("exchange_rate_unavailable");
 
     $("transaction-converted-amount").textContent =
       "Conversion impossible";
@@ -975,7 +984,7 @@ function openNewTransactionModal(prefill = {}) {
 
   form.reset();
   delete form.dataset.transactionId;
-  $("transaction-modal-title").textContent = t("new_transaction");
+  $("transaction-modal-title").textContent = translate("new_transaction");
   $("transaction-date").value = prefill.date || today;
   $("transaction-type").value = prefill.type || "expense";
 
@@ -1011,7 +1020,7 @@ function openEditTransactionModal(transactionId) {
   const transaction = transactions.find(item => String(item.id) === String(transactionId));
 
   if (!transaction) {
-    toast(t("transaction_not_found"));
+    toast(translate("transaction_not_found"));
     return;
   }
 
@@ -1022,7 +1031,7 @@ function openEditTransactionModal(transactionId) {
   // Indiquer que nous modifions une opération existante
   form.dataset.transactionId = transaction.id;
 
-  $("transaction-modal-title").textContent = t("edit_transaction");
+  $("transaction-modal-title").textContent = translate("edit_transaction");
 
   $("transaction-date").value = transaction.date;
   $("transaction-type").value = transaction.type;
@@ -1051,7 +1060,7 @@ function openEditTransactionModal(transactionId) {
     `${(transaction.amountCents / 100).toFixed(2)} ${transaction.baseCurrency || currentCurrency}`;
 
   $("transaction-rate-date").textContent =
-    t("rate_recorded_on_date", { date: transaction.exchangeRateDate || transaction.date });
+    translate("rate_recorded_on_date", { date: transaction.exchangeRateDate || transaction.date });
 
   showDialog("transaction-dialog");
 }
@@ -1065,7 +1074,7 @@ async function saveTransaction({
   const originalAmountCents = Finance.toCents(amount);
 
   if (!Number.isSafeInteger(originalAmountCents) || originalAmountCents <= 0) {
-    throw new Error(t("the_amount_must_be_greater_than_zero"));
+    throw new Error(translate("the_amount_must_be_greater_than_zero"));
   }
 
   const originalCurrency = currency || currentCurrency;
@@ -1101,7 +1110,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
   try {
     submitBtn.disabled = true;
-    submitBtn.textContent = t("saving_2");
+    submitBtn.textContent = translate("saving_2");
 
     await saveTransaction({
       id: form.dataset.transactionId || undefined,
@@ -1118,14 +1127,14 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     closeDialog("transaction-dialog");
     await refresh();
 
-    toast(t("transaction_saved"));
+    toast(translate("transaction_saved"));
 
   } catch (err) {
-    toast(t("error") + err.message);
+    toast(translate("error") + err.message);
 
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = t("save");
+    submitBtn.textContent = translate("save");
   }
 });
 
@@ -1189,9 +1198,9 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       if (error) throw error;
       closeDialog("profile-dialog");
       await updateUserProfileInfo();
-      toast(t("profile_updated"));
+      toast(translate("profile_updated"));
     } catch (err) {
-      toast(t("error") + err.message);
+      toast(translate("error") + err.message);
     }
   });
   // --- DÉCONNEXION AUTOMATIQUE APRÈS 15 MINUTES D'INACTIVITÉ ---
@@ -1202,7 +1211,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     try {
       const client = BudgetDB.client();
       await client.auth.signOut();
-      toast(t("your_session_expired_due_to_inactivity"));
+      toast(translate("your_session_expired_due_to_inactivity"));
       setTimeout(() => location.reload(), 1500);
     } catch (e) {
       location.reload();
@@ -1248,11 +1257,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     try {
       await BudgetDB.putCategory({ name: nameInput, kind: currentType });
       closeDialog("category-dialog");
-      toast(t("category_created"));
+      toast(translate("category_created"));
       await refresh();
     } catch (err) {
       console.error("Erreur création catégorie :", err);
-      toast(t("error") + err.message);
+      toast(translate("error") + err.message);
     }
   });
   $("search-transactions")?.addEventListener("input", renderTransactions);
@@ -1265,7 +1274,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   // Exporter les transactions au format CSV
   $("btn-export-data")?.addEventListener("click", () => {
     if (!transactions.length) {
-      toast(t("no_transactions_to_export"));
+      toast(translate("no_transactions_to_export"));
       return;
     }
 
@@ -1284,7 +1293,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     link.click();
     document.body.removeChild(link);
 
-    toast(t("export_complete"));
+    toast(translate("export_complete"));
   });
  // --- GESTIONNAIRE COMPLET DES CATÉGORIES (CORRIGÉ) ---
 
@@ -1295,14 +1304,14 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     container.innerHTML = categories.length ? categories.map(c => `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
         <div>
-          <strong>${escapeHTML(c.name)}</strong>
+          <strong>${escapeHTML(categoryLabel(c))}</strong>
           <span style="font-size: 0.75rem; color: #64748b; margin-left: 6px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
-            ${c.kind === 'income' ? t("income") : c.kind === 'transfer' ? t("transfer") : t("expense")} ${c.is_global ? '(Global)' : ''}
+            ${c.kind === 'income' ? translate("income") : c.kind === 'transfer' ? translate("transfer") : translate("expense")} ${c.is_global ? '(Global)' : ''}
           </span>
         </div>
-        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">${t("delete")}</button>` : `<span style="font-size:0.75rem; color:#94a3b8;">${t("default")}</span>`}
+        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">${translate("delete")}</button>` : `<span style="font-size:0.75rem; color:#94a3b8;">${translate("default")}</span>`}
       </div>
-    `).join("") : `<p style="text-align: center; color: #64748b;">${t("no_categories_found")}</p>`;
+    `).join("") : `<p style="text-align: center; color: #64748b;">${translate("no_categories_found")}</p>`;
   }
 
   // Ouvrir la modale proprement
@@ -1338,29 +1347,29 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       categories.push(newCat);
 
       $("manage-new-cat-name").value = "";
-      toast(t("category_created"));
+      toast(translate("category_created"));
       
       renderCategoriesManagementList();
       renderCategoryOptions();
       await refresh();
     } catch (err) {
       console.error("Erreur ajout catégorie :", err);
-      toast(t("error") + err.message);
+      toast(translate("error") + err.message);
     }
   });
 
   // Fonction globale pour supprimer une catégorie
   window.deleteCategory = async function(catId) {
-    if (!confirm(t("delete_this_category"))) return;
+    if (!confirm(translate("delete_this_category"))) return;
 
     try {
       await BudgetDB.deleteCategory(catId);
-      toast(t("category_deleted"));
+      toast(translate("category_deleted"));
       await refresh();
       renderCategoriesManagementList();
       renderCategoryOptions();
     } catch (err) {
-      toast(t("could_not_delete") + err.message);
+      toast(translate("could_not_delete") + err.message);
     }
   };
   // --- EXPORTATION DES DONNÉES EN JSON ---
@@ -1384,10 +1393,10 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       downloadAnchor.click();
       downloadAnchor.remove();
 
-      toast(t("json_export_complete"));
+      toast(translate("json_export_complete"));
     } catch (err) {
       console.error("Erreur export JSON :", err);
-      toast(t("export_failed"));
+      toast(translate("export_failed"));
     }
   });
 
@@ -1422,11 +1431,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
           }
         }
 
-        toast(t("data_imported_and_restored"));
+        toast(translate("data_imported_and_restored"));
         await refresh();
       } catch (err) {
         console.error("Erreur d'import JSON :", err);
-        toast(t("invalid_json_file"));
+        toast(translate("invalid_json_file"));
       }
     };
     reader.readAsText(file);
@@ -1435,18 +1444,18 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   $("btn-reset-sim")?.addEventListener("click", () => {
     $("financing-sim-form")?.reset();
     $("sim-result-card").style.display = "none";
-    toast(t("form_reset"));
+    toast(translate("form_reset"));
   });
   // --- SUPPRIMER UN PROJET DE FINANCEMENT ---
   window.deleteFinancingProject = async function(id) {
-    if (!confirm(t("delete_this_goal"))) return;
+    if (!confirm(translate("delete_this_goal"))) return;
     try {
       await BudgetDB.deleteFinancing(id);
-      toast(t("goal_deleted"));
+      toast(translate("goal_deleted"));
       renderFinancings();
     } catch (err) {
       console.error("Erreur suppression projet :", err);
-      toast(t("could_not_delete_2"));
+      toast(translate("could_not_delete_2"));
     }
   };
 // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT & ANALYSE DE FAISABILITÉ ---
@@ -1475,7 +1484,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     // Affichage des résultats de base
     $("res-proj-name").textContent = name;
     $("res-rem-amount").textContent = customMoney(remainingCents);
-    $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + t("month");
+    $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + translate("month");
 
     // --- AJOUT DU BLOC DE FAISABILITÉ DANS LA CARTE DE RÉSULTAT ---
     let feasibilityEl = $("sim-feasibility-alert");
@@ -1489,11 +1498,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     if (canAfford) {
       feasibilityEl.style.background = "#e6f4ea";
       feasibilityEl.style.color = "#065f46";
-      feasibilityEl.textContent = "✅ " + t("this_goal_is_feasible_this_month_your_net_balance_balance_covers_the_required_savings_leaving_remaining", { balance: customMoney(realNetBalance), remaining: customMoney(diffCents) });
+      feasibilityEl.textContent = "✅ " + translate("this_goal_is_feasible_this_month_your_net_balance_balance_covers_the_required_savings_leaving_remaining", { balance: customMoney(realNetBalance), remaining: customMoney(diffCents) });
     } else {
       feasibilityEl.style.background = "#fee2e2";
       feasibilityEl.style.color = "#dc2626";
-      feasibilityEl.textContent = "⚠️ " + t("your_net_balance_balance_falls_short_of_the_required_savings_by_shortfall_this_month", { balance: customMoney(realNetBalance), shortfall: customMoney(Math.abs(diffCents)) });
+      feasibilityEl.textContent = "⚠️ " + translate("your_net_balance_balance_falls_short_of_the_required_savings_by_shortfall_this_month", { balance: customMoney(realNetBalance), shortfall: customMoney(Math.abs(diffCents)) });
     }
 
     $("sim-result-card").style.display = "block";
@@ -1508,11 +1517,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
         monthlyEffort: monthlyEffortCents / 100,
         status: canAfford ? "faisable" : "tendu"
       });
-      toast(t("savings_estimate_saved"));
+      toast(translate("savings_estimate_saved"));
       renderFinancings();
     } catch (err) {
       console.error("Erreur sauvegarde projet :", err);
-      toast(t("could_not_save_the_goal"));
+      toast(translate("could_not_save_the_goal"));
     }
   });
   // --- CHARGEMENT ET AFFICHAGE DES FINANCEMENTS ---
@@ -1528,7 +1537,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
           <div>
             <strong>${escapeHTML(p.name)}</strong>
             <small style="display: block; color: #64748b; font-size: 0.85rem;">
-              ${t("target_target_term_months_months_savings_effort_month", { target: customMoney(p.targetAmount * 100), months: p.months, effort: customMoney(p.monthlyEffort * 100) })}
+              ${translate("target_target_term_months_months_savings_effort_month", { target: customMoney(p.targetAmount * 100), months: p.months, effort: customMoney(p.monthlyEffort * 100) })}
             </small>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -1536,11 +1545,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
               ${p.status}
             </span>
             <button type="button" onclick="deleteFinancingProject('${p.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
-              ${t("delete")}
+              ${translate("delete")}
             </button>
           </div>
         </div>
-      `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">${t("no_savings_goals_yet")}</p>`;
+      `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">${translate("no_savings_goals_yet")}</p>`;
     } catch (err) {
       console.error("Erreur affichage financements :", err);
     }
