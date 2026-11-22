@@ -1530,3 +1530,72 @@ dialog.modal {
 #page-dashboard:not([data-load-state="ready"]) .metrics-grid strong {
   visibility: hidden;
 }
+.dashboard-loader {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: clamp(16px, 4vw, 26px);
+  border: 1px solid #cce8dc;
+  border-radius: 14px;
+  background: #ecfdf5;
+  text-align: center;
+}
+
+.dashboard-loader #dashboard-load-status {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+#page-dashboard[data-load-state="ready"] .dashboard-loader,
+#page-dashboard[data-load-state="error"] .dashboard-coins {
+  display: none;
+}
+
+.dashboard-coins {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 64px;
+  padding-bottom: 18px;
+}
+
+.dashboard-coins span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 22px;
+  border: 1px solid #6fc9a6;
+  border-radius: 50%;
+  background: #c0f0da;
+  color: #065f46;
+  font-size: 0.875rem;
+  font-weight: 800;
+  box-shadow: 0 4px #53ac8b;
+  animation: budget-coin-bob 1.4s ease-in-out infinite;
+}
+
+.dashboard-coins span:nth-child(2) {
+  margin-bottom: 6px;
+  box-shadow: 0 4px #53ac8b, 0 8px #a3dfc6, 0 12px #53ac8b;
+  animation-delay: 140ms;
+}
+
+.dashboard-coins span:nth-child(3) {
+  margin-bottom: 12px;
+  box-shadow: 0 4px #53ac8b, 0 8px #a3dfc6, 0 12px #53ac8b,
+              0 16px #a3dfc6, 0 20px #53ac8b;
+  animation-delay: 280ms;
+}
+
+@keyframes budget-coin-bob {
+  0%, 50%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-7px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-coins span {
+    animation: none;
+  }
+}
