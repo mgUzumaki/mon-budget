@@ -181,8 +181,8 @@
       heading.textContent = `Opération ${index + 1}`;
       row.append(heading);
 
-      const description = document.createElement("input");
-      description.type = "text";
+      const description = document.createElement("textarea");
+      description.rows = 2;
       description.value = operation.label;
       addField(row, "Description", description, "description");
 
