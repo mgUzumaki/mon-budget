@@ -311,7 +311,15 @@
       }
     });
   }
+  const importDialog = document.getElementById("capture-import-dialog");
 
+  importDialog.addEventListener("close", () => {
+    form.reset();
+    currency.value = "";
+    captureDateField.hidden = true;
+    clearPreview();
+    importDialog.scrollTop = 0;
+  });
   form.addEventListener("change", event => {
     if ([captureDate, currency, file].includes(event.target)) {
       clearPreview();
@@ -337,7 +345,7 @@
         "auto",
         percent => { status.textContent = `Lecture de l’image… ${percent} %`; }
       );
-
+      if (!importDialog.open || file.files[0] !== selectedFile) return;
       const hasRelativeDates =
         /^\s*(Today|Yesterday)\s+\d{1,2}:\d{2}\s*$/im.test(text);
       const hasGroupedDates =
