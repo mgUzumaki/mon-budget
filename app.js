@@ -1554,6 +1554,50 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       console.error("Erreur affichage financements :", err);
     }
   }
+    $("open-budget-folder")?.addEventListener("click", () => {
+    $("budget-folder-form").reset();
+    $("budget-folder-status").textContent = "";
+
+    const currency = $("budget-folder-currency");
+    const options = Array.from($("app-currency").options)
+      .filter(option => option.value)
+      .map(option => option.cloneNode(true));
+
+    currency.replaceChildren(...options);
+    currency.value = currentCurrency;
+    showDialog("budget-folder-dialog");
+  });
+
+  $("budget-folder-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const name = $("budget-folder-name").value.trim();
+    const currency = $("budget-folder-currency").value;
+    const status = $("budget-folder-status");
+    const submit = form.querySelector('button[type="submit"]');
+
+    if (!name) {
+      status.textContent = "Saisis un nom de dossier.";
+      return;
+    }
+
+    submit.disabled = true;
+    status.textContent = "Création en cours…";
+
+    try {
+      const folder = await BudgetDB.createBudgetFolder({ name, currency });
+      closeDialog("budget-folder-dialog");
+      toast(`Dossier « ${folder.name} » créé.`);
+    } catch (error) {
+      status.textContent = error.code === "23505"
+        ? "Tu as déjà un dossier avec ce nom."
+        : "Impossible de créer le dossier. Réessaie.";
+      console.error("Création du dossier :", error);
+    } finally {
+      submit.disabled = false;
+    }
+  });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
 
