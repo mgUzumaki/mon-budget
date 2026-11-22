@@ -70,7 +70,7 @@ defaults: [
     const user = await this.requireUser();
     const { data, error } = await this.client()
       .from("budget_folders")
-      .select("id, name")
+            .select("id, name, display_currency")
       .eq("user_id", user.id)
       .order("name");
 
