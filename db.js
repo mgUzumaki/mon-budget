@@ -67,7 +67,7 @@ defaults: [
     return user.user_metadata?.main_currency || "EUR";
   },
   async setMainCurrency(currency) {
-    const allowed = ["EUR", "CNY", "USD", "GBP", "CHF", "XOF", "XAF"];
+    const allowed = ["EUR", "CNY", "USD", "GBP", "CHF", "XOF", "XAF","MAD"];
     if (!allowed.includes(currency)) {
       throw new Error("Devise principale invalide.");
     }
