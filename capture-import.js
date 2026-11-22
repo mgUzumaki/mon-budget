@@ -126,3 +126,114 @@
 
   window.CaptureImport = { readImage, parseText };
 })();
+(() => {
+  const form = document.getElementById("capture-import-form");
+  if (!form) return;
+
+  const format = document.getElementById("capture-format");
+  const captureDate = document.getElementById("capture-date");
+  const currency = document.getElementById("capture-currency");
+  const file = document.getElementById("capture-file");
+  const readButton = document.getElementById("capture-read");
+  const status = document.getElementById("capture-status");
+  const preview = document.getElementById("capture-preview");
+
+  function clearPreview() {
+    captureDate.required = format.value === "cn";
+    preview.replaceChildren();
+    status.textContent = "";
+  }
+
+  function addField(row, caption, control, name) {
+    const label = document.createElement("label");
+    label.textContent = `${caption} `;
+    control.dataset.field = name;
+    label.append(control);
+    const paragraph = document.createElement("p");
+    paragraph.append(label);
+    row.append(paragraph);
+  }
+
+  function renderPreview(operations, currencyCode) {
+    preview.replaceChildren();
+
+    operations.forEach((operation, index) => {
+      const row = document.createElement("fieldset");
+      const title = document.createElement("legend");
+      title.textContent = `Opération ${index + 1}`;
+      row.append(title);
+
+      const date = document.createElement("input");
+      date.type = "date";
+      date.value = operation.date;
+      addField(row, "Date", date, "date");
+
+      const label = document.createElement("input");
+      label.type = "text";
+      label.value = operation.label;
+      addField(row, "Libellé", label, "label");
+
+      const amount = document.createElement("input");
+      amount.type = "number";
+      amount.min = "0.01";
+      amount.step = "0.01";
+      amount.value = (operation.amountCents / 100).toFixed(2);
+      addField(row, `Montant (${currencyCode})`, amount, "amount");
+
+      const type = document.createElement("select");
+      type.add(new Option("À confirmer", ""));
+      type.add(new Option("Dépense", "expense"));
+      type.add(new Option("Revenu", "income"));
+      type.add(new Option("Transfert", "transfer"));
+      type.value = operation.type;
+      addField(row, "Type", type, "type");
+
+      preview.append(row);
+    });
+  }
+
+  form.addEventListener("change", event => {
+    if ([format, captureDate, currency, file].includes(event.target)) {
+      clearPreview();
+    }
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (readButton.disabled || !file.files[0]) return;
+
+    const selectedFormat = format.value;
+    const selectedDate = captureDate.value;
+    const selectedCurrency = currency.value;
+    const selectedFile = file.files[0];
+    const controls = [format, captureDate, currency, file, readButton];
+
+    preview.replaceChildren();
+    controls.forEach(control => { control.disabled = true; });
+    status.textContent = "Chargement de la lecture d’image…";
+
+    try {
+      const text = await window.CaptureImport.readImage(
+        selectedFile,
+        selectedFormat,
+        percent => { status.textContent = `Lecture de l’image… ${percent} %`; }
+      );
+      const operations = window.CaptureImport.parseText(text, {
+        format: selectedFormat,
+        captureDate: selectedDate
+      });
+
+      renderPreview(operations, selectedCurrency);
+      status.textContent = operations.length
+        ? `${operations.length} opération(s) détectée(s). Vérifie les champs.`
+        : "Aucune opération détectée. Vérifie le format choisi et la lisibilité de l’image.";
+    } catch (error) {
+      status.textContent = `Lecture impossible. ${error.message}`;
+    } finally {
+      controls.forEach(control => { control.disabled = false; });
+    }
+  });
+
+  clearPreview();
+  readButton.disabled = false;
+})();
