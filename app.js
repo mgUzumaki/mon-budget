@@ -138,7 +138,10 @@ document.querySelectorAll(".nav-link").forEach(btn => {
       b.classList.toggle("active", b === btn);
       b.setAttribute("aria-current", b === btn ? "page" : "false");
     });
-const titles = { dashboard: translate('nav_dashboard'), transactions: translate('nav_transactions'), budgets: translate('nav_budgets'), statistics: translate('nav_stats'), financing: translate("simulator"), settings: translate('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
+const titles = { dashboard: translate('nav_dashboard'), transactions: translate('nav_transactions'), budgets: translate('nav_budgets'), statistics: translate('nav_stats'), financing: translate("simulator"), settings: translate('nav_settings') };      const pageTitle = $("page-title");
+if (pageTitle) {
+  pageTitle.textContent = titles[page] || titles.dashboard;
+}
       if (sidebar?.classList.contains("is-open")) toggleSidebar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
