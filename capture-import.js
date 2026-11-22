@@ -1,4 +1,5 @@
 (() => {
+  const { t } = window.BudgetI18n;
   const tesseractUrl =
     "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js";
   let loadingTesseract;
@@ -13,7 +14,7 @@
         script.onload = () => resolve(window.Tesseract);
         script.onerror = () => {
           script.remove();
-          reject(new Error("Impossible de charger Tesseract.js."));
+          reject(new Error(t("could_not_load_the_image_reader")));
         };
         document.head.append(script);
       }).catch(error => {
@@ -127,6 +128,7 @@
   window.CaptureImport = { readImage, parseText };
 })();
 (() => {
+  const { t } = window.BudgetI18n;
   const form = document.getElementById("capture-import-form");
   if (!form) return;
 
@@ -134,10 +136,12 @@
   const captureDate = document.getElementById("capture-date");
     const currency = document.getElementById("capture-currency");
     const manualCurrency = document.getElementById("transaction-currency");
-  currency.replaceChildren(new Option("Choisir une devise", ""));
+  const currencyPlaceholder = new Option(t("choose_a_currency"), "");
+  currencyPlaceholder.dataset.i18n = "choose_a_currency";
+  currency.replaceChildren(currencyPlaceholder);
 
   for (const option of manualCurrency.options) {
-    if (option.value) currency.add(new Option(option.text, option.value));
+    if (option.value) currency.add(option.cloneNode(true));
   }
 
   currency.value = "";
@@ -178,40 +182,40 @@
       row.className = "capture-operation";
 
       const heading = document.createElement("legend");
-      heading.textContent = `Opération ${index + 1}`;
+      heading.textContent = t("transaction_index", { index: index + 1 });
       row.append(heading);
 
       const description = document.createElement("textarea");
       description.rows = 2;
       description.value = operation.label;
-      addField(row, "Description", description, "description");
+      addField(row, t("description"), description, "description");
 
       const date = document.createElement("input");
       date.type = "date";
       date.value = operation.date;
-      addField(row, "Date", date, "date");
+      addField(row, t("date"), date, "date");
 
       const amount = document.createElement("input");
       amount.type = "number";
       amount.min = "0.01";
       amount.step = "0.01";
       amount.value = (operation.amountCents / 100).toFixed(2);
-      addField(row, `Montant (${currencyCode})`, amount, "amount");
+      addField(row, t("amount_currency", { currency: currencyCode }), amount, "amount");
 
       const type = document.createElement("select");
-      type.add(new Option("Choisir un type", ""));
-      type.add(new Option("Dépense", "expense"));
-      type.add(new Option("Revenu", "income"));
-      type.add(new Option("Transfert", "transfer"));
+      type.add(new Option(t("choose_a_type"), ""));
+      type.add(new Option(t("expense"), "expense"));
+      type.add(new Option(t("income"), "income"));
+      type.add(new Option(t("transfer"), "transfer"));
       type.value = operation.type;
-      addField(row, "Type d’opération", type, "type");
+      addField(row, t("transaction_type_2"), type, "type");
 
       const category = document.createElement("select");
-      addField(row, "Catégorie", category, "category");
+      addField(row, t("category"), category, "category");
 
       function updateCategories() {
         const previous = category.value;
-        category.replaceChildren(new Option("Choisir une catégorie", ""));
+        category.replaceChildren(new Option(t("choose_a_category"), ""));
         category.disabled = !type.value;
 
         if (!type.value) return;
@@ -235,7 +239,7 @@
 
     const saveButton = document.createElement("button");
     saveButton.type = "button";
-    saveButton.textContent = "Enregistrer les opérations";
+    saveButton.textContent = t("save_transactions");
 
     const saveStatus = document.createElement("p");
     saveStatus.setAttribute("role", "status");
@@ -260,7 +264,7 @@
 
         if (invalidField) {
           saveStatus.textContent =
-            "Vérifie la date, le montant, le type et la catégorie de chaque opération.";
+            t("check_the_date_amount_type_and_category_of_each_transaction");
           invalidField[0].focus();
           return;
         }
@@ -281,7 +285,7 @@
 
       const controls = Array.from(form.elements).filter(control => !control.disabled);
       controls.forEach(control => { control.disabled = true; });
-      saveStatus.textContent = "Enregistrement en cours…";
+      saveStatus.textContent = t("saving");
       let saved = 0;
 
       try {
@@ -293,11 +297,11 @@
 
         form.reset();
         clearPreview();
-        status.textContent = `${saved} opération(s) enregistrée(s).`;
+        status.textContent = t("transactions_saved_saved", { saved });
         status.scrollIntoView({ block: "nearest" });
       } catch (error) {
         saveStatus.textContent =
-          `${saved} enregistrée(s). Les lignes restantes sont à l’écran. ${error.message}`;
+          t("saved_saved_the_remaining_transactions_are_still_shown_error", { saved, error: error.message });
       } finally {
         controls.forEach(control => { control.disabled = false; });
       }
@@ -337,13 +341,13 @@
 
     preview.replaceChildren();
     controls.forEach(control => { control.disabled = true; });
-    status.textContent = "Chargement de la lecture d’image…";
+    status.textContent = t("loading_the_image_reader");
 
     try {
       const text = await window.CaptureImport.readImage(
         selectedFile,
         "auto",
-        percent => { status.textContent = `Lecture de l’image… ${percent} %`; }
+        percent => { status.textContent = t("scanning_image_percent", { percent }); }
       );
       if (!importDialog.open || file.files[0] !== selectedFile) return;
       const hasRelativeDates =
@@ -355,12 +359,12 @@
 
       if (hasRelativeDates && !selectedDate) {
         status.textContent =
-          "Indique la date de la capture, puis clique à nouveau sur Lire la capture.";
+          t("enter_the_screenshot_date_then_select_scan_image_again");
         return;
       }
 
       if (!hasRelativeDates && !hasGroupedDates) {
-        status.textContent = "Aucune date reconnue sur cette capture.";
+        status.textContent = t("no_date_was_found_in_this_image");
         return;
       }
 
@@ -372,10 +376,10 @@
 
       renderPreview(operations, selectedCurrency);
       status.textContent = operations.length
-        ? `${operations.length} opération(s) détectée(s). Vérifie les champs.`
-        : "Aucune opération détectée. Vérifie le format choisi et la lisibilité de l’image.";
+        ? t("transactions_found_count_review_the_fields", { count: operations.length })
+        : t("no_transactions_found_check_that_the_image_is_readable");
     } catch (error) {
-      status.textContent = `Lecture impossible. ${error.message}`;
+      status.textContent = t("could_not_scan_the_image_error", { error: error.message });
     } finally {
       controls.forEach(control => { control.disabled = false; });
     }

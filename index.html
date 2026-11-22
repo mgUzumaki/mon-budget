@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#173f35">
   <meta name="description" content="Gérez vos finances personnelles, vos dépenses et vos budgets simplement.">
 
-  <title>Mon Budget — Gestion financière personnelle</title>
+  <title data-i18n="mon_budget_personal_finance">Mon Budget — Gestion financière personnelle</title>
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="styles.css">
@@ -25,7 +25,7 @@
 </head>
 
 <body>
-  <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+  <a class="skip-link" href="#main-content"><span data-i18n="skip_to_main_content">Aller au contenu principal</span></a>
 
   <!-- PAGE D'ACCUEIL / LANDING PAGE -->
   <div id="landing-page" class="landing-container">
@@ -37,8 +37,8 @@
           <span class="brand-mark">€</span>
           <strong>Mon Budget</strong>
         </div>
-        <h1>Gérez vos finances en toute simplicité</h1>
-        <p>Suivez vos dépenses, définissez vos budgets et gardez le contrôle sur votre argent en toute sécurité.</p>
+        <h1><span data-i18n="manage_your_finances_with_ease">Gérez vos finances en toute simplicité</span></h1>
+        <p><span data-i18n="track_spending_set_budgets_and_stay_in_control_of_your_money_securely">Suivez vos dépenses, définissez vos budgets et gardez le contrôle sur votre argent en toute sécurité.</span></p>
         
         <!-- Illustration / Photo de présentation -->
         <div class="landing-image">
@@ -49,7 +49,7 @@
       <!-- Section Connexion (Droite) -->
       <div class="landing-auth-card">
         <div class="auth-header">
-          <h2>Accès sécurisé</h2>
+          <h2><span data-i18n="secure_access">Accès sécurisé</span></h2>
           <select id="auth-lang-select">
             <option value="fr">Français</option>
             <option value="en">English</option>
@@ -58,23 +58,23 @@
         </div>
 
         <div class="auth-tabs">
-          <button type="button" id="tab-login" class="auth-tab active">Se connecter</button>
-          <button type="button" id="tab-signup" class="auth-tab">Créer un compte</button>
+          <button type="button" id="tab-login" class="auth-tab active"><span data-i18n="sign_in">Se connecter</span></button>
+          <button type="button" id="tab-signup" class="auth-tab"><span data-i18n="create_an_account">Créer un compte</span></button>
         </div>
 
         <form id="auth-form" data-mode="login">
           <div id="signup-fields" hidden>
             <div class="form-row">
-              <label><span>Prénom</span><input id="auth-firstname" type="text" placeholder="Jean"></label>
-              <label><span>Nom</span><input id="auth-lastname" type="text" placeholder="Dupont"></label>
+              <label><span><span data-i18n="first_name">Prénom</span></span><input id="auth-firstname" type="text" placeholder="Jean" data-i18n-placeholder="first_name_2"></label>
+              <label><span><span data-i18n="last_name">Nom</span></span><input id="auth-lastname" type="text" placeholder="Dupont" data-i18n-placeholder="last_name_2"></label>
             </div>
           </div>
 
-<label><span>Adresse e-mail</span><input id="auth-email" type="email" autocomplete="email" required placeholder="vous@exemple.com"></label>
-<label><span>Mot de passe</span><input id="auth-password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe"></label>
+<label><span><span data-i18n="email_address">Adresse e-mail</span></span><input id="auth-email" type="email" autocomplete="email" required placeholder="vous@exemple.com" data-i18n-placeholder="you_example_com"></label>
+<label><span><span data-i18n="password">Mot de passe</span></span><input id="auth-password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe" data-i18n-placeholder="your_password"></label>
 <div class="auth-buttons">
-  <button type="submit" id="btn-auth-submit" class="primary-btn" style="cursor: pointer;">Se connecter</button>
-  <button type="button" id="btn-cancel-auth" class="secondary-btn">Annuler</button>
+  <button type="submit" id="btn-auth-submit" class="primary-btn" style="cursor: pointer;"><span data-i18n="sign_in">Se connecter</span></button>
+  <button type="button" id="btn-cancel-auth" class="secondary-btn"><span data-i18n="cancel">Annuler</span></button>
 </div>
 
           <p id="auth-error" class="form-error" role="alert"></p>
@@ -88,16 +88,16 @@
   <div class="app-shell" id="app" hidden>
 
     <!-- Navigation principale -->
-    <aside id="sidebar" class="sidebar" aria-label="Menu principal">
-      <a href="#dashboard" class="brand" aria-label="Mon Budget, accueil">
+    <aside id="sidebar" class="sidebar" aria-label="Menu principal" data-i18n-aria-label="main_menu">
+      <a href="#dashboard" class="brand" aria-label="Mon Budget, accueil" data-i18n-aria-label="mon_budget_home">
         <span class="brand-mark" aria-hidden="true">€</span>
         <span class="brand-copy">
           <strong>Mon Budget</strong>
-          <small id="sidebar-subtitle">Finances personnelles</small>
+          <small id="sidebar-subtitle"><span data-i18n="personal_finance">Finances personnelles</span></small>
         </span>
       </a>
 
-      <nav class="nav" aria-label="Navigation principale">
+      <nav class="nav" aria-label="Navigation principale" data-i18n-aria-label="main_navigation">
         <button class="nav-link active" data-page="dashboard" aria-current="page">
           <span class="nav-icon" aria-hidden="true">⌂</span>
           <span data-i18n="nav_dashboard">Vue d’ensemble</span>
@@ -119,7 +119,7 @@
         </button>
 <button class="nav-link" data-page="financing">
           <span class="nav-icon" aria-hidden="true">🎯</span>
-          <span>Simulateur</span>
+          <span><span data-i18n="simulator">Simulateur</span></span>
         </button>
 
         <button class="nav-link" data-page="settings">
@@ -149,9 +149,9 @@
       <header class="topbar">
         <div class="topbar-heading">
           <p class="eyebrow" id="today-label">🌿 MonBudget</p>
-          <h1 id="welcome-title">Bonjour</h1>
+          <h1 id="welcome-title"><span data-i18n="hello">Bonjour</span></h1>
           <p class="welcome-subtitle">
-            On fait le point sur votre budget ?
+            <span data-i18n="ready_to_review_your_budget">On fait le point sur votre budget ?</span>
           </p>
         </div>
 
@@ -167,7 +167,7 @@
           aria-label="Ouvrir le menu"
           aria-controls="sidebar"
           aria-expanded="false"
-        >
+         data-i18n-aria-label="open_menu">
           <span aria-hidden="true">☰</span>
         </button>
       </header>
@@ -178,19 +178,19 @@
         <!-- En-tête & Contrôles de période -->
         <div class="dash-header-row">
           <div>
-            <h2>Aperçu Mensuel</h2>
+            <h2><span data-i18n="monthly_overview">Aperçu Mensuel</span></h2>
             <p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p>
           </div>
 
           <div class="dashboard-controls">
-            <div class="btn-group" id="range-selector" aria-label="Période">
+            <div class="btn-group" id="range-selector" aria-label="Période" data-i18n-aria-label="period">
               <button type="button" class="range-btn" data-range="week" data-i18n="range_week">Semaine</button>
               <button type="button" class="range-btn active" data-range="month" aria-pressed="true" data-i18n="range_month">Mois</button>
               <button type="button" class="range-btn" data-range="year" data-i18n="range_year">Année</button>
             </div>
 
 <div class="period-navigator">
-  <button type="button" id="prev-period" aria-label="Période précédente">‹</button>
+  <button type="button" id="prev-period" aria-label="Période précédente" data-i18n-aria-label="previous_period">‹</button>
   
   <!-- Nouveau conteneur pour rendre le clic 100% fonctionnel -->
   <div style="position: relative; display: inline-block; cursor: pointer;">
@@ -198,7 +198,7 @@
     <input type="date" id="hidden-date-picker" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
   </div>
 
-  <button type="button" id="next-period" aria-label="Période suivante">›</button>
+  <button type="button" id="next-period" aria-label="Période suivante" data-i18n-aria-label="next_period">›</button>
 </div>
           </div>
         </div>
@@ -210,34 +210,34 @@
     <span>€</span>
     <span>€</span>
   </div>
-  <p id="dashboard-load-status" role="status">Chargement de vos données…</p>
+  <p id="dashboard-load-status" role="status"><span data-i18n="loading_your_data">Chargement de vos données…</span></p>
 </div>
         <div class="metrics-grid">
           <article class="metric-card balance">
             <div class="metric-header">
-              <span>Solde net</span>
+              <span><span data-i18n="metric_net">Solde net</span></span>
               <span class="metric-badge balance-badge">💰</span>
             </div>
             <strong id="metric-net">0</strong>
-            <small>Revenus moins dépenses</small>
+            <small><span data-i18n="income_minus_expenses">Revenus moins dépenses</span></small>
           </article>
 
           <article class="metric-card expense">
             <div class="metric-header">
-              <span>Total des dépenses</span>
+              <span><span data-i18n="metric_exp">Total des dépenses</span></span>
               <span class="metric-badge expense-badge">💳</span>
             </div>
             <strong id="metric-expense">0</strong>
-            <small>Consommation enregistrée</small>
+            <small><span data-i18n="recorded_spending">Consommation enregistrée</span></small>
           </article>
 
           <article class="metric-card income">
             <div class="metric-header">
-              <span>Total des revenus</span>
+              <span><span data-i18n="metric_inc">Total des revenus</span></span>
               <span class="metric-badge income-badge">💼</span>
             </div>
             <strong id="metric-income">0</strong>
-            <small>Entrées perçues</small>
+            <small><span data-i18n="income_received">Entrées perçues</span></small>
           </article>
         </div>
 
@@ -251,28 +251,28 @@
               </div>
             </div>
             <div class="chart-container chart-container-centered">
-              <canvas id="categoryDoughnutChart" role="img" aria-label="Graphique des dépenses par catégorie"></canvas>
+              <canvas id="categoryDoughnutChart" role="img" aria-label="Graphique des dépenses par catégorie" data-i18n-aria-label="expenses_by_category_chart"></canvas>
             </div>
           </article>
 
 <article class="panel chart-panel">
   <div class="panel-heading" style="flex-wrap: wrap; gap: 10px;">
     <div>
-      <h3>Évolution des flux</h3>
-      <p>Dépenses, revenus et tendance</p>
+      <h3><span data-i18n="cash_flow_trend">Évolution des flux</span></h3>
+      <p><span data-i18n="expenses_income_and_trend">Dépenses, revenus et tendance</span></p>
     </div>
 
     <!-- Boutons de contrôle pour basculer de vue -->
     <div style="display: flex; gap: 8px; align-items: center;">
       <div class="btn-group" id="chart-view-mode">
-        <button type="button" class="range-btn active" data-view="bars" style="padding: 6px 12px; font-size: 0.85rem;">Barres + Tendance</button>
-        <button type="button" class="range-btn" data-view="line" style="padding: 6px 12px; font-size: 0.85rem;">Courbe seule</button>
+        <button type="button" class="range-btn active" data-view="bars" style="padding: 6px 12px; font-size: 0.85rem;"><span data-i18n="bars_and_trend">Barres + Tendance</span></button>
+        <button type="button" class="range-btn" data-view="line" style="padding: 6px 12px; font-size: 0.85rem;"><span data-i18n="line_only">Courbe seule</span></button>
       </div>
     </div>
   </div>
 
   <div class="chart-container">
-    <canvas id="dailyChart" role="img" aria-label="Graphique des flux financiers"></canvas>
+    <canvas id="dailyChart" role="img" aria-label="Graphique des flux financiers" data-i18n-aria-label="cash_flow_chart"></canvas>
   </div>
 </article>
         </div>
@@ -283,11 +283,11 @@
             <div style="display: flex; align-items: center; gap: 10px;">
               <span class="metric-badge income-badge" style="width: 32px; height: 32px; font-size: 14px;">📄</span>
               <div>
-                <h3 id="welcome-title">Transactions</h3>
-                <p>Vos dernières opérations</p>
+                <h3 id="welcome-title"><span data-i18n="nav_transactions">Transactions</span></h3>
+                <p><span data-i18n="recent_sub">Vos dernières opérations</span></p>
               </div>
             </div>
-            <button class="text-btn" data-goto="transactions" type="button">Voir tout →</button>
+            <button class="text-btn" data-goto="transactions" type="button"><span data-i18n="see_all">Voir tout →</span></button>
           </div>
 
           <div class="modern-table-container">
@@ -295,9 +295,9 @@
               <thead>
                 <tr>
                   <th><input type="checkbox" disabled></th>
-                  <th>Nom / Description</th>
-                  <th>Date</th>
-                  <th style="text-align: right;">Montant</th>
+                  <th><span data-i18n="name_description">Nom / Description</span></th>
+                  <th><span data-i18n="date">Date</span></th>
+                  <th style="text-align: right;"><span data-i18n="amount">Montant</span></th>
                 </tr>
               </thead>
               <tbody id="custom-recent-transactions-list">
@@ -312,12 +312,12 @@
       <section id="page-transactions" class="page">
         <div class="section-intro">
           <div>
-            <h2>Mes opérations</h2>
-            <p>Vos dépenses et revenus, simplement.</p>
+            <h2><span data-i18n="my_transactions">Mes opérations</span></h2>
+            <p><span data-i18n="view_your_expenses_and_income_in_one_place">Vos dépenses et revenus, simplement.</span></p>
           </div>
 
 <button class="primary-btn" id="btn_new_op" type="button">
-  <span>＋ Ajouter une opération</span>
+  <span><span data-i18n="add_transaction">＋ Ajouter une opération</span></span>
 </button>
 
 <button
@@ -326,15 +326,15 @@
   class="btn-danger"
   hidden
 >
-  🗑 Supprimer la sélection
+  <span data-i18n="delete_selected">🗑 Supprimer la sélection</span>
 </button>
 </div>
 
         <div class="filter-bar">
-          <label class="sr-only" for="search-transactions">Rechercher</label>
-          <input id="search-transactions" type="search" placeholder="Rechercher une description…">
+          <label class="sr-only" for="search-transactions"><span data-i18n="search">Rechercher</span></label>
+          <input id="search-transactions" type="search" placeholder="Rechercher une description…" data-i18n-placeholder="search_descriptions">
 
-          <label class="sr-only" for="filter-type">Type d'opération</label>
+          <label class="sr-only" for="filter-type"><span data-i18n="transaction_type">Type d'opération</span></label>
           <select id="filter-type">
             <option value="" data-i18n="filter_all_types">Tous les types</option>
             <option value="expense" data-i18n="type_expense">Dépenses</option>
@@ -342,7 +342,7 @@
             <option value="transfer" data-i18n="type_transfer">Transferts</option>
           </select>
 
-          <label class="sr-only" for="filter-category">Catégorie</label>
+          <label class="sr-only" for="filter-category"><span data-i18n="category">Catégorie</span></label>
           <select id="filter-category">
             <option value="" data-i18n="filter_all_cats">Toutes les catégories</option>
           </select>
@@ -387,71 +387,71 @@
       <section id="page-financing" class="page">
         <div class="section-intro">
           <div>
-            <h2>Simulateur de Financement</h2>
-            <p>Définissez votre projet et évaluez l'effort d'épargne nécessaire.</p>
+            <h2><span data-i18n="savings_planner">Simulateur de Financement</span></h2>
+            <p><span data-i18n="set_a_goal_and_estimate_how_much_you_need_to_save">Définissez votre projet et évaluez l'effort d'épargne nécessaire.</span></p>
           </div>
         </div>
 <div style="display: flex; gap: 10px; margin-top: 20px;">
               <button class="primary-btn" type="submit" style="flex: 1; justify-content: center;">
-                Calculer la simulation
+                <span data-i18n="calculate">Calculer la simulation</span>
               </button>
               <button class="secondary-btn" type="button" id="btn-reset-sim" style="padding: 0 16px;">
-                Réinitialiser
+                <span data-i18n="reset">Réinitialiser</span>
               </button>
             </div>
         <div class="panel" style="max-width: 600px; margin: 0 auto;">
           <form id="financing-sim-form">
             <label>
-              <span>Nom du projet</span>
-              <input type="text" id="sim-name" required placeholder="Ex: Achat ordinateur, Voiture, Voyage...">
+              <span><span data-i18n="goal_name">Nom du projet</span></span>
+              <input type="text" id="sim-name" required placeholder="Ex: Achat ordinateur, Voiture, Voyage..." data-i18n-placeholder="e_g_computer_car_trip">
             </label>
 
             <div class="form-row" style="margin-top: 12px;">
               <label>
-                <span>Montant nécessaire</span>
+                <span><span data-i18n="target_amount">Montant nécessaire</span></span>
                 <input type="number" id="sim-target" min="1" step="0.01" required placeholder="Ex: 3000">
               </label>
               <label>
-                <span>Déjà disponible</span>
+                <span><span data-i18n="already_saved">Déjà disponible</span></span>
                 <input type="number" id="sim-current" min="0" step="0.01" value="0" placeholder="Ex: 500">
               </label>
             </div>
 
             <div class="form-row" style="margin-top: 12px;">
               <label>
-                <span>Durée souhaitée (en mois)</span>
+                <span><span data-i18n="time_frame_months">Durée souhaitée (en mois)</span></span>
                 <input type="number" id="sim-months" min="1" max="120" value="6" required placeholder="Ex: 6">
               </label>
             </div>
 
             <button class="primary-btn" type="submit" style="width: 100%; margin-top: 20px; justify-content: center;">
-              Calculer la simulation
+              <span data-i18n="calculate">Calculer la simulation</span>
             </button>
           </form>
 
           <!-- Zone de résultat de la simulation -->
           <div id="sim-result-card" style="display: none; margin-top: 24px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h3 style="margin-bottom: 12px; color: #0f172a;" id="res-proj-name">Projet</h3>
+            <h3 style="margin-bottom: 12px; color: #0f172a;" id="res-proj-name"><span data-i18n="goal">Projet</span></h3>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
               <div>
-                <small style="color: #64748b;">Reste à financer</small>
+                <small style="color: #64748b;"><span data-i18n="amount_still_needed">Reste à financer</span></small>
                 <strong style="display: block; font-size: 1.2rem; color: #0f172a;" id="res-rem-amount">0</strong>
               </div>
               <div>
-                <small style="color: #64748b;">Effort mensuel d'épargne</small>
-                <strong style="display: block; font-size: 1.2rem; color: #10b981;" id="res-monthly-effort">0 / mois</strong>
+                <small style="color: #64748b;"><span data-i18n="monthly_savings_required">Effort mensuel d'épargne</span></small>
+                <strong style="display: block; font-size: 1.2rem; color: #10b981;" id="res-monthly-effort"><span data-i18n="0_month">0 / mois</span></strong>
               </div>
             </div>
 
             <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">
-              Sans intérêts ni frais, basé sur des versements réguliers.
+              <span data-i18n="assumes_regular_contributions_excluding_interest_and_fees">Sans intérêts ni frais, basé sur des versements réguliers.</span>
             </p>
           </div>
         </div>
         <!-- Liste des projets enregistrés -->
           <div class="panel" style="margin-top: 24px;">
-            <h3 style="margin-bottom: 16px;">Mes projets en cours</h3>
+            <h3 style="margin-bottom: 16px;"><span data-i18n="my_savings_goals">Mes projets en cours</span></h3>
             <div id="financing-projects-list">
               <!-- Les projets s'afficheront ici -->
             </div>
@@ -470,8 +470,8 @@
             <button class="settings-row-btn" type="button" id="btn-open-manage-cats">
               <div class="settings-icon-box" style="background-color: #f59e0b; color: white;">🏷</div>
               <div class="settings-row-content">
-                <strong>Mes catégories</strong>
-                <small>Gérer et créer vos catégories</small>
+                <strong><span data-i18n="my_categories">Mes catégories</span></strong>
+                <small><span data-i18n="manage_and_create_categories">Gérer et créer vos catégories</span></small>
               </div>
               <span class="chevron">›</span>
             </button>
@@ -480,8 +480,8 @@
             <button class="settings-row-btn" type="button" id="btn-export-json">
               <div class="settings-icon-box" style="background-color: #3b82f6; color: white;">📥</div>
               <div class="settings-row-content">
-                <strong>Exporter mes données (JSON)</strong>
-                <small>Sauvegarder toutes vos données</small>
+                <strong><span data-i18n="export_my_data_json">Exporter mes données (JSON)</span></strong>
+                <small><span data-i18n="back_up_your_data">Sauvegarder toutes vos données</span></small>
               </div>
               <span class="chevron">›</span>
             </button>
@@ -490,8 +490,8 @@
             <button class="settings-row-btn" type="button" id="btn-import-json">
               <div class="settings-icon-box" style="background-color: #8b5cf6; color: white;">📤</div>
               <div class="settings-row-content">
-                <strong>Importer mes données (JSON)</strong>
-                <small>Restaurer depuis une sauvegarde</small>
+                <strong><span data-i18n="import_my_data_json">Importer mes données (JSON)</span></strong>
+                <small><span data-i18n="restore_from_a_backup">Restaurer depuis une sauvegarde</span></small>
               </div>
               <span class="chevron">›</span>
             </button>
@@ -506,8 +506,8 @@
             <button class="settings-row-btn" type="button" id="btn-open-profile-modal">
               <div class="settings-icon-avatar">G</div>
               <div class="settings-row-content">
-                <strong>Profil</strong>
-                <small id="settings-user-name">Mon Compte</small>
+                <strong><span data-i18n="profile">Profil</span></strong>
+                <small id="settings-user-name"><span data-i18n="my_account">Mon Compte</span></small>
               </div>
               <span class="chevron">›</span>
             </button>
@@ -516,38 +516,38 @@
             <button class="settings-row-btn" type="button" id="btn-open-email-modal">
               <div class="settings-icon-box email-bg">✉</div>
               <div class="settings-row-content">
-                <strong>Email</strong>
-                <small id="settings-user-email">chargement...</small>
+                <strong><span data-i18n="email">Email</span></strong>
+                <small id="settings-user-email"><span data-i18n="loading">chargement...</span></small>
               </div>
               <span class="chevron">›</span>
             </button>
 
             <!-- Déconnexion -->
             <div class="settings-row-action-wrap">
-              <button class="danger-btn-ios" id="logout-btn" type="button">Se déconnecter</button>
+              <button class="danger-btn-ios" id="logout-btn" type="button"><span data-i18n="sign_out">Se déconnecter</span></button>
             </div>
 
           </div>
 
           <!-- Section Préférences -->
-          <div class="settings-group-title">Préférences</div>
+          <div class="settings-group-title"><span data-i18n="preferences">Préférences</span></div>
           <div class="settings-card-group">
             
             <!-- Row Devise -->
             <div class="settings-row-btn">
               <div class="settings-icon-box currency-bg">€</div>
               <div class="settings-row-content">
-                <strong>Devise</strong>
-                <small>Monnaie d'affichage</small>
+                <strong><span data-i18n="currency">Devise</span></strong>
+                <small><span data-i18n="display_currency">Monnaie d'affichage</span></small>
               </div>
 <select id="app-currency" class="settings-select-overlay">
-  <option value="EUR">Euro (EUR €)</option>
-  <option value="CNY">Yuan chinois (CNY ¥)</option>
-  <option value="USD">Dollar américain (USD $)</option>
-  <option value="GBP">Livre sterling (GBP £)</option>
-  <option value="CHF">Franc suisse (CHF)</option>
-  <option value="XOF">Franc CFA BCEAO (XOF)</option>
-  <option value="XAF">Franc CFA BEAC (XAF)</option>
+  <option value="EUR" data-i18n="euro_eur">Euro (EUR €)</option>
+  <option value="CNY" data-i18n="chinese_yuan_cny">Yuan chinois (CNY ¥)</option>
+  <option value="USD" data-i18n="us_dollar_usd">Dollar américain (USD $)</option>
+  <option value="GBP" data-i18n="british_pound_gbp">Livre sterling (GBP £)</option>
+  <option value="CHF" data-i18n="swiss_franc_chf">Franc suisse (CHF)</option>
+  <option value="XOF" data-i18n="west_african_cfa_franc_xof">Franc CFA BCEAO (XOF)</option>
+  <option value="XAF" data-i18n="central_african_cfa_franc_xaf">Franc CFA BEAC (XAF)</option>
 </select>
               <span class="chevron">›</span>
             </div>
@@ -556,8 +556,8 @@
             <div class="settings-row-btn">
               <div class="settings-icon-box lang-bg">🌐</div>
               <div class="settings-row-content">
-                <strong>Langue</strong>
-                <small>Langue de l'interface</small>
+                <strong><span data-i18n="language">Langue</span></strong>
+                <small><span data-i18n="interface_language">Langue de l'interface</span></small>
               </div>
               <select id="app-lang" class="settings-select-overlay">
                 <option value="fr">Français (FR)</option>
@@ -575,15 +575,15 @@
     </main>
   </div>
 
-  <button class="mobile-add" id="mobile-add" type="button" aria-label="Ajouter une opération">＋</button>
+  <button class="mobile-add" id="mobile-add" type="button" aria-label="Ajouter une opération" data-i18n-aria-label="btn_add">＋</button>
 
   <!-- AJOUT D'UNE TRANSACTION -->
   <dialog id="transaction-dialog" class="modal" aria-labelledby="transaction-modal-title">
     <form id="transaction-form">
       <div class="modal-heading">
         <div>
-          <p class="eyebrow">VOTRE ACTIVITÉ</p>
-          <h2 id="transaction-modal-title">Nouvelle opération</h2>
+          <p class="eyebrow"><span data-i18n="your_activity">VOTRE ACTIVITÉ</span></p>
+          <h2 id="transaction-modal-title"><span data-i18n="new_transaction">Nouvelle opération</span></h2>
         </div>
 <button
   id="capture-import-open"
@@ -595,15 +595,15 @@
   Importer une image
 </button>
         <!-- Bouton croix corrigé avec data-close (Bug 2) -->
-        <button type="button" class="icon-btn" data-close="transaction-dialog" aria-label="Fermer">×</button>
+        <button type="button" class="icon-btn" data-close="transaction-dialog" aria-label="Fermer" data-i18n-aria-label="close">×</button>
       </div>
 <div class="operation-type">
-  <span id="operation-type-label">Type d’opération</span>
+  <span id="operation-type-label"><span data-i18n="transaction_type_2">Type d’opération</span></span>
 
   <select id="transaction-type" hidden>
-    <option value="expense">Dépense</option>
-    <option value="income">Revenu</option>
-    <option value="transfer">Transfert</option>
+    <option value="expense" data-i18n="expense">Dépense</option>
+    <option value="income" data-i18n="income">Revenu</option>
+    <option value="transfer" data-i18n="transfer">Transfert</option>
   </select>
 
   <div class="operation-buttons"
@@ -611,24 +611,24 @@
        aria-labelledby="operation-type-label">
     <button type="button" data-operation="expense"
             aria-pressed="true">
-      − Dépense
+      <span data-i18n="expense_2">− Dépense</span>
     </button>
 
     <button type="button" data-operation="income"
             aria-pressed="false">
-      + Revenu
+      <span data-i18n="income_2">+ Revenu</span>
     </button>
 
     <button type="button" data-operation="transfer"
             aria-pressed="false">
-      ⇄ Transfert
+      <span data-i18n="transfer_2">⇄ Transfert</span>
     </button>
   </div>
 </div>
 
 <div class="form-row">
   <label>
-    <span>Montant</span>
+    <span><span data-i18n="amount">Montant</span></span>
     <input
       id="transaction-amount"
       type="number"
@@ -640,24 +640,24 @@
   </label>
 
   <label>
-    <span>Date</span>
+    <span><span data-i18n="date">Date</span></span>
     <input id="transaction-date" type="date" required>
   </label>
 </div>
 
 <div class="form-group" style="margin-top: 12px;">
   <label for="transaction-currency">
-    <span>Devise de saisie</span>
+    <span><span data-i18n="transaction_currency">Devise de saisie</span></span>
   </label>
 
   <select id="transaction-currency" required>
-    <option value="EUR">Euro (EUR €)</option>
-    <option value="CNY">Yuan chinois (CNY ¥)</option>
-    <option value="USD">Dollar américain (USD $)</option>
-    <option value="GBP">Livre sterling (GBP £)</option>
-    <option value="CHF">Franc suisse (CHF)</option>
-    <option value="XOF">Franc CFA BCEAO (XOF)</option>
-    <option value="XAF">Franc CFA BEAC (XAF)</option>
+    <option value="EUR" data-i18n="euro_eur">Euro (EUR €)</option>
+    <option value="CNY" data-i18n="chinese_yuan_cny">Yuan chinois (CNY ¥)</option>
+    <option value="USD" data-i18n="us_dollar_usd">Dollar américain (USD $)</option>
+    <option value="GBP" data-i18n="british_pound_gbp">Livre sterling (GBP £)</option>
+    <option value="CHF" data-i18n="swiss_franc_chf">Franc suisse (CHF)</option>
+    <option value="XOF" data-i18n="west_african_cfa_franc_xof">Franc CFA BCEAO (XOF)</option>
+    <option value="XAF" data-i18n="central_african_cfa_franc_xaf">Franc CFA BEAC (XAF)</option>
   </select>
 </div>
 
@@ -666,27 +666,27 @@
   style="display: none; margin-top: 12px; padding: 12px;
          background: #f1f5f9; border-radius: 8px;"
 >
-  <strong>Conversion monétaire</strong>
+  <strong><span data-i18n="currency_conversion">Conversion monétaire</span></strong>
   <p id="transaction-exchange-rate">
-    Récupération du taux de change...
+    <span data-i18n="getting_the_exchange_rate">Récupération du taux de change...</span>
   </p>
   <p id="transaction-converted-amount"></p>
   <small id="transaction-rate-date"></small>
 </div>
 
       <div class="form-group" style="margin-bottom: 12px;">
-  <label style="display: block; margin-bottom: 4px;"><span>Catégorie</span></label>
+  <label style="display: block; margin-bottom: 4px;"><span><span data-i18n="category">Catégorie</span></span></label>
   <div style="display: flex; gap: 8px; align-items: center;">
     <select id="transaction-category" required style="flex: 1;"></select>
-    <button type="button" id="btn-add-category" class="btn-secondary" title="Ajouter une catégorie" style="padding: 0 12px; height: 38px; cursor: pointer;">＋</button>
+    <button type="button" id="btn-add-category" class="btn-secondary" title="Ajouter une catégorie" style="padding: 0 12px; height: 38px; cursor: pointer;" data-i18n-title="add_a_category">＋</button>
   </div>
 </div>
-      <label><span>Description</span><input id="transaction-description" maxlength="200" placeholder="Ex. Courses alimentaires"></label>
+      <label><span><span data-i18n="description">Description</span></span><input id="transaction-description" maxlength="200" placeholder="Ex. Courses alimentaires" data-i18n-placeholder="e_g_groceries"></label>
 
       <div class="modal-actions">
         <!-- Bouton Annuler corrigé avec data-close (Bug 2) -->
-        <button type="button" class="secondary-btn" data-close="transaction-dialog">Annuler</button>
-        <button class="primary-btn" type="submit">Enregistrer</button>
+        <button type="button" class="secondary-btn" data-close="transaction-dialog"><span data-i18n="cancel">Annuler</span></button>
+        <button class="primary-btn" type="submit"><span data-i18n="save">Enregistrer</span></button>
       </div>
     </form>
   </dialog>
@@ -696,7 +696,7 @@
     <form id="profile-form" method="dialog">
       <div class="modal-heading">
         <div>
-          <h2 style="font-size:1.1rem; margin:0;">Modifier mon Profil</h2>
+          <h2 style="font-size:1.1rem; margin:0;"><span data-i18n="edit_my_profile">Modifier mon Profil</span></h2>
         </div>
         <button type="button" class="icon-btn" data-close="profile-dialog">×</button>
       </div>
@@ -706,17 +706,17 @@
       </div>
 
       <label>
-        <span>Prénom</span>
-        <input id="edit-firstname" type="text" placeholder="Prénom">
+        <span><span data-i18n="first_name">Prénom</span></span>
+        <input id="edit-firstname" type="text" placeholder="Prénom" data-i18n-placeholder="first_name">
       </label>
       <label style="margin-top:10px;">
-        <span>Nom</span>
-        <input id="edit-lastname" type="text" placeholder="Nom">
+        <span><span data-i18n="last_name">Nom</span></span>
+        <input id="edit-lastname" type="text" placeholder="Nom" data-i18n-placeholder="last_name">
       </label>
 
       <div class="modal-actions" style="margin-top:20px;">
-        <button type="button" class="secondary-btn" data-close="profile-dialog">Annuler</button>
-        <button type="submit" class="primary-btn">Enregistrer</button>
+        <button type="button" class="secondary-btn" data-close="profile-dialog"><span data-i18n="cancel">Annuler</span></button>
+        <button type="submit" class="primary-btn"><span data-i18n="save">Enregistrer</span></button>
       </div>
     </form>
   </dialog>
@@ -725,7 +725,7 @@
   <dialog id="email-dialog" class="modal">
     <div class="modal-heading">
       <div>
-        <h2 style="font-size:1.1rem; margin:0;">Adresse Email</h2>
+        <h2 style="font-size:1.1rem; margin:0;"><span data-i18n="email_address_2">Adresse Email</span></h2>
       </div>
       <button type="button" class="icon-btn" data-close="email-dialog">×</button>
     </div>
@@ -735,12 +735,12 @@
         <span id="info-modal-email">...</span> 🔒
       </p>
       <p style="font-size: 0.8rem; color: #64748b; line-height: 1.4; margin-top: 12px;">
-        Cette adresse est utilisée pour votre connexion et ne peut pas être modifiée directement. Pour des raisons de sécurité, veuillez contacter le support pour tout changement.
+        <span data-i18n="this_address_is_used_to_sign_in_contact_support_to_request_a_change">Cette adresse est utilisée pour votre connexion et ne peut pas être modifiée directement. Pour des raisons de sécurité, veuillez contacter le support pour tout changement.</span>
       </p>
     </div>
 
     <div class="modal-actions" style="margin-top: 15px;">
-      <button type="button" class="secondary-btn" style="width:100%" data-close="email-dialog">Fermer</button>
+      <button type="button" class="secondary-btn" style="width:100%" data-close="email-dialog"><span data-i18n="close">Fermer</span></button>
     </div>
   </dialog>
 
@@ -748,20 +748,20 @@
   <!-- Modale de gestion complète des catégories -->
 <dialog id="manage-categories-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 450px; width: 100%;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <h3 style="margin: 0;">Gérer mes catégories</h3>
+    <h3 style="margin: 0;"><span data-i18n="manage_my_categories">Gérer mes catégories</span></h3>
     <button type="button" class="icon-btn" data-close="manage-categories-dialog" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">×</button>
   </div>
 
   <!-- Formulaire d'ajout rapide corrigé et visible -->
   <form id="manage-category-form" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
-    <input type="text" id="manage-new-cat-name" required placeholder="Nom de la catégorie (ex: Sport, Restaurant...)" style="width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;">
+    <input type="text" id="manage-new-cat-name" required placeholder="Nom de la catégorie (ex: Sport, Restaurant...)" style="width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;" data-i18n-placeholder="category_name_e_g_sports_dining">
     <div style="display: flex; gap: 8px;">
       <select id="manage-new-cat-kind" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
-        <option value="expense">Dépense</option>
-        <option value="income">Revenu</option>
-        <option value="transfer">Transfert</option>
+        <option value="expense" data-i18n="expense">Dépense</option>
+        <option value="income" data-i18n="income">Revenu</option>
+        <option value="transfer" data-i18n="transfer">Transfert</option>
       </select>
-      <button type="submit" class="primary-btn" style="padding: 10px 16px; cursor:pointer;">Ajouter</button>
+      <button type="submit" class="primary-btn" style="padding: 10px 16px; cursor:pointer;"><span data-i18n="add">Ajouter</span></button>
     </div>
   </form>
 
@@ -771,20 +771,20 @@
   </div>
 
   <div style="margin-top: 20px; text-align: right;">
-    <button type="button" class="secondary-btn" data-close="manage-categories-dialog" style="padding: 8px 16px; cursor:pointer;">Fermer</button>
+    <button type="button" class="secondary-btn" data-close="manage-categories-dialog" style="padding: 8px 16px; cursor:pointer;"><span data-i18n="close">Fermer</span></button>
   </div>
 </dialog>
 
 <dialog id="category-dialog" style="padding: 20px; border-radius: 12px; border: none; max-width: 400px; width: 100%;">
   <form id="category-form">
-    <h3 style="margin-top: 0; margin-bottom: 16px;">Ajouter une catégorie</h3>
+    <h3 style="margin-top: 0; margin-bottom: 16px;"><span data-i18n="add_a_category">Ajouter une catégorie</span></h3>
     <div class="form-group" style="margin-bottom: 16px;">
-      <label for="new-category-name" style="display: block; margin-bottom: 6px;">Nom de la catégorie</label>
-      <input type="text" id="new-category-name" required placeholder="Ex: Restaurant, Sport..." style="width: 100%; padding: 8px; box-sizing: border-box;">
+      <label for="new-category-name" style="display: block; margin-bottom: 6px;"><span data-i18n="category_name">Nom de la catégorie</span></label>
+      <input type="text" id="new-category-name" required placeholder="Ex: Restaurant, Sport..." style="width: 100%; padding: 8px; box-sizing: border-box;" data-i18n-placeholder="e_g_dining_sports">
     </div>
     <div style="display: flex; justify-content: flex-end; gap: 8px;">
-      <button type="button" data-close="category-dialog" class="secondary-btn">Annuler</button>
-      <button type="submit" class="primary-btn">Créer</button>
+      <button type="button" data-close="category-dialog" class="secondary-btn"><span data-i18n="cancel">Annuler</span></button>
+      <button type="submit" class="primary-btn"><span data-i18n="create">Créer</span></button>
     </div>
   </form>
 </dialog>
@@ -793,33 +793,34 @@
 
   <form id="capture-import-form">
 <p id="capture-date-field" hidden>
-  <label for="capture-date">Date à laquelle la capture a été prise</label>
+  <label for="capture-date"><span data-i18n="date_the_screenshot_was_taken">Date à laquelle la capture a été prise</span></label>
   <input id="capture-date" type="date">
 </p>
     <p>
-      <label for="capture-currency">Devise des opérations</label>
+      <label for="capture-currency"><span data-i18n="transaction_currency_2">Devise des opérations</span></label>
       <select id="capture-currency" required>
-        <option value="">Choisir une devise</option>
-        <option value="EUR">EUR — euro</option>
-        <option value="CNY">CNY — yuan chinois</option>
+        <option value="" data-i18n="choose_a_currency">Choisir une devise</option>
+        <option value="EUR" data-i18n="eur_euro">EUR — euro</option>
+        <option value="CNY" data-i18n="cny_chinese_yuan">CNY — yuan chinois</option>
       </select>
     </p>
     <p>
-      <label for="capture-file">Photo ou capture d’écran</label>
+      <label for="capture-file"><span data-i18n="photo_or_screenshot">Photo ou capture d’écran</span></label>
       <input id="capture-file" type="file" accept="image/*" required>
     </p>
-    <button id="capture-read" type="submit" disabled>Lire la capture</button>
+    <button id="capture-read" type="submit" disabled><span data-i18n="scan_image">Lire la capture</span></button>
     <p id="capture-status" role="status"></p>
     <div id="capture-preview"></div>
   </form>
 
   <form method="dialog">
-    <button type="submit">Fermer</button>
+    <button type="submit"><span data-i18n="close">Fermer</span></button>
   </form>
 </dialog>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="db.js"></script>
   <script src="finance.js"></script>
+  <script src="i18n.js"></script>
   <script src="capture-import.js"></script>
   <script src="app.js"></script>
 </body>
