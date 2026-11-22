@@ -102,25 +102,32 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 async function showApp() {
   const landingPage = $("landing-page");
   const appDiv = $("app");
+  const dashboard = $("page-dashboard");
+  const status = $("dashboard-load-status");
+
+  dashboard.dataset.loadState = "loading";
+  status.textContent = "Chargement de vos données…";
 
   if (landingPage) landingPage.hidden = true;
   if (appDiv) appDiv.hidden = false;
 
   try {
-    // Récupérer la devise principale du compte connecté
     currentCurrency = await BudgetDB.getMainCurrency();
 
-    // Mettre à jour le sélecteur dans les paramètres
     if ($("app-currency")) {
       $("app-currency").value = currentCurrency;
     }
 
-    // Actualiser les données de l'application
-    await refresh();
+    if (!(await refresh())) {
+      throw new Error("Le chargement des données a échoué.");
+    }
 
+    dashboard.dataset.loadState = "ready";
   } catch (error) {
-    console.error("Erreur de chargement de la devise :", error);
-    toast("Impossible de charger les paramètres de devise.");
+    dashboard.dataset.loadState = "error";
+    status.textContent =
+      "Impossible de charger vos données. Actualisez la page pour réessayer.";
+    console.error("Erreur de chargement du tableau de bord :", error);
   }
 }
 
@@ -292,8 +299,10 @@ document.querySelectorAll('#chart-view-mode button').forEach(btn => {
       ]);
       transactions.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || "").localeCompare(a.createdAt || ""));
       renderAll();
+      return true;
     } catch (err) {
       console.error("Erreur de rafraîchissement :", err);
+      return false;
     }
   }
 
