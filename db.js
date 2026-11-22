@@ -66,6 +66,21 @@ defaults: [
     const user = await this.requireUser();
     return user.user_metadata?.main_currency || "EUR";
   },
+     async createBudgetFolder({ name, currency }) {
+    const user = await this.requireUser();
+    const { data, error } = await this.client()
+      .from("budget_folders")
+      .insert({
+        user_id: user.id,
+        name: name.trim(),
+        display_currency: currency
+      })
+      .select("id, name, display_currency")
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
   async setMainCurrency(currency) {
     const allowed = ["EUR", "CNY", "USD", "GBP", "CHF", "XOF", "XAF","MAD"];
     if (!allowed.includes(currency)) {
