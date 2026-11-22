@@ -1055,7 +1055,7 @@ function openEditTransactionModal(transactionId) {
   const form = $("transaction-form");
 
   form.reset();
-`loadTransactionFolders(transaction.folderId
+  loadTransactionFolders(transaction.folderId || "");
   // Indiquer que nous modifions une opération existante
   form.dataset.transactionId = transaction.id;
 
