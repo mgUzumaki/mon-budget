@@ -2,6 +2,9 @@
 (() => {
   const messages = {
     "fr": {
+      "folder_view_label": "Dossier affiché",
+"folder_all": "Tous les dossiers",
+"folder_create_open": "Créer un dossier",
       "currency_mad": "Dirham marocain (MAD)",
       "capture_open": "Importer une image",
       "capture_title": "Importer des opérations",
@@ -285,6 +288,9 @@
       "cat_epargne": "Épargne"
     },
     "en": {
+      "folder_view_label": "Budget folder",
+"folder_all": "All folders",
+"folder_create_open": "Create a folder",
       "currency_mad": "Moroccan dirham (MAD)",
       "capture_open": "Import an image",
       "capture_title": "Import transactions",
@@ -568,6 +574,9 @@
       "cat_epargne": "Savings"
     },
     "zh": {
+      "folder_view_label": "预算文件夹",
+"folder_all": "所有文件夹",
+"folder_create_open": "创建文件夹",
       "currency_mad": "摩洛哥迪拉姆 (MAD)",
       "capture_open": "导入图片",
       "capture_title": "导入交易记录",
