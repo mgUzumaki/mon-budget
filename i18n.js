@@ -2,6 +2,7 @@
 (() => {
   const messages = {
     "fr": {
+      "currency_mad": "Dirham marocain (MAD)",
       "capture_open": "Importer une image",
       "capture_title": "Importer des opérations",
       "nav_dashboard": "Vue d’ensemble",
@@ -284,6 +285,7 @@
       "cat_epargne": "Épargne"
     },
     "en": {
+      "currency_mad": "Moroccan dirham (MAD)",
       "capture_open": "Import an image",
       "capture_title": "Import transactions",
       "nav_dashboard": "Dashboard",
@@ -566,6 +568,7 @@
       "cat_epargne": "Savings"
     },
     "zh": {
+      "currency_mad": "摩洛哥迪拉姆 (MAD)",
       "capture_open": "导入图片",
       "capture_title": "导入交易记录",
       "nav_dashboard": "总览",
