@@ -1505,3 +1505,28 @@ body:has(#page-transactions.active) #mobile-add {
     width: 100%;
   }
 }
+html:has(dialog[open]),
+body:has(dialog[open]) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+dialog.modal {
+  overscroll-behavior: contain;
+}
+
+#dashboard-load-status {
+  margin: 12px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+#dashboard-load-status[hidden] {
+  display: none;
+}
+
+#page-dashboard:not([data-load-state="ready"]) .metrics-grid strong {
+  visibility: hidden;
+}
