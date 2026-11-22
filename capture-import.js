@@ -158,37 +158,28 @@
     preview.replaceChildren();
 
     operations.forEach((operation, index) => {
-      const row = document.createElement("fieldset");
-      const title = document.createElement("legend");
-      title.textContent = `Opération ${index + 1}`;
-      row.append(title);
+      const line = document.createElement("p");
+      const button = document.createElement("button");
+      const amount = (operation.amountCents / 100).toFixed(2);
+      const label = operation.label || `Opération ${index + 1}`;
 
-      const date = document.createElement("input");
-      date.type = "date";
-      date.value = operation.date;
-      addField(row, "Date", date, "date");
+      button.type = "button";
+      button.textContent = `Vérifier ${label} · ${amount} ${currencyCode}`;
 
-      const label = document.createElement("input");
-      label.type = "text";
-      label.value = operation.label;
-      addField(row, "Libellé", label, "label");
+      button.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("capture-import:select", {
+          detail: {
+            date: operation.date,
+            type: operation.type,
+            amountCents: operation.amountCents,
+            currency: currencyCode,
+            description: operation.label
+          }
+        }));
+      });
 
-      const amount = document.createElement("input");
-      amount.type = "number";
-      amount.min = "0.01";
-      amount.step = "0.01";
-      amount.value = (operation.amountCents / 100).toFixed(2);
-      addField(row, `Montant (${currencyCode})`, amount, "amount");
-
-      const type = document.createElement("select");
-      type.add(new Option("À confirmer", ""));
-      type.add(new Option("Dépense", "expense"));
-      type.add(new Option("Revenu", "income"));
-      type.add(new Option("Transfert", "transfer"));
-      type.value = operation.type;
-      addField(row, "Type", type, "type");
-
-      preview.append(row);
+      line.append(button);
+      preview.append(line);
     });
   }
 
