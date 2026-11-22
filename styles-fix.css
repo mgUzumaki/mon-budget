@@ -1332,3 +1332,176 @@ body:has(#page-transactions.active) #mobile-add {
     overflow-wrap: anywhere;
   }
 }
+/* Import d’opérations depuis une image */
+#capture-import-open {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #b7e2d2;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+#capture-import-open:hover {
+  background: #d1fae5;
+}
+
+#capture-import-dialog {
+  width: min(760px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  padding: clamp(16px, 4vw, 32px);
+  border-radius: 20px;
+}
+
+#capture-import-title {
+  margin-bottom: 20px;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+#capture-import-dialog > form {
+  padding: 0;
+}
+
+#capture-import-dialog > form[method="dialog"] {
+  margin-top: 14px;
+}
+
+#capture-import-form,
+#capture-preview {
+  display: grid;
+  gap: 14px;
+}
+
+#capture-import-form [hidden] {
+  display: none;
+}
+
+#capture-import-form label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+#capture-import-form :is(input, select, textarea) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d6dee5;
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+#capture-import-form textarea {
+  resize: vertical;
+}
+
+#capture-status,
+#capture-preview > [role="status"] {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+#capture-status:empty,
+#capture-preview:empty,
+#capture-preview > [role="status"]:empty {
+  display: none;
+}
+
+#capture-preview .capture-operation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #dce6e1;
+  border-radius: 14px;
+  background: #f7faf8;
+}
+
+#capture-preview .capture-operation legend {
+  padding: 0 6px;
+  color: #065f46;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+#capture-preview .capture-operation label:first-of-type {
+  grid-column: 1 / -1;
+}
+
+#capture-read,
+#capture-preview > button,
+#capture-import-dialog > form[method="dialog"] > button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#capture-read,
+#capture-preview > button {
+  justify-self: start;
+  background: #047857;
+  color: #fff;
+}
+
+#capture-import-dialog > form[method="dialog"] > button {
+  border-color: #d6dee5;
+  background: #f1f5f9;
+  color: #182522;
+}
+
+#capture-import-dialog button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+@media (max-width: 520px) {
+  #transaction-dialog .modal-heading:has(#capture-import-open) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: start;
+  }
+
+  #capture-import-open {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  #transaction-dialog .modal-heading:has(#capture-import-open) .icon-btn {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  #capture-import-dialog {
+    width: calc(100% - 20px);
+    max-height: calc(100vh - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  #capture-preview .capture-operation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #capture-read,
+  #capture-preview > button,
+  #capture-import-dialog > form[method="dialog"] > button {
+    width: 100%;
+  }
+}
