@@ -66,6 +66,17 @@ defaults: [
     const user = await this.requireUser();
     return user.user_metadata?.main_currency || "EUR";
   },
+     async getBudgetFolders() {
+    const user = await this.requireUser();
+    const { data, error } = await this.client()
+      .from("budget_folders")
+      .select("id, name")
+      .eq("user_id", user.id)
+      .order("name");
+
+    if (error) throw error;
+    return data || [];
+  },
      async createBudgetFolder({ name, currency }) {
     const user = await this.requireUser();
     const { data, error } = await this.client()
@@ -141,6 +152,7 @@ return (data || []).map(row => ({
   originalAmountCents: Math.round(
     Number(row.original_amount ?? row.amount ?? 0) * 100
   ),
+     folderId: row.folder_id || "",
   originalCurrency: row.original_currency || row.base_currency || baseCurrency,
 
   // Informations sur la conversion
@@ -197,7 +209,9 @@ const payload = {
 
   note: String(transaction.description || "").trim()
 };
-
+    if (transaction.folderId !== undefined) {
+      payload.folder_id = transaction.folderId || null;
+    }
     if (transaction.id) {
       payload.id = transaction.id;
     }
