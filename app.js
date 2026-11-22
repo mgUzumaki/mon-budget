@@ -1005,6 +1005,13 @@ $("transaction-date")?.addEventListener(
     select.disabled = false;
   }
 }
+  $("capture-import-open")?.addEventListener("click", () => {
+  const destination = $("capture-folder");
+  if (!destination) return;
+
+  const currentFolderId = $("transaction-folder")?.value || undefined;
+  loadTransactionFolders(currentFolderId, destination);
+});
 function openNewTransactionModal(prefill = {}) {
   const form = $("transaction-form");
   const dialog = $("transaction-dialog");
