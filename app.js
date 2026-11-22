@@ -1080,6 +1080,38 @@ function openEditTransactionModal(transactionId) {
   $("btn_new_op")?.addEventListener("click", openNewTransactionModal);
   $("mobile-add")?.addEventListener("click", openNewTransactionModal);
 
+async function saveTransaction({
+  id, date, amount, currency, type, categoryId, description
+}) {
+  const originalAmountCents = Finance.toCents(amount);
+
+  if (!Number.isSafeInteger(originalAmountCents) || originalAmountCents <= 0) {
+    throw new Error("Le montant doit être supérieur à zéro.");
+  }
+
+  const originalCurrency = currency || currentCurrency;
+  const conversion = await getExchangeRate(originalCurrency, currentCurrency, date);
+  const convertedAmountCents = Math.round(originalAmountCents * conversion.rate);
+
+  return BudgetDB.putTransaction({
+    id,
+    date,
+    amountCents: convertedAmountCents,
+    originalAmountCents,
+    originalCurrency,
+    convertedAmountCents,
+    baseCurrency: currentCurrency,
+    exchangeRate: conversion.rate,
+    exchangeRateDate: conversion.date,
+    type,
+    categoryId,
+    description: description.trim()
+  });
+}
+
+window.saveImportedTransaction = saveTransaction;
+window.refreshAfterCaptureImport = refresh;
+  
 $("transaction-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -1092,41 +1124,15 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     submitBtn.disabled = true;
     submitBtn.textContent = "Enregistrement...";
 
-    const date = $("transaction-date").value || today;
-
-    const originalAmountCents = Finance.toCents(
-      $("transaction-amount").value
-    );
-
-    const originalCurrency =
-      $("transaction-currency")?.value || currentCurrency;
-
-    const conversion = await getExchangeRate(
-      originalCurrency,
-      currentCurrency,
-      date
-    );
-
-    const convertedAmountCents = Math.round(
-      originalAmountCents * conversion.rate
-    );
-
-    const tx = {
+    await saveTransaction({
       id: form.dataset.transactionId || undefined,
-      date,
-      amountCents: convertedAmountCents,
-      originalAmountCents,
-      originalCurrency,
-      convertedAmountCents,
-      baseCurrency: currentCurrency,
-      exchangeRate: conversion.rate,
-      exchangeRateDate: conversion.date,
+      date: $("transaction-date").value || today,
+      amount: $("transaction-amount").value,
+      currency: $("transaction-currency")?.value,
       type: $("transaction-type").value,
       categoryId: $("transaction-category").value,
-      description: $("transaction-description").value.trim()
-    };
-
-    await BudgetDB.putTransaction(tx);
+      description: $("transaction-description").value
+    });
 
     delete form.dataset.transactionId;
 
