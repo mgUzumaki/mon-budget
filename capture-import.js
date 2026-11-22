@@ -132,6 +132,14 @@
 
   const format = document.getElementById("capture-format");
   const captureDate = document.getElementById("capture-date");
+    const manualCurrency = document.getElementById("transaction-currency");
+  currency.replaceChildren(new Option("Choisir une devise", ""));
+
+  for (const option of manualCurrency.options) {
+    if (option.value) currency.add(new Option(option.text, option.value));
+  }
+
+  currency.value = "";
   const currency = document.getElementById("capture-currency");
   const file = document.getElementById("capture-file");
   const readButton = document.getElementById("capture-read");
@@ -283,8 +291,10 @@
           saved += 1;
         }
 
-        saveButton.hidden = true;
-        saveStatus.textContent = `${saved} opération(s) enregistrée(s).`;
+        form.reset();
+        clearPreview();
+        status.textContent = `${saved} opération(s) enregistrée(s).`;
+        status.scrollIntoView({ block: "nearest" });
       } catch (error) {
         saveStatus.textContent =
           `${saved} enregistrée(s). Les lignes restantes sont à l’écran. ${error.message}`;
