@@ -212,21 +212,25 @@
   </div>
   <p id="dashboard-load-status" role="status"><span data-i18n="loading_your_data">Chargement de vos données…</span></p>
 </div>
-<label for="dashboard-folder" data-i18n="folder_view_label">Dossier affiché</label>
+<div class="budget-folder-toolbar">
+  <div class="budget-folder-field">
+    <label for="dashboard-folder" data-i18n="folder_view_label">Dossier affiché</label>
+    <select id="dashboard-folder">
+      <option value="" data-i18n="folder_all">Tous les dossiers</option>
+    </select>
+  </div>
 
-<select id="dashboard-folder">
-  <option value="" data-i18n="folder_all">Tous les dossiers</option>
-</select>
+  <div id="global-folder-currency-field" class="budget-folder-field">
+    <label for="global-folder-currency" data-i18n="folder_global_currency">
+      Devise de la vue globale
+    </label>
+    <select id="global-folder-currency"></select>
+  </div>
 
-<button id="open-budget-folder" class="secondary-btn" type="button"
-        data-i18n="folder_create_open">
-  Créer un dossier
-</button>
-        <div id="global-folder-currency-field">
-  <label for="global-folder-currency" data-i18n="folder_global_currency">
-    Devise de la vue globale
-  </label>
-  <select id="global-folder-currency"></select>
+  <button id="open-budget-folder" class="secondary-btn" type="button"
+          data-i18n="folder_create_open">
+    Créer un dossier
+  </button>
 </div>
 <p id="folder-rates-status" role="status"></p>
         <div class="metrics-grid">
