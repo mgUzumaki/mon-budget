@@ -978,11 +978,39 @@ $("transaction-date")?.addEventListener(
   "change",
   updateTransactionConversion
 );
+  async function loadTransactionFolders(selectedId) {
+  const select = $("transaction-folder");
+  select.disabled = true;
+  select.replaceChildren(new Option("Chargement des dossiers…", ""));
+
+  try {
+    const folders = await BudgetDB.getBudgetFolders();
+    const placeholder = folders.length
+      ? "Choisir un dossier"
+      : "Crée d’abord un dossier depuis le tableau de bord.";
+
+    select.replaceChildren(new Option(placeholder, ""));
+    for (const folder of folders) {
+      select.add(new Option(folder.name, folder.id));
+    }
+
+    const personal = folders.find(folder =>
+      folder.name.trim().toLowerCase() === "personnel"
+    );
+    select.value = selectedId ?? personal?.id ?? "";
+  } catch (error) {
+    select.replaceChildren(new Option("Impossible de charger les dossiers", ""));
+    toast("Impossible de charger les dossiers. Ferme et rouvre le formulaire.");
+  } finally {
+    select.disabled = false;
+  }
+}
 function openNewTransactionModal(prefill = {}) {
   const form = $("transaction-form");
   const dialog = $("transaction-dialog");
 
   form.reset();
+  loadTransactionFolders();
   delete form.dataset.transactionId;
   $("transaction-modal-title").textContent = translate("new_transaction");
   $("transaction-date").value = prefill.date || today;
@@ -1027,7 +1055,7 @@ function openEditTransactionModal(transactionId) {
   const form = $("transaction-form");
 
   form.reset();
-
+`loadTransactionFolders(transaction.folderId
   // Indiquer que nous modifions une opération existante
   form.dataset.transactionId = transaction.id;
 
@@ -1069,7 +1097,7 @@ function openEditTransactionModal(transactionId) {
   $("mobile-add")?.addEventListener("click", openNewTransactionModal);
 
 async function saveTransaction({
-  id, date, amount, currency, type, categoryId, description
+  folderId, id, date, amount, currency, type, categoryId, description
 }) {
   const originalAmountCents = Finance.toCents(amount);
 
@@ -1082,6 +1110,7 @@ async function saveTransaction({
   const convertedAmountCents = Math.round(originalAmountCents * conversion.rate);
 
   return BudgetDB.putTransaction({
+    folderId,
     id,
     date,
     amountCents: convertedAmountCents,
@@ -1107,12 +1136,14 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   const submitBtn = form.querySelector('button[type="submit"]');
 
   if (submitBtn.disabled) return;
+    if ($("transaction-folder").disabled || !$("transaction-folder").value) return;
 
   try {
     submitBtn.disabled = true;
     submitBtn.textContent = translate("saving_2");
 
     await saveTransaction({
+    folderId: $("transaction-folder").value,
       id: form.dataset.transactionId || undefined,
       date: $("transaction-date").value || today,
       amount: $("transaction-amount").value,
