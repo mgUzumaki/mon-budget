@@ -135,6 +135,7 @@
     const captureDateField = document.getElementById("capture-date-field");
   const captureDate = document.getElementById("capture-date");
     const currency = document.getElementById("capture-currency");
+    const folder = document.getElementById("capture-folder");
     const manualCurrency = document.getElementById("transaction-currency");
   const currencyPlaceholder = new Option(t("choose_a_currency"), "");
   currencyPlaceholder.dataset.i18n = "choose_a_currency";
@@ -246,6 +247,13 @@
     preview.append(saveButton, saveStatus);
 
     saveButton.addEventListener("click", async () => {
+            const folderId = folder.value;
+
+      if (folder.disabled || !folderId) {
+        saveStatus.textContent = "Choisis un dossier de destination.";
+        if (!folder.disabled) folder.focus();
+        return;
+      }
       const rows = Array.from(preview.querySelectorAll(".capture-operation"));
       const entries = [];
 
@@ -272,6 +280,7 @@
         entries.push({
           row,
           transaction: {
+                        folderId,
             id: row.dataset.transactionId,
             date: date.value,
             amount: amount.value,
