@@ -980,21 +980,43 @@ $("transaction-date")?.addEventListener(
   "change",
   updateTransactionConversion
 );
-function openNewTransactionModal() {
-  $("transaction-form").reset();
-  delete $("transaction-form").dataset.transactionId;
-$("transaction-modal-title").textContent = "Nouvelle opération";
-  $("transaction-date").value = today;
+function openNewTransactionModal(prefill = {}) {
+  const form = $("transaction-form");
+  const dialog = $("transaction-dialog");
+
+  form.reset();
+  delete form.dataset.transactionId;
+  $("transaction-modal-title").textContent = "Nouvelle opération";
+  $("transaction-date").value = prefill.date || today;
+  $("transaction-type").value = prefill.type || "expense";
+
   if ($("transaction-currency")) {
-    $("transaction-currency").value = currentCurrency;
+    $("transaction-currency").value = prefill.currency || currentCurrency;
   }
+
+  if (Number.isSafeInteger(prefill.amountCents)) {
+    $("transaction-amount").value = (prefill.amountCents / 100).toFixed(2);
+  }
+
+  $("transaction-description").value = prefill.description || "";
+
   if ($("transaction-conversion")) {
     $("transaction-conversion").hidden = true;
   }
+
   renderCategoryOptions();
-  showDialog("transaction-dialog");
+
+  if (!dialog.open) {
+    showDialog("transaction-dialog");
+  }
+
   updateTransactionConversion();
 }
+
+document.addEventListener("capture-import:select", event => {
+  closeDialog("capture-import-dialog");
+  openNewTransactionModal(event.detail);
+});
 // Ouvrir une opération existante pour la consulter ou la modifier
 function openEditTransactionModal(transactionId) {
   const t = transactions.find(item => String(item.id) === String(transactionId));
