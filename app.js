@@ -41,9 +41,12 @@ function applyTranslations() {
   const displayCategoryName = id => categoryLabel(categories.find(category => category.id === id));
   const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   
-  function customMoney(cents) {
-    const formatted = (cents / 100).toLocaleString(window.BudgetI18n.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `${formatted} ${currentCurrency}`;
+  function customMoney(cents, currency = currentCurrency) {
+    const formatted = (cents / 100).toLocaleString(window.BudgetI18n.locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return `${formatted} ${currency}`;
   }
 
   function toast(message) {
@@ -91,11 +94,11 @@ async function showApp() {
     if ($("app-currency")) {
       $("app-currency").value = currentCurrency;
     }
-
+await loadDashboardFolders();
     if (!(await refresh())) {
       throw new Error("Le chargement des données a échoué.");
     }
-    await loadDashboardFolders();
+    
     dashboard.dataset.loadState = "ready";
   } catch (error) {
     dashboard.dataset.loadState = "error";
@@ -273,6 +276,7 @@ document.querySelectorAll('#chart-view-mode button').forEach(btn => {
         BudgetDB.getBudgets()
       ]);
       transactions.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || "").localeCompare(a.createdAt || ""));
+      await refreshFolderTotals();
       renderAll();
       return true;
     } catch (err) {
@@ -323,13 +327,82 @@ function renderAll() {
     ? transactions.filter(transaction => transaction.folderId === folderId)
     : transactions;
 }
+let dashboardFolders = [];
+let folderTotals = { rows: [], currency: "EUR", state: "loading" };
+let folderConversionRun = 0;
+const folderRateCache = new Map();
 
+async function refreshFolderTotals() {
+  const run = ++folderConversionRun;
+  const folderId = $("dashboard-folder").value;
+  const globalCurrency = $("global-folder-currency");
+  const field = $("global-folder-currency-field");
+
+  if (!globalCurrency.options.length) {
+    for (const option of $("app-currency").options) {
+      if (option.value) globalCurrency.add(option.cloneNode(true));
+    }
+    globalCurrency.value = currentCurrency;
+  }
+
+  field.hidden = Boolean(folderId);
+  const folder = dashboardFolders.find(item => item.id === folderId);
+  const currency = folder?.display_currency || globalCurrency.value || currentCurrency;
+
+  folderTotals = { rows: [], currency, state: "loading" };
+  renderDashboard();
+  renderStatistics();
+
+  try {
+    const rows = await Promise.all(
+      transactionsInSelectedFolder().map(async transaction => {
+        const from = transaction.originalCurrency;
+        const amount = transaction.originalAmountCents;
+
+        if (!from || !Number.isSafeInteger(amount)) {
+          throw new Error("Montant ou devise d’origine manquant.");
+        }
+
+        if (from === currency) return { ...transaction, amountCents: amount };
+
+        const key = [from, currency, transaction.date].join("|");
+        if (!folderRateCache.has(key)) {
+          folderRateCache.set(key,
+            getExchangeRate(from, currency, transaction.date).catch(error => {
+              folderRateCache.delete(key);
+              throw error;
+            })
+          );
+        }
+
+        const { rate } = await folderRateCache.get(key);
+        const amountCents = Math.round(amount * rate);
+        if (rate <= 0 || !Number.isSafeInteger(amountCents)) {
+          throw new Error("Conversion invalide.");
+        }
+
+        return { ...transaction, amountCents };
+      })
+    );
+
+    if (run !== folderConversionRun) return;
+    folderTotals = { rows, currency, state: "ready" };
+  } catch (error) {
+    if (run !== folderConversionRun) return;
+    folderTotals = { rows: [], currency, state: "error" };
+    console.error("Conversion des totaux :", error);
+  }
+
+  renderDashboard();
+  renderStatistics();
+}
 async function loadDashboardFolders() {
   const select = $("dashboard-folder");
   if (!select) return;
 
   try {
     const folders = await BudgetDB.getBudgetFolders();
+        dashboardFolders = folders;
     const selectedId = select.value;
 
     const allFoldersOption = new Option(window.BudgetI18n.t("folder_all"), "");
@@ -351,10 +424,12 @@ async function loadDashboardFolders() {
 $("dashboard-folder")?.addEventListener("change", () => {
   selectedTransactionIds.clear();
   renderAll();
+  refreshFolderTotals();
 });
+  $("global-folder-currency")?.addEventListener("change", refreshFolderTotals);
 // Fonction de filtrage par période (Semaine, Mois, Année)
-  function getFilteredTransactions() {
-    return transactionsInSelectedFolder().filter(t => {
+  function getFilteredTransactions(rows = transactionsInSelectedFolder()) {
+    return rows.filter(t => {
       const tDate = new Date(t.date);
       if (isNaN(tDate.getTime())) return false;
 
@@ -379,7 +454,20 @@ $("dashboard-folder")?.addEventListener("change", () => {
     });
   }
 function renderDashboard() {
-    const filteredItems = getFilteredTransactions();
+        const ready = folderTotals.state === "ready";
+    $("folder-rates-status").textContent = ready
+      ? ""
+      : translate(folderTotals.state === "error" ? "folder_rates_error" : "folder_rates_loading");
+
+    for (const selector of [".metrics-grid", ".charts-grid"]) {
+      const section = $("page-dashboard").querySelector(selector);
+      if (section) section.style.visibility = ready ? "" : "hidden";
+    }
+
+    if (!ready) return;
+
+    const filteredItems = getFilteredTransactions(folderTotals.rows);
+    const dashboardMoney = cents => customMoney(cents, folderTotals.currency);
     
     const income = Finance.sum(filteredItems, "income");
     const expense = Finance.sum(filteredItems, "expense");
@@ -407,18 +495,18 @@ function renderDashboard() {
 if ($("period-display-label")) $("period-display-label").textContent = periodText;
 
     if ($("metric-net")) {
-      $("metric-net").textContent = customMoney(net);
+      $("metric-net").textContent = dashboardMoney(net);
       $("metric-net").style.color = net < 0 ? "#b74e48" : "#10b981";
     }
     
     // --- MODIFICATION ICI POUR LES DÉPENSES ---
     if ($("metric-expense")) {
-      $("metric-expense").textContent = "− " + customMoney(expense);
+      $("metric-expense").textContent = "− " + dashboardMoney(expense);
       $("metric-expense").style.color = "#ef4444"; // Couleur rouge
     }
 
-    if ($("metric-income")) $("metric-income").textContent = customMoney(income);
-    if ($("metric-saving")) $("metric-saving").textContent = customMoney(saving);
+    if ($("metric-income")) $("metric-income").textContent = dashboardMoney(income);
+    if ($("metric-saving")) $("metric-saving").textContent = dashboardMoney(saving);
 
     renderCharts(filteredItems);
   }
@@ -519,7 +607,8 @@ function renderCharts(items) {
               ticks: {
                 maxTicksLimit: 6, // Espace l'échelle des ordonnées
                 callback: function(value) {
-                  return value.toLocaleString() + ' ' + currentCurrency;
+                                  return value.toLocaleString(window.BudgetI18n.locale)
+                    + " " + folderTotals.currency;
                 }
               }
             }
@@ -768,12 +857,24 @@ if (deleteButton) {
   }
 
   function renderStatistics() {
-    const statsIncome = $("stats-income");
-    const statsExpense = $("stats-expense");
-    const statsNet = $("stats-net");
-    if (statsIncome) statsIncome.textContent = customMoney(Finance.sum(transactions, "income"));
-    if (statsExpense) statsExpense.textContent = customMoney(Finance.sum(transactions, "expense"));
-    if (statsNet) statsNet.textContent = customMoney(Finance.sum(transactions, "income") - Finance.sum(transactions, "expense"));
+    const { rows, currency, state } = folderTotals;
+    const income = Finance.sum(rows, "income");
+    const expense = Finance.sum(rows, "expense");
+
+    const message = state === "error"
+      ? translate("folder_totals_unavailable")
+      : translate("folder_rates_loading");
+
+    for (const [id, amount] of [
+      ["stats-income", income],
+      ["stats-expense", expense],
+      ["stats-net", income - expense]
+    ]) {
+      const output = $(id);
+      if (output) {
+        output.textContent = state === "ready" ? customMoney(amount, currency) : message;
+      }
+    }
   }
 
 async function updateUserProfileInfo() {
