@@ -781,17 +781,10 @@
   <h2 id="capture-import-title">Importer d’une photo</h2>
 
   <form id="capture-import-form">
-    <p>
-      <label for="capture-format">Format de la capture</label>
-      <select id="capture-format">
-        <option value="fr">Relevé français</option>
-        <option value="cn">Historique avec Today / Yesterday</option>
-      </select>
-    </p>
-    <p>
-      <label for="capture-date">Date de la capture si elle affiche Today ou Yesterday</label>
-      <input id="capture-date" type="date">
-    </p>
+<p id="capture-date-field" hidden>
+  <label for="capture-date">Date à laquelle la capture a été prise</label>
+  <input id="capture-date" type="date">
+</p>
     <p>
       <label for="capture-currency">Devise des opérations</label>
       <select id="capture-currency" required>
