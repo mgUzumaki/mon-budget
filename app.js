@@ -17,6 +17,8 @@
 
 const translations = {
     fr: {
+            capture_open: "Importer une image",
+      capture_title: "Importer des opérations",
       nav_dashboard: "Vue d’ensemble", nav_transactions: "Transactions", nav_budgets: "Budgets", nav_stats: "Statistiques", nav_settings: "Réglages",
       btn_add: "Ajouter une opération", dash_intro: "Votre situation financière en un coup d'œil.",
       range_week: "Semaine", range_month: "Mois", range_year: "Année", range_day: "Jour",
@@ -28,6 +30,8 @@ const translations = {
       filter_all_types: "Tous les types", type_expense: "Dépenses", type_income: "Revenus", type_transfer: "Transferts", filter_all_cats: "Toutes les catégories"
     },
     en: {
+            capture_open: "Import an image",
+      capture_title: "Import transactions",
       nav_dashboard: "Dashboard", nav_transactions: "Transactions", nav_budgets: "Budgets", nav_stats: "Statistics", nav_settings: "Settings",
       btn_add: "Add transaction", dash_intro: "Your financial situation at a glance.",
       range_week: "Week", range_month: "Month", range_year: "Year", range_day: "Day",
@@ -39,6 +43,8 @@ const translations = {
       filter_all_types: "All types", type_expense: "Expenses", type_income: "Income", type_transfer: "Transfers", filter_all_cats: "All categories"
     },
     zh: {
+            capture_open: "导入图片",
+      capture_title: "导入交易记录",
       nav_dashboard: "总览", nav_transactions: "交易记录", nav_budgets: "预算管理", nav_stats: "统计分析", nav_settings: "设置",
       btn_add: "添加交易", dash_intro: "一目了然您的财务状况。",
       range_week: "周", range_month: "月", range_year: "年", range_day: "日",
