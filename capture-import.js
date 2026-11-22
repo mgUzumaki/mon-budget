@@ -27,7 +27,7 @@
 
   async function readImage(file, format, onProgress = () => {}) {
     const tesseract = await loadTesseract();
-    const languages = format === "fr" ? ["fra"] : ["eng", "chi_sim"];
+        const languages = ["fra", "eng", "chi_sim"];
     const worker = await tesseract.createWorker(languages, 1, {
       logger: ({ status, progress }) => {
         if (status === "recognizing text") {
@@ -130,7 +130,7 @@
   const form = document.getElementById("capture-import-form");
   if (!form) return;
 
-  const format = document.getElementById("capture-format");
+    const captureDateField = document.getElementById("capture-date-field");
   const captureDate = document.getElementById("capture-date");
     const currency = document.getElementById("capture-currency");
     const manualCurrency = document.getElementById("transaction-currency");
@@ -148,7 +148,6 @@
   const preview = document.getElementById("capture-preview");
 
   function clearPreview() {
-    captureDate.required = format.value === "cn";
     preview.replaceChildren();
     status.textContent = "";
   }
@@ -314,7 +313,7 @@
   }
 
   form.addEventListener("change", event => {
-    if ([format, captureDate, currency, file].includes(event.target)) {
+    if ([captureDate, currency, file].includes(event.target)) {
       clearPreview();
     }
   });
@@ -323,11 +322,10 @@
     event.preventDefault();
     if (readButton.disabled || !file.files[0]) return;
 
-    const selectedFormat = format.value;
     const selectedDate = captureDate.value;
     const selectedCurrency = currency.value;
     const selectedFile = file.files[0];
-    const controls = [format, captureDate, currency, file, readButton];
+    const controls = [captureDate, currency, file, readButton];
 
     preview.replaceChildren();
     controls.forEach(control => { control.disabled = true; });
@@ -336,9 +334,29 @@
     try {
       const text = await window.CaptureImport.readImage(
         selectedFile,
-        selectedFormat,
+        "auto",
         percent => { status.textContent = `Lecture de l’image… ${percent} %`; }
       );
+
+      const hasRelativeDates =
+        /^\s*(Today|Yesterday)\s+\d{1,2}:\d{2}\s*$/im.test(text);
+      const hasGroupedDates =
+        /^\s*\d{2}\/\d{2}\/\d{4}\s*$/m.test(text);
+
+      captureDateField.hidden = !hasRelativeDates;
+
+      if (hasRelativeDates && !selectedDate) {
+        status.textContent =
+          "Indique la date de la capture, puis clique à nouveau sur Lire la capture.";
+        return;
+      }
+
+      if (!hasRelativeDates && !hasGroupedDates) {
+        status.textContent = "Aucune date reconnue sur cette capture.";
+        return;
+      }
+
+      const selectedFormat = hasRelativeDates ? "cn" : "fr";
       const operations = window.CaptureImport.parseText(text, {
         format: selectedFormat,
         captureDate: selectedDate
