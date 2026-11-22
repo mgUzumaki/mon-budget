@@ -12,69 +12,35 @@
   let dailyChartInstance = null;
   let doughnutChartInstance = null;
 
-  let currentLang = localStorage.getItem('user_lang') || 'fr';
+  let currentLang = window.BudgetI18n.language;
  let currentCurrency = 'EUR';
 
-const translations = {
-    fr: {
-            capture_open: "Importer une image",
-      capture_title: "Importer des opérations",
-      nav_dashboard: "Vue d’ensemble", nav_transactions: "Transactions", nav_budgets: "Budgets", nav_stats: "Statistiques", nav_settings: "Réglages",
-      btn_add: "Ajouter une opération", dash_intro: "Votre situation financière en un coup d'œil.",
-      range_week: "Semaine", range_month: "Mois", range_year: "Année", range_day: "Jour",
-      metric_net: "Solde net", metric_exp: "Total des dépenses", metric_inc: "Total des revenus", metric_save: "Épargne",
-      chart_exp_title: "Évolution des dépenses", chart_exp_sub: "Activité et tendance",
-      chart_cat_title: "Répartition des Dépenses", chart_cat_sub: "Par catégorie",
-      recent_title: "Opérations récentes", recent_sub: "Vos dernières opérations", see_all: "Voir tout →",
-      trans_intro: "Retrouvez, filtrez et corrigez vos opérations.", btn_new_op: "＋ Nouvelle opération",
-      filter_all_types: "Tous les types", type_expense: "Dépenses", type_income: "Revenus", type_transfer: "Transferts", filter_all_cats: "Toutes les catégories"
-    },
-    en: {
-            capture_open: "Import an image",
-      capture_title: "Import transactions",
-      nav_dashboard: "Dashboard", nav_transactions: "Transactions", nav_budgets: "Budgets", nav_stats: "Statistics", nav_settings: "Settings",
-      btn_add: "Add transaction", dash_intro: "Your financial situation at a glance.",
-      range_week: "Week", range_month: "Month", range_year: "Year", range_day: "Day",
-      metric_net: "Net Balance", metric_exp: "Total Expenses", metric_inc: "Total Income", metric_save: "Savings",
-      chart_exp_title: "Expense Trend", chart_exp_sub: "Activity and trend",
-      chart_cat_title: "Expense Breakdown", chart_cat_sub: "By category",
-      recent_title: "Recent transactions", recent_sub: "Your latest operations", see_all: "See all →",
-      trans_intro: "Find, filter and edit your operations.", btn_new_op: "＋ New transaction",
-      filter_all_types: "All types", type_expense: "Expenses", type_income: "Income", type_transfer: "Transfers", filter_all_cats: "All categories"
-    },
-    zh: {
-            capture_open: "导入图片",
-      capture_title: "导入交易记录",
-      nav_dashboard: "总览", nav_transactions: "交易记录", nav_budgets: "预算管理", nav_stats: "统计分析", nav_settings: "设置",
-      btn_add: "添加交易", dash_intro: "一目了然您的财务状况。",
-      range_week: "周", range_month: "月", range_year: "年", range_day: "日",
-      metric_net: "净额", metric_exp: "总支出", metric_inc: "总收入", metric_save: "储蓄",
-      chart_exp_title: "支出趋势", chart_exp_sub: "活动与趋势",
-      chart_cat_title: "支出分布", chart_cat_sub: "按类别",
-      recent_title: "近期交易", recent_sub: "您的最新操作", see_all: "查看全部 →",
-      trans_intro: "查找、筛选和修改您的操作。", btn_new_op: "＋ 新建交易",
-      filter_all_types: "所有类型", type_expense: "支出", type_income: "收入", type_transfer: "转账", filter_all_cats: "所有分类"
-    }
-  };
-
-  function t(key) { return translations[currentLang]?.[key] || translations['fr'][key] || key; }
+const { t } = window.BudgetI18n;
 
 function applyTranslations() {
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-      const key = el.getAttribute("data-i18n");
-      if (t(key)) el.textContent = t(key);
-    });
+    window.BudgetI18n.apply();
     if ($("app-currency")) $("app-currency").value = currentCurrency;
     if ($("app-lang")) $("app-lang").value = currentLang;
     if ($("auth-lang-select")) $("auth-lang-select").value = currentLang;
+    if ($("btn-auth-submit")) {
+      $("btn-auth-submit").textContent = $("auth-form").dataset.mode === "signup"
+        ? t("create_my_account")
+        : t("sign_in");
+    }
+    const dashboardStatus = $("dashboard-load-status");
+    if (dashboardStatus) {
+      dashboardStatus.textContent = $("page-dashboard").dataset.loadState === "error"
+        ? t("could_not_load_your_data_refresh_the_page_to_try_again")
+        : t("loading_your_data");
+    }
   }
 
   const today = Finance.localDate();
-  const categoryName = id => categories.find(c => c.id === id)?.name || "Catégorie";
+  const categoryName = id => categories.find(c => c.id === id)?.name || t("category");
   const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   
   function customMoney(cents) {
-    const formatted = (cents / 100).toLocaleString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formatted = (cents / 100).toLocaleString(window.BudgetI18n.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `${formatted} ${currentCurrency}`;
   }
 
@@ -112,7 +78,7 @@ async function showApp() {
   const status = $("dashboard-load-status");
 
   dashboard.dataset.loadState = "loading";
-  status.textContent = "Chargement de vos données…";
+  status.textContent = t("loading_your_data");
 
   if (landingPage) landingPage.hidden = true;
   if (appDiv) appDiv.hidden = false;
@@ -132,7 +98,7 @@ async function showApp() {
   } catch (error) {
     dashboard.dataset.loadState = "error";
     status.textContent =
-      "Impossible de charger vos données. Actualisez la page pour réessayer.";
+      t("could_not_load_your_data_refresh_the_page_to_try_again");
     console.error("Erreur de chargement du tableau de bord :", error);
   }
 }
@@ -167,7 +133,7 @@ document.querySelectorAll(".nav-link").forEach(btn => {
       b.classList.toggle("active", b === btn);
       b.setAttribute("aria-current", b === btn ? "page" : "false");
     });
-const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), financing: "Simulateur", settings: t('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
+const titles = { dashboard: t('nav_dashboard'), transactions: t('nav_transactions'), budgets: t('nav_budgets'), statistics: t('nav_stats'), financing: t("simulator"), settings: t('nav_settings') };      $("page-title").textContent = titles[page] || titles.dashboard;
       if (sidebar?.classList.contains("is-open")) toggleSidebar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -341,11 +307,11 @@ function renderAll() {
                 <strong>${escapeHTML(mainText)}</strong>
               </div>
             </td>
-            <td style="color: #64748b; font-size: 0.9rem;">${escapeHTML(t.date)}</td>
+            <td style="color: #64748b; font-size: 0.9rem;">${escapeHTML(new Date(t.date + "T12:00:00").toLocaleDateString(window.BudgetI18n.locale))}</td>
             <td class="amount ${cls}" style="text-align: right;">${escapeHTML(amountFormatted)}</td>
           </tr>
         `;
-      }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Aucune transaction récente.</td></tr>`;
+      }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">${t("no_recent_transactions")}</td></tr>`;
     }
   }
 // Fonction de filtrage par période (Semaine, Mois, Année)
@@ -383,7 +349,7 @@ function renderDashboard() {
     const saving = filteredItems.filter(t => t.type === "transfer" || /épargne|savings/i.test(categoryName(t.categoryId))).reduce((s, t) => s + t.amountCents, 0);
 
     let periodText = "";
-    const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+    const locale = window.BudgetI18n.locale;
 
     if (currentRange === 'week') {
       const startOfWeek = new Date(referenceDate);
@@ -392,9 +358,9 @@ function renderDashboard() {
       startOfWeek.setDate(diff);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(endOfWeek.getDate() + 6);
-      periodText = `Semaine du ${startOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' })} au ${endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+      periodText = t("week_of_start_to_end", { start: startOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short' }), end: endOfWeek.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) });
     } else if (currentRange === 'year') {
-      periodText = `Année ${referenceDate.getFullYear()}`;
+      periodText = t("year_year", { year: referenceDate.getFullYear() });
     } else {
       const monthFormatted = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(referenceDate);
       periodText = monthFormatted.charAt(0).toUpperCase() + monthFormatted.slice(1);
@@ -447,7 +413,7 @@ function renderCharts(items) {
         datasets = [
           {
             type: 'bar',
-            label: 'Barres Dépenses',
+            label: t("expense_bars"),
             data: expenseData.length ? expenseData : [0],
             backgroundColor: '#0f766e',
             borderRadius: 6,
@@ -456,7 +422,7 @@ function renderCharts(items) {
           },
           {
             type: 'bar',
-            label: 'Barres Revenus',
+            label: t("income_bars"),
             data: incomeData.length ? incomeData : [0],
             backgroundColor: '#6ee7b7',
             borderRadius: 6,
@@ -479,7 +445,7 @@ function renderCharts(items) {
         datasets = [
           {
             type: 'line',
-            label: 'Tendance Revenus',
+            label: t("income_trend"),
             data: incomeData.length ? incomeData : [0],
             borderColor: '#0f766e',
             backgroundColor: 'rgba(15, 118, 110, 0.1)',
@@ -492,7 +458,7 @@ function renderCharts(items) {
 
       dailyChartInstance = new Chart(canvasDaily.getContext('2d'), {
         data: {
-          labels: labels.length ? labels : ['Aucune donnée'],
+          labels: labels.length ? labels : [t("no_data")],
           datasets: datasets
         },
         options: {
@@ -538,7 +504,7 @@ function renderCharts(items) {
       doughnutChartInstance = new Chart(canvasDoughnut.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: Object.keys(catTotals).length ? Object.keys(catTotals) : ['Aucune dépense'],
+          labels: Object.keys(catTotals).length ? Object.keys(catTotals) : [t("no_expenses")],
           datasets: [{
             data: Object.values(catTotals).length ? Object.values(catTotals) : [1],
             backgroundColor: ['#0f766e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
@@ -580,7 +546,7 @@ const ordered = [...filtered].sort((a, b) =>
   b.date.localeCompare(a.date)
 );
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
+const dateFormatter = new Intl.DateTimeFormat(window.BudgetI18n.locale, {
   day: "numeric",
   month: "long",
   year: "numeric"
@@ -636,7 +602,7 @@ const journalHTML = ordered.map(t => {
         class="transaction-select"
         data-transaction-id="${escapeHTML(t.id)}"
         ${selected ? "checked" : ""}
-        aria-label="${escapeHTML("Sélectionner : " + title)}"
+        aria-label="${escapeHTML(t("select_title", { title }))}"
       >
 
       <span class="journal-icon" aria-hidden="true">
@@ -661,20 +627,20 @@ listEl.innerHTML = ordered.length ? `
   <div class="transaction-selection-toolbar">
     <label>
       <input type="checkbox" class="select-all-transactions">
-      Tout sélectionner
+      ${t("select_all")}
     </label>
 
     <span>
       ${selectedTransactionIds.size
-        ? selectedTransactionIds.size + " sélectionnée(s)"
-        : ordered.length + " opération(s)"}
+        ? t("selected_count", { count: selectedTransactionIds.size })
+        : t("transactions_count", { count: ordered.length })}
     </span>
   </div>
 
   ${journalHTML}
 ` : `
   <div class="empty-state">
-    Aucune opération ne correspond à vos filtres.
+    ${t("no_transactions_match_your_filters")}
   </div>
 `;
 
@@ -731,22 +697,22 @@ if (selectAll) {
 if (deleteButton) {
   deleteButton.hidden = selectedTransactionIds.size === 0;
   deleteButton.textContent =
-    `Supprimer la sélection (${selectedTransactionIds.size})`;
+    t("delete_selected_count", { count: selectedTransactionIds.size });
 }
   if (deleteButton) {
   deleteButton.onclick = async () => {
     const ids = [...selectedTransactionIds];
     if (ids.length === 0) return;
 
-    if (!confirm(`Supprimer définitivement ${ids.length} opération(s) ?`)) return;
+    if (!confirm(t("permanently_delete_these_transactions_count", { count: ids.length }))) return;
 
     try {
       await BudgetDB.deleteTransactions(ids);
       selectedTransactionIds.clear();
       await refresh();
-      toast("Opérations supprimées.");
+      toast(t("transactions_deleted"));
     } catch (error) {
-      toast("Erreur : " + error.message);
+      toast(t("error") + error.message);
     }
   };
 }
@@ -783,11 +749,11 @@ async function updateUserProfileInfo() {
         // Un seul bloc pour le titre de bienvenue
         const welcomeTitle = document.getElementById("welcome-title");
         if (welcomeTitle) {
-          welcomeTitle.textContent = `Bonjour, ${firstName || fullName}`;
+          welcomeTitle.textContent = t("hello_name", { name: firstName || fullName });
         }
       }
     } catch (e) {
-      infoEl.textContent = "Session non connectée.";
+      infoEl.textContent = t("not_signed_in");
     }
   }
 
@@ -809,7 +775,7 @@ $("tab-login")?.addEventListener("click", () => {
     $("tab-login").classList.add("active");
     $("tab-signup").classList.remove("active");
     if ($("signup-fields")) $("signup-fields").hidden = true;
-    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = "Se connecter";
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = t("sign_in");
     if ($("auth-form")) $("auth-form").dataset.mode = "login";
   });
 
@@ -817,7 +783,7 @@ $("tab-login")?.addEventListener("click", () => {
     $("tab-signup").classList.add("active");
     $("tab-login").classList.remove("active");
     if ($("signup-fields")) $("signup-fields").hidden = false;
-    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = "Créer mon compte";
+    if ($("btn-auth-submit")) $("btn-auth-submit").textContent = t("create_my_account");
     if ($("auth-form")) $("auth-form").dataset.mode = "signup";
   });
 
@@ -833,15 +799,15 @@ $("tab-login")?.addEventListener("click", () => {
     const errEl = $("auth-error");
 
     if (!email || !password) {
-      alert("Veuillez remplir l'email et le mot de passe.");
+      alert(t("enter_your_email_and_password"));
       return;
     }
 
-    if (errEl) errEl.textContent = "Connexion en cours...";
+    if (errEl) errEl.textContent = t("signing_in");
 
     try {
       const client = BudgetDB.client();
-      if (!client) throw new Error("Client Supabase non initialisé");
+      if (!client) throw new Error(t("could_not_initialize_the_sign_in_service"));
 
       if (mode === "signup") {
         const { error } = await client.auth.signUp({ 
@@ -854,19 +820,19 @@ $("tab-login")?.addEventListener("click", () => {
 } } 
         });
         if (error) throw error;
-        alert("Compte créé avec succès ! Connectez-vous.");
-        if (errEl) errEl.textContent = "Compte créé avec succès ! Connectez-vous.";
+        alert(t("account_created_please_sign_in"));
+        if (errEl) errEl.textContent = t("account_created_please_sign_in");
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        alert("Connexion réussie !");
+        alert(t("signed_in_successfully"));
         showApp();
       }
     } catch (err) {
       console.error("Erreur d'auth :", err);
       const errorMsg = err.message || JSON.stringify(err);
-      if (errEl) errEl.textContent = "Erreur : " + errorMsg;
-      alert("Erreur de connexion : " + errorMsg);
+      if (errEl) errEl.textContent = t("error") + errorMsg;
+      alert(t("sign_in_error") + errorMsg);
     }
   });
   $("logout-btn")?.addEventListener("click", async () => {
@@ -880,14 +846,12 @@ $("tab-login")?.addEventListener("click", () => {
   });
 
   $("auth-lang-select")?.addEventListener("change", (e) => {
-    currentLang = e.target.value;
-    localStorage.setItem('user_lang', currentLang);
+    currentLang = window.BudgetI18n.setLanguage(e.target.value);
     applyTranslations();
   });
 
   $("app-lang")?.addEventListener("change", (e) => {
-    currentLang = e.target.value;
-    localStorage.setItem('user_lang', currentLang);
+    currentLang = window.BudgetI18n.setLanguage(e.target.value);
     renderAll();
   });
 
@@ -901,14 +865,14 @@ $("app-currency")?.addEventListener("change", async (e) => {
     localStorage.setItem("user_currency", currentCurrency);
 
     renderAll();
-    toast("Devise principale mise à jour !");
+    toast(t("display_currency_updated"));
   } catch (error) {
     console.error("Erreur de changement de devise :", error);
 
     // Remettre l'ancienne devise dans le sélecteur
     e.target.value = currentCurrency;
 
-    toast("Erreur : impossible de modifier la devise.");
+    toast(t("could_not_update_the_currency"));
   }
 });
 // Récupérer le taux de change historique
@@ -924,12 +888,12 @@ async function getExchangeRate(from, to, date) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
-      `Taux de change indisponible pour ${from} vers ${to} à la date du ${date}.`
+      t("no_exchange_rate_from_from_to_to_on_date", { from, to, date })
     );
   }
   const result = await response.json();
   if (!result.rate || !Number.isFinite(Number(result.rate))) {
-    throw new Error("Le taux de change reçu est invalide.");
+    throw new Error(t("invalid_exchange_rate"));
   }
   return {
     rate: Number(result.rate),
@@ -958,8 +922,8 @@ async function updateTransactionConversion() {
 
   panel.hidden = false;
 
-  $("transaction-exchange-rate").textContent = "Calcul en cours...";
-  $("transaction-converted-amount").textContent = "Calcul en cours...";
+  $("transaction-exchange-rate").textContent = t("calculating");
+  $("transaction-converted-amount").textContent = t("calculating");
   $("transaction-rate-date").textContent = "";
 
   try {
@@ -978,11 +942,11 @@ async function updateTransactionConversion() {
       `${convertedAmount.toFixed(2)} ${toCurrency}`;
 
     $("transaction-rate-date").textContent =
-      `Taux applicable au ${conversion.date}`;
+      t("rate_on_date", { date: conversion.date });
 
   } catch (error) {
     $("transaction-exchange-rate").textContent =
-      "Taux indisponible";
+      t("exchange_rate_unavailable");
 
     $("transaction-converted-amount").textContent =
       "Conversion impossible";
@@ -1011,7 +975,7 @@ function openNewTransactionModal(prefill = {}) {
 
   form.reset();
   delete form.dataset.transactionId;
-  $("transaction-modal-title").textContent = "Nouvelle opération";
+  $("transaction-modal-title").textContent = t("new_transaction");
   $("transaction-date").value = prefill.date || today;
   $("transaction-type").value = prefill.type || "expense";
 
@@ -1044,10 +1008,10 @@ document.addEventListener("capture-import:select", event => {
 });
 // Ouvrir une opération existante pour la consulter ou la modifier
 function openEditTransactionModal(transactionId) {
-  const t = transactions.find(item => String(item.id) === String(transactionId));
+  const transaction = transactions.find(item => String(item.id) === String(transactionId));
 
-  if (!t) {
-    toast("Opération introuvable.");
+  if (!transaction) {
+    toast(t("transaction_not_found"));
     return;
   }
 
@@ -1056,23 +1020,23 @@ function openEditTransactionModal(transactionId) {
   form.reset();
 
   // Indiquer que nous modifions une opération existante
-  form.dataset.transactionId = t.id;
+  form.dataset.transactionId = transaction.id;
 
-  $("transaction-modal-title").textContent = "Modifier l'opération";
+  $("transaction-modal-title").textContent = t("edit_transaction");
 
-  $("transaction-date").value = t.date;
-  $("transaction-type").value = t.type;
+  $("transaction-date").value = transaction.date;
+  $("transaction-type").value = transaction.type;
   $("transaction-amount").value = (
-    (t.originalAmountCents ?? t.amountCents) / 100
+    (transaction.originalAmountCents ?? transaction.amountCents) / 100
   ).toFixed(2);
 
   $("transaction-currency").value =
-    t.originalCurrency || currentCurrency;
+    transaction.originalCurrency || currentCurrency;
 
-  $("transaction-description").value = t.description || "";
+  $("transaction-description").value = transaction.description || "";
 
   renderCategoryOptions();
-  $("transaction-category").value = t.categoryId || "";
+  $("transaction-category").value = transaction.categoryId || "";
 
   // Afficher les informations de conversion déjà enregistrées
   const panel = $("transaction-conversion");
@@ -1082,12 +1046,12 @@ function openEditTransactionModal(transactionId) {
     panel.style.display = "block";
   }
   $("transaction-exchange-rate").textContent =
-    `1 ${t.originalCurrency || currentCurrency} = ${Number(t.exchangeRate || 1).toFixed(6)} ${t.baseCurrency || currentCurrency}`;
+    `1 ${transaction.originalCurrency || currentCurrency} = ${Number(transaction.exchangeRate || 1).toFixed(6)} ${transaction.baseCurrency || currentCurrency}`;
   $("transaction-converted-amount").textContent =
-    `${(t.amountCents / 100).toFixed(2)} ${t.baseCurrency || currentCurrency}`;
+    `${(transaction.amountCents / 100).toFixed(2)} ${transaction.baseCurrency || currentCurrency}`;
 
   $("transaction-rate-date").textContent =
-    `Taux enregistré le ${t.exchangeRateDate || t.date}`;
+    t("rate_recorded_on_date", { date: transaction.exchangeRateDate || transaction.date });
 
   showDialog("transaction-dialog");
 }
@@ -1101,7 +1065,7 @@ async function saveTransaction({
   const originalAmountCents = Finance.toCents(amount);
 
   if (!Number.isSafeInteger(originalAmountCents) || originalAmountCents <= 0) {
-    throw new Error("Le montant doit être supérieur à zéro.");
+    throw new Error(t("the_amount_must_be_greater_than_zero"));
   }
 
   const originalCurrency = currency || currentCurrency;
@@ -1137,7 +1101,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
   try {
     submitBtn.disabled = true;
-    submitBtn.textContent = "Enregistrement...";
+    submitBtn.textContent = t("saving_2");
 
     await saveTransaction({
       id: form.dataset.transactionId || undefined,
@@ -1154,14 +1118,14 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     closeDialog("transaction-dialog");
     await refresh();
 
-    toast("Opération enregistrée avec succès");
+    toast(t("transaction_saved"));
 
   } catch (err) {
-    toast("Erreur : " + err.message);
+    toast(t("error") + err.message);
 
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = "Enregistrer";
+    submitBtn.textContent = t("save");
   }
 });
 
@@ -1225,9 +1189,9 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       if (error) throw error;
       closeDialog("profile-dialog");
       await updateUserProfileInfo();
-      toast("Profil mis à jour avec succès !");
+      toast(t("profile_updated"));
     } catch (err) {
-      toast("Erreur : " + err.message);
+      toast(t("error") + err.message);
     }
   });
   // --- DÉCONNEXION AUTOMATIQUE APRÈS 15 MINUTES D'INACTIVITÉ ---
@@ -1238,7 +1202,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     try {
       const client = BudgetDB.client();
       await client.auth.signOut();
-      toast("Session expirée pour cause d'inactivité.");
+      toast(t("your_session_expired_due_to_inactivity"));
       setTimeout(() => location.reload(), 1500);
     } catch (e) {
       location.reload();
@@ -1284,11 +1248,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     try {
       await BudgetDB.putCategory({ name: nameInput, kind: currentType });
       closeDialog("category-dialog");
-      toast("Catégorie créée avec succès !");
+      toast(t("category_created"));
       await refresh();
     } catch (err) {
       console.error("Erreur création catégorie :", err);
-      toast("Erreur : " + err.message);
+      toast(t("error") + err.message);
     }
   });
   $("search-transactions")?.addEventListener("input", renderTransactions);
@@ -1301,7 +1265,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   // Exporter les transactions au format CSV
   $("btn-export-data")?.addEventListener("click", () => {
     if (!transactions.length) {
-      toast("Aucune transaction à exporter.");
+      toast(t("no_transactions_to_export"));
       return;
     }
 
@@ -1320,7 +1284,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     link.click();
     document.body.removeChild(link);
 
-    toast("Exportation réussie !");
+    toast(t("export_complete"));
   });
  // --- GESTIONNAIRE COMPLET DES CATÉGORIES (CORRIGÉ) ---
 
@@ -1333,12 +1297,12 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
         <div>
           <strong>${escapeHTML(c.name)}</strong>
           <span style="font-size: 0.75rem; color: #64748b; margin-left: 6px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
-            ${c.kind === 'income' ? 'Revenu' : c.kind === 'transfer' ? 'Transfert' : 'Dépense'} ${c.is_global ? '(Global)' : ''}
+            ${c.kind === 'income' ? t("income") : c.kind === 'transfer' ? t("transfer") : t("expense")} ${c.is_global ? '(Global)' : ''}
           </span>
         </div>
-        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Supprimer</button>` : '<span style="font-size:0.75rem; color:#94a3b8;">Défaut</span>'}
+        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">${t("delete")}</button>` : `<span style="font-size:0.75rem; color:#94a3b8;">${t("default")}</span>`}
       </div>
-    `).join("") : '<p style="text-align: center; color: #64748b;">Aucune catégorie trouvée.</p>';
+    `).join("") : `<p style="text-align: center; color: #64748b;">${t("no_categories_found")}</p>`;
   }
 
   // Ouvrir la modale proprement
@@ -1374,29 +1338,29 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       categories.push(newCat);
 
       $("manage-new-cat-name").value = "";
-      toast("Catégorie créée avec succès !");
+      toast(t("category_created"));
       
       renderCategoriesManagementList();
       renderCategoryOptions();
       await refresh();
     } catch (err) {
       console.error("Erreur ajout catégorie :", err);
-      toast("Erreur : " + err.message);
+      toast(t("error") + err.message);
     }
   });
 
   // Fonction globale pour supprimer une catégorie
   window.deleteCategory = async function(catId) {
-    if (!confirm("Voulez-vous vraiment supprimer cette catégorie ?")) return;
+    if (!confirm(t("delete_this_category"))) return;
 
     try {
       await BudgetDB.deleteCategory(catId);
-      toast("Catégorie supprimée.");
+      toast(t("category_deleted"));
       await refresh();
       renderCategoriesManagementList();
       renderCategoryOptions();
     } catch (err) {
-      toast("Erreur lors de la suppression : " + err.message);
+      toast(t("could_not_delete") + err.message);
     }
   };
   // --- EXPORTATION DES DONNÉES EN JSON ---
@@ -1420,10 +1384,10 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       downloadAnchor.click();
       downloadAnchor.remove();
 
-      toast("Exportation JSON réussie !");
+      toast(t("json_export_complete"));
     } catch (err) {
       console.error("Erreur export JSON :", err);
-      toast("Erreur lors de l'exportation.");
+      toast(t("export_failed"));
     }
   });
 
@@ -1458,11 +1422,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
           }
         }
 
-        toast("Importation et restauration réussies !");
+        toast(t("data_imported_and_restored"));
         await refresh();
       } catch (err) {
         console.error("Erreur d'import JSON :", err);
-        toast("Erreur : le fichier JSON est invalide.");
+        toast(t("invalid_json_file"));
       }
     };
     reader.readAsText(file);
@@ -1471,18 +1435,18 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   $("btn-reset-sim")?.addEventListener("click", () => {
     $("financing-sim-form")?.reset();
     $("sim-result-card").style.display = "none";
-    toast("Formulaire réinitialisé.");
+    toast(t("form_reset"));
   });
   // --- SUPPRIMER UN PROJET DE FINANCEMENT ---
   window.deleteFinancingProject = async function(id) {
-    if (!confirm("Voulez-vous vraiment supprimer ce projet ?")) return;
+    if (!confirm(t("delete_this_goal"))) return;
     try {
       await BudgetDB.deleteFinancing(id);
-      toast("Projet supprimé avec succès !");
+      toast(t("goal_deleted"));
       renderFinancings();
     } catch (err) {
       console.error("Erreur suppression projet :", err);
-      toast("Erreur lors de la suppression.");
+      toast(t("could_not_delete_2"));
     }
   };
 // --- LOGIQUE DU SIMULATEUR DE FINANCEMENT & ANALYSE DE FAISABILITÉ ---
@@ -1511,7 +1475,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     // Affichage des résultats de base
     $("res-proj-name").textContent = name;
     $("res-rem-amount").textContent = customMoney(remainingCents);
-    $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + " / mois";
+    $("res-monthly-effort").textContent = customMoney(monthlyEffortCents) + t("month");
 
     // --- AJOUT DU BLOC DE FAISABILITÉ DANS LA CARTE DE RÉSULTAT ---
     let feasibilityEl = $("sim-feasibility-alert");
@@ -1525,11 +1489,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     if (canAfford) {
       feasibilityEl.style.background = "#e6f4ea";
       feasibilityEl.style.color = "#065f46";
-      feasibilityEl.innerHTML = `✅ <strong>Projet faisable ce mois-ci !</strong> Votre solde net actuel (${customMoney(realNetBalance)}) couvre largement l'effort d'épargne demandé. Il vous restera même ${customMoney(diffCents)}.`;
+      feasibilityEl.textContent = "✅ " + t("this_goal_is_feasible_this_month_your_net_balance_balance_covers_the_required_savings_leaving_remaining", { balance: customMoney(realNetBalance), remaining: customMoney(diffCents) });
     } else {
       feasibilityEl.style.background = "#fee2e2";
       feasibilityEl.style.color = "#dc2626";
-      feasibilityEl.innerHTML = `⚠️ <strong>Attention, tension budgétaire :</strong> Il vous manque ${customMoney(Math.abs(diffCents))} ce mois-ci par rapport à votre solde net (${customMoney(realNetBalance)}) pour tenir cet effort d'épargne.`;
+      feasibilityEl.textContent = "⚠️ " + t("your_net_balance_balance_falls_short_of_the_required_savings_by_shortfall_this_month", { balance: customMoney(realNetBalance), shortfall: customMoney(Math.abs(diffCents)) });
     }
 
     $("sim-result-card").style.display = "block";
@@ -1544,11 +1508,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
         monthlyEffort: monthlyEffortCents / 100,
         status: canAfford ? "faisable" : "tendu"
       });
-      toast("Simulation et analyse enregistrées !");
+      toast(t("savings_estimate_saved"));
       renderFinancings();
     } catch (err) {
       console.error("Erreur sauvegarde projet :", err);
-      toast("Erreur lors de l'enregistrement du projet.");
+      toast(t("could_not_save_the_goal"));
     }
   });
   // --- CHARGEMENT ET AFFICHAGE DES FINANCEMENTS ---
@@ -1564,7 +1528,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
           <div>
             <strong>${escapeHTML(p.name)}</strong>
             <small style="display: block; color: #64748b; font-size: 0.85rem;">
-              Objectif : ${p.targetAmount} ${currentCurrency} • ${p.months} mois • Épargne : ${customMoney(p.monthlyEffort * 100)}/mois
+              ${t("target_target_term_months_months_savings_effort_month", { target: customMoney(p.targetAmount * 100), months: p.months, effort: customMoney(p.monthlyEffort * 100) })}
             </small>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -1572,11 +1536,11 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
               ${p.status}
             </span>
             <button type="button" onclick="deleteFinancingProject('${p.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
-              Supprimer
+              ${t("delete")}
             </button>
           </div>
         </div>
-      `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">Aucun projet de financement pour le moment.</p>`;
+      `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">${t("no_savings_goals_yet")}</p>`;
     } catch (err) {
       console.error("Erreur affichage financements :", err);
     }
