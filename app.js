@@ -95,7 +95,7 @@ async function showApp() {
     if (!(await refresh())) {
       throw new Error("Le chargement des données a échoué.");
     }
-
+    await loadDashboardFolders();
     dashboard.dataset.loadState = "ready";
   } catch (error) {
     dashboard.dataset.loadState = "error";
@@ -294,7 +294,7 @@ function renderAll() {
     // ---> AJOUTE UNIQUEMENT CE MORCEAU ICI :
     const customRecentEl = document.getElementById("custom-recent-transactions-list");
     if (customRecentEl) {
-      const latest = transactions.slice(0, 4);
+      const latest = transactionsInSelectedFolder().slice(0, 4);
       customRecentEl.innerHTML = latest.length ? latest.map(t => {
         const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
         const cls = t.type === "income" ? "positive" : "negative";
@@ -317,9 +317,42 @@ function renderAll() {
       }).join("") : `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">${translate("no_recent_transactions")}</td></tr>`;
     }
   }
+  function transactionsInSelectedFolder() {
+  const folderId = $("dashboard-folder")?.value;
+  return folderId
+    ? transactions.filter(transaction => transaction.folderId === folderId)
+    : transactions;
+}
+
+async function loadDashboardFolders() {
+  const select = $("dashboard-folder");
+  if (!select) return;
+
+  try {
+    const folders = await BudgetDB.getBudgetFolders();
+    const selectedId = select.value;
+
+    select.replaceChildren(new Option("Tous les dossiers", ""));
+    for (const folder of folders) {
+      select.add(new Option(folder.name, folder.id));
+    }
+
+    select.value = folders.some(folder => folder.id === selectedId)
+      ? selectedId
+      : "";
+  } catch (error) {
+    console.error("Chargement des dossiers :", error);
+    toast("Impossible de charger la liste des dossiers.");
+  }
+}
+
+$("dashboard-folder")?.addEventListener("change", () => {
+  selectedTransactionIds.clear();
+  renderAll();
+});
 // Fonction de filtrage par période (Semaine, Mois, Année)
   function getFilteredTransactions() {
-    return transactions.filter(t => {
+    return transactionsInSelectedFolder().filter(t => {
       const tDate = new Date(t.date);
       if (isNaN(tDate.getTime())) return false;
 
@@ -538,7 +571,7 @@ function renderTransactions() {
     const typeFilter = $("filter-type")?.value || "";
     const catFilter = $("filter-category")?.value || "";
 
-    const filtered = transactions.filter(t => {
+    const filtered = transactionsInSelectedFolder().filter(t => {
       const catName = categoryName(t.categoryId).toLowerCase();
       const desc = (t.description || "").toLowerCase();
       
@@ -1624,6 +1657,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
     try {
       const folder = await BudgetDB.createBudgetFolder({ name, currency });
+            await loadDashboardFolders();
       closeDialog("budget-folder-dialog");
       toast(`Dossier « ${folder.name} » créé.`);
     } catch (error) {
