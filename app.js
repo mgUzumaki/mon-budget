@@ -332,7 +332,9 @@ async function loadDashboardFolders() {
     const folders = await BudgetDB.getBudgetFolders();
     const selectedId = select.value;
 
-    select.replaceChildren(new Option("Tous les dossiers", ""));
+    const allFoldersOption = new Option(window.BudgetI18n.t("folder_all"), "");
+    allFoldersOption.dataset.i18n = "folder_all";
+    select.replaceChildren(allFoldersOption);
     for (const folder of folders) {
       select.add(new Option(folder.name, folder.id));
     }
