@@ -157,29 +157,69 @@
   function renderPreview(operations, currencyCode) {
     preview.replaceChildren();
 
+    function addField(row, title, control, name) {
+      const label = document.createElement("label");
+      label.textContent = title;
+      control.dataset.field = name;
+      label.append(control);
+      row.append(label);
+    }
+
     operations.forEach((operation, index) => {
-      const line = document.createElement("p");
-      const button = document.createElement("button");
-      const amount = (operation.amountCents / 100).toFixed(2);
-      const label = operation.label || `Opération ${index + 1}`;
+      const row = document.createElement("fieldset");
+      row.className = "capture-operation";
 
-      button.type = "button";
-      button.textContent = `Vérifier ${label} · ${amount} ${currencyCode}`;
+      const heading = document.createElement("legend");
+      heading.textContent = `Opération ${index + 1}`;
+      row.append(heading);
 
-      button.addEventListener("click", () => {
-        document.dispatchEvent(new CustomEvent("capture-import:select", {
-          detail: {
-            date: operation.date,
-            type: operation.type,
-            amountCents: operation.amountCents,
-            currency: currencyCode,
-            description: operation.label
-          }
-        }));
-      });
+      const description = document.createElement("input");
+      description.type = "text";
+      description.value = operation.label;
+      addField(row, "Description", description, "description");
 
-      line.append(button);
-      preview.append(line);
+      const date = document.createElement("input");
+      date.type = "date";
+      date.value = operation.date;
+      addField(row, "Date", date, "date");
+
+      const amount = document.createElement("input");
+      amount.type = "number";
+      amount.min = "0.01";
+      amount.step = "0.01";
+      amount.value = (operation.amountCents / 100).toFixed(2);
+      addField(row, `Montant (${currencyCode})`, amount, "amount");
+
+      const type = document.createElement("select");
+      type.add(new Option("Choisir un type", ""));
+      type.add(new Option("Dépense", "expense"));
+      type.add(new Option("Revenu", "income"));
+      type.add(new Option("Transfert", "transfer"));
+      type.value = operation.type;
+      addField(row, "Type d’opération", type, "type");
+
+      const category = document.createElement("select");
+      addField(row, "Catégorie", category, "category");
+
+      function updateCategories() {
+        const previous = category.value;
+        category.replaceChildren(new Option("Choisir une catégorie", ""));
+        category.disabled = !type.value;
+
+        if (!type.value) return;
+
+        for (const item of window.getTransactionCategoryOptions(type.value)) {
+          category.add(new Option(item.name, item.id));
+        }
+
+        if (Array.from(category.options).some(option => option.value === previous)) {
+          category.value = previous;
+        }
+      }
+
+      type.addEventListener("change", updateCategories);
+      updateCategories();
+      preview.append(row);
     });
   }
 
