@@ -777,6 +777,42 @@
     </div>
   </form>
 </dialog>
+  <dialog id="capture-import-dialog" class="modal" aria-labelledby="capture-import-title">
+  <h2 id="capture-import-title">Importer d’une photo</h2>
+
+  <form id="capture-import-form">
+    <p>
+      <label for="capture-format">Format de la capture</label>
+      <select id="capture-format">
+        <option value="fr">Relevé français</option>
+        <option value="cn">Historique avec Today / Yesterday</option>
+      </select>
+    </p>
+    <p>
+      <label for="capture-date">Date de la capture si elle affiche Today ou Yesterday</label>
+      <input id="capture-date" type="date">
+    </p>
+    <p>
+      <label for="capture-currency">Devise des opérations</label>
+      <select id="capture-currency" required>
+        <option value="">Choisir une devise</option>
+        <option value="EUR">EUR — euro</option>
+        <option value="CNY">CNY — yuan chinois</option>
+      </select>
+    </p>
+    <p>
+      <label for="capture-file">Image de la capture</label>
+      <input id="capture-file" type="file" accept="image/*" required>
+    </p>
+    <button id="capture-read" type="submit" disabled>Lire la capture</button>
+    <p id="capture-status" role="status"></p>
+    <div id="capture-preview"></div>
+  </form>
+
+  <form method="dialog">
+    <button type="submit">Fermer</button>
+  </form>
+</dialog>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="db.js"></script>
   <script src="finance.js"></script>
