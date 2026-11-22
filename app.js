@@ -602,7 +602,7 @@ const journalHTML = ordered.map(t => {
         class="transaction-select"
         data-transaction-id="${escapeHTML(t.id)}"
         ${selected ? "checked" : ""}
-        aria-label="${escapeHTML(t("select_title", { title }))}"
+        aria-label="${escapeHTML(window.BudgetI18n.t("select_title", { title }))}"
       >
 
       <span class="journal-icon" aria-hidden="true">
