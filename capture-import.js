@@ -219,7 +219,86 @@
 
       type.addEventListener("change", updateCategories);
       updateCategories();
+      row.dataset.transactionId = crypto.randomUUID();
       preview.append(row);
+    });
+
+    if (!operations.length) return;
+
+    const saveButton = document.createElement("button");
+    saveButton.type = "button";
+    saveButton.textContent = "Enregistrer les opérations";
+
+    const saveStatus = document.createElement("p");
+    saveStatus.setAttribute("role", "status");
+    preview.append(saveButton, saveStatus);
+
+    saveButton.addEventListener("click", async () => {
+      const rows = Array.from(preview.querySelectorAll(".capture-operation"));
+      const entries = [];
+
+      for (const row of rows) {
+        const field = name => row.querySelector(`[data-field="${name}"]`);
+        const date = field("date");
+        const amount = field("amount");
+        const type = field("type");
+        const category = field("category");
+        const invalidField = [
+          [date, date.value && date.validity.valid],
+          [amount, amount.value && amount.validity.valid],
+          [type, type.value],
+          [category, category.value]
+        ].find(([, valid]) => !valid);
+
+        if (invalidField) {
+          saveStatus.textContent =
+            "Vérifie la date, le montant, le type et la catégorie de chaque opération.";
+          invalidField[0].focus();
+          return;
+        }
+
+        entries.push({
+          row,
+          transaction: {
+            id: row.dataset.transactionId,
+            date: date.value,
+            amount: amount.value,
+            currency: currencyCode,
+            type: type.value,
+            categoryId: category.value,
+            description: field("description").value
+          }
+        });
+      }
+
+      const controls = Array.from(form.elements).filter(control => !control.disabled);
+      controls.forEach(control => { control.disabled = true; });
+      saveStatus.textContent = "Enregistrement en cours…";
+      let saved = 0;
+
+      try {
+        for (const { row, transaction } of entries) {
+          await window.saveImportedTransaction(transaction);
+          row.remove();
+          saved += 1;
+        }
+
+        saveButton.hidden = true;
+        saveStatus.textContent = `${saved} opération(s) enregistrée(s).`;
+      } catch (error) {
+        saveStatus.textContent =
+          `${saved} enregistrée(s). Les lignes restantes sont à l’écran. ${error.message}`;
+      } finally {
+        controls.forEach(control => { control.disabled = false; });
+      }
+
+      if (saved > 0) {
+        try {
+          await window.refreshAfterCaptureImport();
+        } catch {
+          saveStatus.textContent += " Recharge la page pour actualiser le tableau de bord.";
+        }
+      }
     });
   }
 
