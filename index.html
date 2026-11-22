@@ -212,6 +212,9 @@
   </div>
   <p id="dashboard-load-status" role="status"><span data-i18n="loading_your_data">Chargement de vos données…</span></p>
 </div>
+        <button id="open-budget-folder" class="secondary-btn" type="button">
+  Créer un dossier
+</button>
         <div class="metrics-grid">
           <article class="metric-card balance">
             <div class="metric-header">
@@ -820,6 +823,29 @@
   </form>
 </dialog>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <dialog id="budget-folder-dialog" class="modal" aria-labelledby="budget-folder-title">
+  <form id="budget-folder-form">
+    <div class="modal-heading">
+      <h2 id="budget-folder-title">Créer un dossier</h2>
+    </div>
+
+    <label for="budget-folder-name">Nom du dossier</label>
+    <input id="budget-folder-name" type="text" maxlength="80"
+           placeholder="Ex. Pays-Bas" required>
+
+    <label for="budget-folder-currency">Devise d’affichage</label>
+    <select id="budget-folder-currency" required></select>
+
+    <p id="budget-folder-status" role="status"></p>
+
+    <div class="modal-actions">
+      <button class="secondary-btn" type="button" data-close="budget-folder-dialog">
+        Annuler
+      </button>
+      <button class="primary-btn" type="submit">Créer le dossier</button>
+    </div>
+  </form>
+</dialog>
   <script src="db.js"></script>
   <script src="finance.js"></script>
   <script src="i18n.js"></script>
