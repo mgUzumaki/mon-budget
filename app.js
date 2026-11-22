@@ -211,7 +211,9 @@ html += categories
 function renderCategoryOptions() {
     const type = $("transaction-type")?.value || "expense";
     // Affiche les catégories du type correspondant, ou toutes si c'est un transfert
-    fillCategorySelect("transaction-category", category => category.kind === type || type === "transfer" || category.kind === "transfer");
+        fillCategorySelect("transaction-category", category =>
+      categoryMatchesOperation(category, type)
+    );
     fillCategorySelect("filter-category", () => true, true);
     document.querySelectorAll("[data-operation]").forEach(button => {
     button.setAttribute(
@@ -220,6 +222,14 @@ function renderCategoryOptions() {
     );
   });
   }
+  function categoryMatchesOperation(category, type) {
+  return category.kind === type ||
+    type === "transfer" ||
+    category.kind === "transfer";
+}
+
+window.getTransactionCategoryOptions = type =>
+  categories.filter(category => categoryMatchesOperation(category, type));
 
   $("transaction-type")?.addEventListener("change", renderCategoryOptions);
   document.querySelectorAll("[data-operation]").forEach(button => {
