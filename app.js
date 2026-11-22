@@ -978,8 +978,7 @@ $("transaction-date")?.addEventListener(
   "change",
   updateTransactionConversion
 );
-  async function loadTransactionFolders(selectedId) {
-  const select = $("transaction-folder");
+async function loadTransactionFolders(selectedId, select = $("transaction-folder")) {
   select.disabled = true;
   select.replaceChildren(new Option("Chargement des dossiers…", ""));
 
