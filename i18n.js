@@ -2,6 +2,10 @@
 (() => {
   const messages = {
     "fr": {
+      "folder_global_currency": "Devise de la vue globale",
+"folder_rates_loading": "Conversion des opérations…",
+"folder_rates_error": "Total indisponible. Un taux de change n’a pas pu être obtenu.",
+"folder_totals_unavailable": "Les totaux sont indisponibles dans cette devise.",
       "folder_view_label": "Dossier affiché",
 "folder_all": "Tous les dossiers",
 "folder_create_open": "Créer un dossier",
@@ -288,6 +292,10 @@
       "cat_epargne": "Épargne"
     },
     "en": {
+      "folder_global_currency": "Currency for all folders",
+"folder_rates_loading": "Converting transactions…",
+"folder_rates_error": "Total unavailable. An exchange rate could not be retrieved.",
+"folder_totals_unavailable": "Totals are unavailable in this currency.",
       "folder_view_label": "Budget folder",
 "folder_all": "All folders",
 "folder_create_open": "Create a folder",
@@ -574,6 +582,10 @@
       "cat_epargne": "Savings"
     },
     "zh": {
+      "folder_global_currency": "全部文件夹的显示货币",
+"folder_rates_loading": "正在换算交易金额…",
+"folder_rates_error": "暂时无法显示合计，部分汇率未能获取。",
+"folder_totals_unavailable": "暂时无法显示该货币的合计。",
       "folder_view_label": "预算文件夹",
 "folder_all": "所有文件夹",
 "folder_create_open": "创建文件夹",
