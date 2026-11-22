@@ -132,6 +132,7 @@
 
   const format = document.getElementById("capture-format");
   const captureDate = document.getElementById("capture-date");
+    const currency = document.getElementById("capture-currency");
     const manualCurrency = document.getElementById("transaction-currency");
   currency.replaceChildren(new Option("Choisir une devise", ""));
 
@@ -140,7 +141,7 @@
   }
 
   currency.value = "";
-  const currency = document.getElementById("capture-currency");
+
   const file = document.getElementById("capture-file");
   const readButton = document.getElementById("capture-read");
   const status = document.getElementById("capture-status");
