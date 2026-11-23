@@ -1920,3 +1920,13 @@ body:has(#app:not([hidden]) #page-dashboard:not([data-load-state="ready"])) {
   justify-content: flex-end;
   padding: 0;
 }
+#chart-view-mode button.active {
+  background: #174b3b !important;
+  color: #fff !important;
+}
+
+a[data-i18n="contact_support"] {
+  color: #065f46;
+  font-weight: 700;
+  text-decoration: underline;
+}
