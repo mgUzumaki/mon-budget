@@ -57,8 +57,59 @@
       .replace(/^[@©®]+\s*/, "")
       .replace(/(\p{Script=Han})\s+(?=\p{Script=Han})/gu, "$1");
   }
+  const dayWords = "Today|Yesterday|Aujourd['’]hui|Hier|今\\s*天|昨\\s*天|Hoy|Ayer|Heute|Gestern";
+  const clock = "(?:[01]?\\d|2[0-3])\\s*[:：]\\s*[0-5]\\d";
+  const relativeDatePattern = new RegExp(`^(${dayWords})\\s*(${clock})$`, "i");
+  const paymentTimePattern = new RegExp(`^(?:(${dayWords})\\s*)?(${clock})$`, "i");
+  const yesterdayPattern = /^(Yesterday|Hier|昨\s*天|Ayer|Gestern)$/i;
+  const yuanAmount = /^(?:[¥￥]\s*(\d+[.,]\d{2})|(\d+[.,]\d{2})\s*[¥￥])$/;
 
+  function isChinesePaymentCapture(text, currency) {
+    return text.split(/\r?\n/).some(line => yuanAmount.test(line.trim())) &&
+      (currency === "CNY" || /支付消息|支付成功|昨\s*天/.test(text));
+  }
+
+  function parseChinesePayments(text, captureDate) {
+    const rows = [];
+    let previousLine = "";
+    let heading = null;
+
+    for (const rawLine of text.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      const timestamp = line.match(paymentTimePattern);
+      const amount = line.match(yuanAmount);
+
+      if (timestamp && (timestamp[1] || /\p{Script=Han}/u.test(previousLine))) {
+        heading = {
+          label: cleanLabel(previousLine),
+          time: timestamp[2].replace(/\s/g, "").replace("：", ":"),
+          date: captureDate && yesterdayPattern.test(timestamp[1] || "")
+            ? previousDay(captureDate)
+            : captureDate
+        };
+      } else if (amount) {
+        const [whole, cents] = (amount[1] || amount[2]).split(/[.,]/);
+        rows.push({
+          label: heading?.label || "",
+          time: heading?.time || "",
+          date: heading?.date || "",
+          amountCents: Number(whole) * 100 + Number(cents),
+          type: "expense",
+          categoryHint: ""
+        });
+        heading = null;
+      }
+
+      previousLine = line;
+    }
+
+    return rows;
+  }
+  
   function parseText(text, { format, captureDate = "" }) {
+        if (format === "cn-payments") return parseChinesePayments(text, captureDate);
     const rows = [];
     let groupDate = "";
     let current = null;
@@ -365,10 +416,8 @@ if (relativeDate) {
         percent => { status.textContent = t("scanning_image_percent", { percent }); }
       );
       if (!importDialog.open || file.files[0] !== selectedFile) return;
-      const hasRelativeDates =
-  isChinesePaymentCapture || window.CaptureImport.hasRelativeDate(text);
-      const hasGroupedDates =
-        /^\s*\d{2}\/\d{2}\/\d{4}\s*$/m.test(text);
+      const chinesePayments = window.CaptureImport.isChinesePaymentCapture(text, selectedCurrency);
+      const hasRelativeDates = chinesePayments || window.CaptureImport.hasRelativeDate(text);
 
       captureDateField.hidden = !hasRelativeDates;
 
@@ -383,7 +432,7 @@ if (relativeDate) {
         return;
       }
 
-      const selectedFormat = hasRelativeDates ? "cn" : "fr";
+            const selectedFormat = chinesePayments ? "cn-payments" : (hasRelativeDates ? "cn" : "fr");
       const operations = window.CaptureImport.parseText(text, {
         format: selectedFormat,
         captureDate: selectedDate
