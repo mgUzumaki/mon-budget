@@ -1702,3 +1702,8 @@ body:has(#app:not([hidden]) #page-dashboard:not([data-load-state="ready"])) {
     width: 100%;
   }
 }
+@media (max-width: 768px) {
+  #auth-form input {
+    font-size: 16px !important;
+  }
+}
