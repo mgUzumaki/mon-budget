@@ -1827,3 +1827,96 @@ body:has(#app:not([hidden]) #page-dashboard:not([data-load-state="ready"])) {
     width: 100%;
   }
 }
+/* Réglages — fenêtre Mes dossiers */
+#manage-folders-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(580px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: clamp(16px, 4vw, 28px);
+  border: 1px solid #dce6e1;
+  border-radius: 22px;
+  background: #fff;
+  color: #142b24;
+  box-shadow: 0 20px 60px rgb(19 43 37 / 20%);
+}
+
+#manage-folders-dialog::backdrop {
+  background: rgb(19 43 37 / 45%);
+}
+
+#manage-folders-status:not(:empty) {
+  margin-top: 12px;
+}
+
+#manage-folders-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+#manage-folders-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e1eae5;
+  border-radius: 14px;
+  background: #f6faf8;
+}
+
+#manage-folders-list > li > strong {
+  flex: 1 1 140px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#manage-folders-list > li > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#manage-folders-list > li > div[hidden] {
+  display: none;
+}
+
+/* Choix affichés après un clic sur Supprimer… */
+#manage-folders-list > li > div:last-child {
+  flex: 1 1 100%;
+  padding-top: 12px;
+  border-top: 1px solid #e1eae5;
+}
+
+#manage-folders-list label {
+  display: grid;
+  flex: 1 1 100%;
+  gap: 6px;
+}
+
+#manage-folders-list select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
+  font-size: 16px;
+}
+
+#manage-folders-list > li > div:last-child > button:last-child {
+  color: #a12632;
+  border-color: #efc7cc;
+  background: #fff5f5;
+}
+
+#manage-folders-dialog > form {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+}
