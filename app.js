@@ -1815,8 +1815,8 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
       const actions = document.createElement("div");
       actions.append(
-        makeFolderButton("Renommer", () => renameManagedFolder(folder)),
-        makeFolderButton("Supprimer…", () => {
+        makeFolderButton(translate("folder_rename"), () => renameManagedFolder(folder)),
+        makeFolderButton(translate("folder_delete_open"), () => {
           deleteOptions.hidden = !deleteOptions.hidden;
         })
       );
@@ -1827,7 +1827,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       const destinationLabel = document.createElement("label");
       destinationLabel.textContent = "Déplacer les opérations vers ";
       const destination = document.createElement("select");
-      destination.add(new Option("Choisir un dossier", ""));
+      destination.add(new Option(translate("folder_choose_destination"), ""));
 
       for (const otherFolder of folders) {
         if (otherFolder.id !== folder.id) {
@@ -1835,7 +1835,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
         }
       }
 
-      const moveButton = makeFolderButton("Déplacer puis supprimer", () => {
+      const moveButton = makeFolderButton(translate("folder_move_and_delete"), () => {
         if (!destination.value) return;
 
         const targetName = destination.selectedOptions[0].textContent;
@@ -1852,7 +1852,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
         moveButton.disabled = !destination.value;
       });
 
-      const deleteButton = makeFolderButton("Supprimer le dossier et ses opérations", () => {
+      const deleteButton = makeFolderButton(translate("folder_delete_with_transactions"), () => {
         if (window.confirm(
           `Supprimer définitivement le dossier « ${folder.name} » et toutes ses opérations ?`
         )) {
