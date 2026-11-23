@@ -1707,3 +1707,123 @@ body:has(#app:not([hidden]) #page-dashboard:not([data-load-state="ready"])) {
     font-size: 16px !important;
   }
 }
+/* MonBudget — Aperçu et filtres du tableau de bord */
+#page-dashboard .dash-header-row,
+#page-dashboard .budget-folder-toolbar {
+  background: #fff;
+  border: 1px solid #e8eeeb;
+  border-radius: 22px;
+  box-shadow: 0 6px 16px rgb(19 43 37 / 9%);
+}
+
+#page-dashboard .dash-header-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 16px;
+  text-align: center;
+}
+
+#page-dashboard .dash-header-row h2 {
+  color: #142b24;
+  font-size: clamp(20px, 3vw, 26px);
+}
+
+#page-dashboard .dashboard-controls {
+  justify-content: center;
+  gap: 12px;
+}
+
+#page-dashboard #range-selector {
+  max-width: 100%;
+  border-radius: 999px;
+  background: #edf0ef;
+}
+
+#page-dashboard #range-selector button {
+  min-height: 40px;
+  border-radius: 999px;
+  padding-inline: 12px;
+}
+
+#page-dashboard #range-selector button.active {
+  background: #174b3b !important;
+  color: #fff !important;
+}
+
+#page-dashboard .period-navigator {
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #edf6f1;
+  box-shadow: 0 4px 10px rgb(19 43 37 / 12%);
+}
+
+#page-dashboard .period-navigator button {
+  min-height: 40px;
+  color: #174b3b;
+}
+
+#page-dashboard #period-display-label {
+  min-width: 0;
+  color: #17352b;
+  text-decoration: none !important;
+}
+
+#page-dashboard #period-display-label::before {
+  content: "📅 ";
+}
+
+#page-dashboard .budget-folder-toolbar {
+  gap: 14px;
+  padding: 16px;
+}
+
+#page-dashboard label[for="dashboard-folder"] {
+  color: #176353;
+}
+
+#page-dashboard #dashboard-folder {
+  border-color: #429a84;
+  background-color: #fff;
+}
+
+#page-dashboard label[for="global-folder-currency"] {
+  color: #765b24;
+}
+
+#page-dashboard #global-folder-currency {
+  border-color: #b79a56;
+  background-color: #fff;
+}
+
+#page-dashboard #open-budget-folder {
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(110deg, #076252, #10a773);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 5px 12px rgb(7 98 82 / 22%);
+}
+
+#page-dashboard #open-budget-folder::after {
+  content: " +";
+  margin-inline-start: 4px;
+}
+
+@media (max-width: 520px) {
+  #page-dashboard .budget-folder-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #page-dashboard .budget-folder-toolbar select {
+    font-size: 16px;
+  }
+
+  #page-dashboard #open-budget-folder {
+    width: 100%;
+  }
+}
