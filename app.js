@@ -267,15 +267,17 @@ document.querySelectorAll('.range-btn').forEach(btn => {
 });
 
 // --- Écouteurs pour les boutons du graphique (Barres + Tendance / Courbe seule) ---
-document.querySelectorAll('#chart-view-mode button').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    document.querySelectorAll('#chart-view-mode button').forEach(b => {
-      b.classList.remove('active');
-      b.removeAttribute('aria-pressed');
+const chartModeButtons = document.querySelectorAll("#chart-view-mode button");
+chartModeButtons.forEach(button => {
+  button.setAttribute("aria-pressed", String(button.dataset.view === currentChartMode));
+  button.addEventListener("click", () => {
+    currentChartMode = button.dataset.view;
+    chartModeButtons.forEach(option => {
+      const active = option === button;
+      option.classList.toggle("active", active);
+      option.setAttribute("aria-pressed", String(active));
     });
-    e.target.classList.add('active');
-    e.target.setAttribute('aria-pressed', 'true');
-    currentChartMode = e.target.dataset.view;
+
     renderDashboard();
   });
 });
@@ -540,7 +542,7 @@ function renderCharts(items) {
       });
 
       const labels = Object.keys(dateMap).sort();
-      const expenseData = labels.map(date => dateMap[date].expense);
+      const expenseData = labels.map(date => -dateMap[date].expense);
       const incomeData = labels.map(date => dateMap[date].income);
       const netData = labels.map(date => dateMap[date].income - dateMap[date].expense);
 
@@ -551,6 +553,7 @@ function renderCharts(items) {
           {
             type: 'bar',
             label: translate("expense_bars"),
+            backgroundColor: '#dc2626',
             data: expenseData.length ? expenseData : [0],
             backgroundColor: '#0f766e',
             borderRadius: 6,
@@ -560,6 +563,7 @@ function renderCharts(items) {
           {
             type: 'bar',
             label: translate("income_bars"),
+            backgroundColor: '#059669',
             data: incomeData.length ? incomeData : [0],
             backgroundColor: '#6ee7b7',
             borderRadius: 6,
@@ -568,10 +572,10 @@ function renderCharts(items) {
           },
           {
             type: 'line',
-            label: 'Ligne Tendance (Net)',
-            data: netData.length ? netData : [0],
-            borderColor: '#7c2d12',
-            backgroundColor: '#7c2d12',
+label: translate("metric_net"),
+data: netData.length ? netData : [0],
+borderColor: '#2563eb',
+backgroundColor: '#2563eb',
             borderWidth: 3,
             tension: 0.4,
             pointRadius: 4,
@@ -582,10 +586,10 @@ function renderCharts(items) {
         datasets = [
           {
             type: 'line',
-            label: translate("income_trend"),
-            data: incomeData.length ? incomeData : [0],
-            borderColor: '#0f766e',
-            backgroundColor: 'rgba(15, 118, 110, 0.1)',
+label: translate("metric_net"),
+data: netData.length ? netData : [0],
+borderColor: '#2563eb',
+backgroundColor: 'rgba(37, 99, 235, 0.10)',
             fill: true,
             borderWidth: 3,
             tension: 0.4
@@ -1945,6 +1949,23 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       console.error("Chargement des dossiers :", error);
     }
   });
+    document.querySelector('[data-goto="transactions"]')
+    ?.addEventListener("click", () => {
+      ["search-transactions", "filter-type", "filter-category"].forEach(id => {
+        const field = $(id);
+        if (field) field.value = "";
+      });
+
+      const folder = $("dashboard-folder");
+      if (folder && folder.value) {
+        folder.value = "";
+        folder.dispatchEvent(new Event("change"));
+      } else {
+        renderTransactions();
+      }
+
+      document.querySelector('.nav-link[data-page="transactions"]')?.click();
+    });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
 
