@@ -100,6 +100,13 @@ await loadDashboardFolders();
     }
     
     dashboard.dataset.loadState = "ready";
+    const savedPage = sessionStorage.getItem("monbudget-active-page");
+if (savedPage && savedPage !== "dashboard") {
+  const savedTab = Array.from(document.querySelectorAll(".nav-link"))
+    .find(link => link.dataset.page === savedPage);
+
+  savedTab?.click();
+}
   } catch (error) {
     dashboard.dataset.loadState = "error";
     status.textContent =
@@ -133,6 +140,7 @@ document.querySelectorAll(".nav-link").forEach(btn => {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     const page = btn.dataset.page;
+    sessionStorage.setItem("monbudget-active-page", page);
     document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
     document.querySelectorAll(".nav-link").forEach(b => {
       b.classList.toggle("active", b === btn);
