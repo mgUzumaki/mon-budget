@@ -107,16 +107,16 @@
         continue;
       }
 
-      const relativeDate = line.match(/^(Today|Yesterday)\s+(\d{1,2}:\d{2})$/i);
-      if (relativeDate) {
-        current.time = relativeDate[2];
-        if (captureDate) {
-          current.date = relativeDate[1].toLowerCase() === "today"
-            ? captureDate
-            : previousDay(captureDate);
-        }
-        continue;
-      }
+const relativeDate = line.match(relativeDatePattern);
+if (relativeDate) {
+  current.time = relativeDate[2].replace(/\s/g, "").replace("：", ":");
+  if (captureDate) {
+    current.date = yesterdayPattern.test(relativeDate[1])
+      ? previousDay(captureDate)
+      : captureDate;
+  }
+  continue;
+}
 
       const category = line.match(/^(Transport|Food)\b/i);
       if (category) current.categoryHint = category[1];
