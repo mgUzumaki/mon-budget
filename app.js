@@ -555,7 +555,7 @@ function renderCharts(items) {
             label: translate("expense_bars"),
             backgroundColor: '#dc2626',
             data: expenseData.length ? expenseData : [0],
-            backgroundColor: '#0f766e',
+            backgroundColor: '#dc2626',
             borderRadius: 6,
             barPercentage: 0.6,
             categoryPercentage: 0.7
