@@ -497,6 +497,15 @@
               <span class="chevron">›</span>
             </button>
 
+            <button class="settings-row-btn" type="button" id="btn-open-manage-folders">
+  <div class="settings-icon-box" aria-hidden="true">📁</div>
+  <div class="settings-row-content">
+    <strong>Mes dossiers</strong>
+    <small>Voir, renommer ou supprimer vos dossiers</small>
+  </div>
+  <span class="chevron" aria-hidden="true">›</span>
+</button>
+
 <!-- Export des données en JSON -->
             <button class="settings-row-btn" type="button" id="btn-export-json">
               <div class="settings-icon-box" style="background-color: #3b82f6; color: white;">📥</div>
@@ -880,6 +889,18 @@
   <script src="finance.js"></script>
   <script src="i18n.js"></script>
   <script src="capture-import.js"></script>
+  <dialog id="manage-folders-dialog" aria-labelledby="manage-folders-title">
+  <div class="modal-heading">
+    <h2 id="manage-folders-title">Mes dossiers</h2>
+  </div>
+
+  <p id="manage-folders-status" role="status"></p>
+  <ul id="manage-folders-list"></ul>
+
+  <form method="dialog">
+    <button type="submit" class="secondary-btn">Fermer</button>
+  </form>
+</dialog>
   <script src="app.js"></script>
 </body>
 </html>
