@@ -28,7 +28,7 @@
 
   async function readImage(file, format, onProgress = () => {}) {
     const tesseract = await loadTesseract();
-        const languages = ["fra", "eng", "chi_sim"];
+        const languages = ["fra", "eng", "chi_sim", "spa", "deu"];
     const worker = await tesseract.createWorker(languages, 1, {
       logger: ({ status, progress }) => {
         if (status === "recognizing text") {
