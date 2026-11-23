@@ -1775,6 +1775,168 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       submit.disabled = false;
     }
   });
+    const foldersDialog = $("manage-folders-dialog");
+  const foldersList = $("manage-folders-list");
+  const foldersStatus = $("manage-folders-status");
+  let folderActionPending = false;
+
+  function makeFolderButton(label, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary-btn";
+    button.textContent = label;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
+  async function renderManagedFolders() {
+    const folders = await BudgetDB.getBudgetFolders();
+    foldersList.replaceChildren();
+
+    if (!folders.length) {
+      foldersStatus.textContent = "Tu n’as encore aucun dossier.";
+      return;
+    }
+
+    foldersStatus.textContent = "";
+
+    for (const folder of folders) {
+      const row = document.createElement("li");
+      const title = document.createElement("strong");
+      title.textContent = `${folder.name} · ${folder.display_currency}`;
+
+      const actions = document.createElement("div");
+      actions.append(
+        makeFolderButton("Renommer", () => renameManagedFolder(folder)),
+        makeFolderButton("Supprimer…", () => {
+          deleteOptions.hidden = !deleteOptions.hidden;
+        })
+      );
+
+      const deleteOptions = document.createElement("div");
+      deleteOptions.hidden = true;
+
+      const destinationLabel = document.createElement("label");
+      destinationLabel.textContent = "Déplacer les opérations vers ";
+      const destination = document.createElement("select");
+      destination.add(new Option("Choisir un dossier", ""));
+
+      for (const otherFolder of folders) {
+        if (otherFolder.id !== folder.id) {
+          destination.add(new Option(otherFolder.name, otherFolder.id));
+        }
+      }
+
+      const moveButton = makeFolderButton("Déplacer puis supprimer", () => {
+        if (!destination.value) return;
+
+        const targetName = destination.selectedOptions[0].textContent;
+        if (window.confirm(
+          `Déplacer les opérations de « ${folder.name} » vers « ${targetName} », puis supprimer le dossier « ${folder.name} » ?`
+        )) {
+          removeManagedFolder(folder.id, destination.value, false);
+        }
+      });
+
+      destination.disabled = destination.options.length === 1;
+      moveButton.disabled = true;
+      destination.addEventListener("change", () => {
+        moveButton.disabled = !destination.value;
+      });
+
+      const deleteButton = makeFolderButton("Supprimer le dossier et ses opérations", () => {
+        if (window.confirm(
+          `Supprimer définitivement le dossier « ${folder.name} » et toutes ses opérations ?`
+        )) {
+          removeManagedFolder(folder.id, null, true);
+        }
+      });
+
+      destinationLabel.append(destination);
+      deleteOptions.append(destinationLabel, moveButton, deleteButton);
+      row.append(title, actions, deleteOptions);
+      foldersList.append(row);
+    }
+  }
+
+  async function runFolderAction(save, successMessage) {
+    if (folderActionPending) return;
+    folderActionPending = true;
+    foldersList.inert = true;
+    foldersStatus.textContent = "Enregistrement…";
+
+    try {
+      await save();
+    } catch (error) {
+      foldersStatus.textContent =
+        error?.code === "23505"
+          ? "Tu as déjà un dossier avec ce nom."
+          : "Impossible d’enregistrer la modification.";
+      console.error("Gestion des dossiers :", error);
+      folderActionPending = false;
+      foldersList.inert = false;
+      return;
+    }
+
+    try {
+      await loadDashboardFolders();
+      const refreshed = await refresh();
+      await renderManagedFolders();
+      foldersStatus.textContent = refreshed
+        ? successMessage
+        : `${successMessage} Actualise la page pour mettre à jour le tableau de bord.`;
+    } catch (error) {
+      foldersStatus.textContent = `${successMessage} Rouvre « Mes dossiers » pour actualiser la liste.`;
+      console.error("Actualisation des dossiers :", error);
+    } finally {
+      folderActionPending = false;
+      foldersList.inert = false;
+    }
+  }
+
+  function renameManagedFolder(folder) {
+    const name = window.prompt("Nouveau nom du dossier", folder.name)?.trim();
+    if (!name || name === folder.name) return;
+
+    return runFolderAction(async () => {
+      const user = await BudgetDB.requireUser();
+      const { error } = await BudgetDB.client()
+        .from("budget_folders")
+        .update({ name })
+        .eq("id", folder.id)
+        .eq("user_id", user.id)
+        .select("id")
+        .single();
+
+      if (error) throw error;
+    }, "Dossier renommé.");
+  }
+
+  function removeManagedFolder(folderId, destinationId, deleteTransactions) {
+    return runFolderAction(async () => {
+      const { error } = await BudgetDB.client().rpc("remove_budget_folder", {
+        source_id: folderId,
+        destination_id: destinationId,
+        delete_transactions: deleteTransactions
+      });
+
+      if (error) throw error;
+    }, deleteTransactions ? "Dossier et opérations supprimés." : "Opérations déplacées et dossier supprimé.");
+  }
+
+  $("btn-open-manage-folders")?.addEventListener("click", async () => {
+    if (folderActionPending) return;
+    foldersList.replaceChildren();
+    foldersStatus.textContent = "Chargement des dossiers…";
+    foldersDialog.showModal();
+
+    try {
+      await renderManagedFolders();
+    } catch (error) {
+      foldersStatus.textContent = "Impossible de charger les dossiers.";
+      console.error("Chargement des dossiers :", error);
+    }
+  });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
   checkAuthAndStart();
 
