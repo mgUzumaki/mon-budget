@@ -872,6 +872,44 @@
       "cat_epargne": "储蓄"
     }
   }; 
+    Object.assign(messages.fr, {
+    sign_in_problem: "Un problème de connexion ?",
+    contact_support: "Contacter le support",
+    help_and_feedback: "Aide et signalement",
+    my_folders: "Mes dossiers",
+    manage_folders_hint: "Voir, renommer ou supprimer vos dossiers",
+    folder_rename: "Renommer",
+    folder_delete_open: "Supprimer…",
+    folder_choose_destination: "Choisir un dossier",
+    folder_move_and_delete: "Déplacer puis supprimer",
+    folder_delete_with_transactions: "Supprimer le dossier et ses opérations"
+  });
+
+  Object.assign(messages.en, {
+    sign_in_problem: "Trouble signing in?",
+    contact_support: "Contact support",
+    help_and_feedback: "Help and feedback",
+    my_folders: "My folders",
+    manage_folders_hint: "View, rename or delete your folders",
+    folder_rename: "Rename",
+    folder_delete_open: "Delete…",
+    folder_choose_destination: "Choose a folder",
+    folder_move_and_delete: "Move transactions and delete folder",
+    folder_delete_with_transactions: "Delete folder and its transactions"
+  });
+
+  Object.assign(messages.zh, {
+    sign_in_problem: "无法登录？",
+    contact_support: "联系客服",
+    help_and_feedback: "帮助与反馈",
+    my_folders: "我的文件夹",
+    manage_folders_hint: "查看、重命名或删除文件夹",
+    folder_rename: "重命名",
+    folder_delete_open: "删除…",
+    folder_choose_destination: "选择文件夹",
+    folder_move_and_delete: "转移交易并删除文件夹",
+    folder_delete_with_transactions: "删除文件夹及其所有交易"
+  });
   const locales = { fr: "fr-FR", en: "en-US", zh: "zh-CN" };
 
   function supportedLanguage(value) {
