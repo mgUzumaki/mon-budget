@@ -125,7 +125,13 @@
     return rows;
   }
 
-  window.CaptureImport = { readImage, parseText };
+  window.CaptureImport = {
+  readImage,
+  parseText,
+  isChinesePaymentCapture,
+  hasRelativeDate: text =>
+    text.split(/\r?\n/).some(line => relativeDatePattern.test(line.trim()))
+};
 })();
 (() => {
   const { t } = window.BudgetI18n;
@@ -360,7 +366,7 @@
       );
       if (!importDialog.open || file.files[0] !== selectedFile) return;
       const hasRelativeDates =
-        /^\s*(Today|Yesterday)\s+\d{1,2}:\d{2}\s*$/im.test(text);
+  isChinesePaymentCapture || window.CaptureImport.hasRelativeDate(text);
       const hasGroupedDates =
         /^\s*\d{2}\/\d{2}\/\d{4}\s*$/m.test(text);
 
