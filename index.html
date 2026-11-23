@@ -80,8 +80,8 @@
           <p id="auth-error" class="form-error" role="alert"></p>
         </form>
         <p style="margin-top: 12px;">
-  Un problème de connexion ?
-  <a href="mailto:monbudget2@gmail.com?subject=MonBudget%20-%20Probl%C3%A8me%20de%20connexion&amp;body=Ce%20que%20je%20vois%20%C3%A0%20l%E2%80%99%C3%A9cran%20%3A%0A%0AT%C3%A9l%C3%A9phone%20ou%20ordinateur%20et%20navigateur%20%3A">
+ <span data-i18n="sign_in_problem">Un problème de connexion ?</span>
+  <adata-i18n="contact_support" href="mailto:monbudget2@gmail.com?subject=MonBudget%20-%20Probl%C3%A8me%20de%20connexion&amp;body=Ce%20que%20je%20vois%20%C3%A0%20l%E2%80%99%C3%A9cran%20%3A%0A%0AT%C3%A9l%C3%A9phone%20ou%20ordinateur%20et%20navigateur%20%3A">
     Contacter le support
   </a>
 </p>
@@ -506,8 +506,8 @@
             <button class="settings-row-btn" type="button" id="btn-open-manage-folders">
   <div class="settings-icon-box" aria-hidden="true">📁</div>
   <div class="settings-row-content">
-    <strong>Mes dossiers</strong>
-    <small>Voir, renommer ou supprimer vos dossiers</small>
+<strong data-i18n="my_folders">Mes dossiers</strong>
+<small data-i18n="manage_folders_hint">Voir, renommer ou supprimer vos dossiers</small>
   </div>
   <span class="chevron" aria-hidden="true">›</span>
 </button>
@@ -518,7 +518,7 @@
         style="background-color: #087f65; color: white;"
         aria-hidden="true">✉</span>
   <span class="settings-row-content">
-    <strong>Aide et signalement</strong>
+   <strong data-i18n="help_and_feedback">Aide et signalement</strong>
     <small>monbudget2@gmail.com</small>
   </span>
   <span class="chevron" aria-hidden="true">›</span>
@@ -909,14 +909,14 @@
   <script src="capture-import.js"></script>
   <dialog id="manage-folders-dialog" aria-labelledby="manage-folders-title">
   <div class="modal-heading">
-    <h2 id="manage-folders-title">Mes dossiers</h2>
+    <h2 id="manage-folders-title" data-i18n="my_folders">Mes dossiers</h2>
   </div>
 
   <p id="manage-folders-status" role="status"></p>
   <ul id="manage-folders-list"></ul>
 
   <form method="dialog">
-    <button type="submit" class="secondary-btn">Fermer</button>
+   <button type="submit" class="secondary-btn" data-i18n="close">Fermer</button>
   </form>
 </dialog>
   <script src="app.js"></script>
