@@ -798,6 +798,7 @@ dialog form input, dialog form select {
 }
 
 .landing-hero-cta {
+  margin-inline-start: auto;
   display: inline-block;
   padding: 12px 18px;
   border-radius: 10px;
