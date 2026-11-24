@@ -38,16 +38,22 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   <div id="landing-page" class="landing-container" hidden>
     <div class="landing-content">
       
-     <div class="landing-hero">
+     <div id="landing-welcome" class="landing-hero">
   <div class="landing-hero-brand">
     <span class="brand-mark" aria-hidden="true">€</span>
     <strong>MonBudget</strong>
   </div>
 
   <div class="landing-hero-panel">
+    <a class="landing-hero-cta" href="?connexion=1" data-i18n="sign_in">
+  Se connecter
+</a>
     <div class="landing-hero-copy">
-      <h1>Tout votre budget, en un coup d’œil</h1>
-      <a class="landing-hero-cta" href="#auth-form" data-i18n="sign_in">
+<h1 data-i18n="welcome_headline">Tout votre budget, en un coup d’œil</h1>
+<p data-i18n="welcome_intro">
+  Suivez vos revenus et vos dépenses, fixez vos budgets et voyez combien
+  il vous reste pour vos projets.
+</p>
         Se connecter
       </a>
     </div>
@@ -56,13 +62,13 @@ window.supabaseClient.auth.onAuthStateChange(event => {
       <img class="landing-phone"
            src="./monbudget-telephone.webp"
            alt="Aperçu du tableau de bord MonBudget">
-      <small>Exemple de budget</small>
+      <small data-i18n="welcome_budget_example">Exemple de budget</small>
     </div>
   </div>
 </div>
 
       <!-- Section Connexion (Droite) -->
-      <div class="landing-auth-card">
+      <div id="landing-auth" class="landing-auth-card" hidden>
         <div class="auth-header">
           <h2><span data-i18n="secure_access">Accès sécurisé</span></h2>
           <select id="auth-lang-select">
