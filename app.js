@@ -994,8 +994,9 @@ $("tab-login")?.addEventListener("click", () => {
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        alert(translate("signed_in_successfully"));
-        showApp();
+alert(translate("signed_in_successfully"));
+sessionStorage.removeItem("monbudget-active-page");
+showApp();
       }
     } catch (err) {
       console.error("Erreur d'auth :", err);
