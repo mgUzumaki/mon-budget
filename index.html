@@ -160,6 +160,9 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 
     <!-- Navigation principale -->
     <aside id="sidebar" class="sidebar" aria-label="Menu principal" data-i18n-aria-label="main_menu">
+      <button type="button" id="sidebar-close" class="sidebar-close" aria-label="Fermer le menu">
+  <span aria-hidden="true">×</span>
+</button>
       <a href="#dashboard" class="brand" aria-label="MonBudget, accueil" data-i18n-aria-label="mon_budget_home">
         <span class="brand-mark" aria-hidden="true">€</span>
         <span class="brand-copy">
