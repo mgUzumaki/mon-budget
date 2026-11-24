@@ -1875,7 +1875,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     if (folderActionPending) return;
     folderActionPending = true;
     foldersList.inert = true;
-    foldersStatus.textContent = "Enregistrement…";
+    foldersStatus.textContent = translate("recovery_saving");
 
     try {
       await save();
@@ -2013,7 +2013,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     redirect.hash = "";
 
     submit.disabled = true;
-    recoveryStatus.textContent = "Envoi en cours…";
+    recoveryStatus.textContent = translate("recovery_sending");
 
     try {
       const { error } = await BudgetDB.client().auth.resetPasswordForEmail(
@@ -2024,9 +2024,9 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       if (error) throw error;
 
       recoveryStatus.textContent =
-        "Si un compte correspond à cette adresse, tu recevras un lien par e-mail.";
+        translate("recovery_sent");
     } catch {
-      recoveryStatus.textContent = "Impossible d’envoyer le lien. Réessaie plus tard.";
+      recoveryStatus.textContent = translate("recovery_send_error");
     } finally {
       submit.disabled = false;
     }
@@ -2043,21 +2043,21 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
     const confirmation = $("reset-confirm-password").value;
 
     if (password !== confirmation) {
-      resetPasswordStatus.textContent = "Les deux mots de passe doivent être identiques.";
+      resetPasswordStatus.textContent = translate("recovery_mismatch");
       $("reset-confirm-password").focus();
       return;
     }
 
     const submit = resetPasswordForm.querySelector('button[type="submit"]');
     submit.disabled = true;
-    resetPasswordStatus.textContent = "Enregistrement…";
+    resetPasswordStatus.textContent = translate("recovery_saving");
 
     try {
       const auth = BudgetDB.client().auth;
       const { data, error: userError } = await auth.getUser();
 
       if (userError || data?.user?.id !== recoveryUserId) {
-        resetPasswordStatus.textContent = "La session de récupération a expiré. Demande un nouveau lien.";
+        resetPasswordStatus.textContent = translate("recovery_session_expired");
         return;
       }
 
@@ -2065,7 +2065,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
       if (error) {
         resetPasswordStatus.textContent =
-          "Mot de passe non modifié. Essaie un mot de passe plus fort ou demande un nouveau lien.";
+          translate("recovery_update_error");
         return;
       }
 
@@ -2075,7 +2075,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       const { error: signOutError } = await auth.signOut({ scope: "local" });
       if (signOutError) {
         resetPasswordStatus.textContent =
-          "Mot de passe enregistré. Ferme cet onglet, puis ouvre MonBudget pour te connecter.";
+          translate("recovery_signout_error");
         return;
       }
 
@@ -2083,10 +2083,10 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       $("auth-password").value = "";
       showAuthScreen("login");
       $("auth-error").textContent =
-        "Mot de passe modifié. Tu peux maintenant te connecter.";
+        translate("recovery_done");
       $("auth-password").focus();
     } catch {
-      resetPasswordStatus.textContent = "Une erreur est survenue. Réessaie.";
+      resetPasswordStatus.textContent = translate("recovery_generic_error");
     } finally {
       submit.disabled = false;
     }
@@ -2103,14 +2103,14 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
     const tokenHash = url.searchParams.get("token_hash");
     if (!tokenHash) {
-      recoveryStatus.textContent = "Demande un nouveau lien de réinitialisation.";
+      recoveryStatus.textContent = translate("recovery_request_again");
       return;
     }
 
     url.searchParams.delete("token_hash");
     window.history.replaceState(null, "", url);
 
-    recoveryStatus.textContent = "Vérification du lien…";
+    recoveryStatus.textContent = translate("recovery_checking");
     const { data, error } = await BudgetDB.client().auth.verifyOtp({
       token_hash: tokenHash,
       type: "recovery"
@@ -2118,7 +2118,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
     if (error || !data?.session || !data.user?.id) {
       recoveryStatus.textContent =
-        "Ce lien a expiré ou a déjà été utilisé. Demande un nouveau lien.";
+        translate("recovery_link_expired");
       return;
     }
 
@@ -2131,7 +2131,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   startWithPasswordRecovery().catch(() => {
     showLogin();
     showAuthScreen("request");
-    recoveryStatus.textContent = "Impossible de vérifier le lien. Réessaie.";
+    recoveryStatus.textContent = translate("recovery_check_error");
   });
 
 })();
