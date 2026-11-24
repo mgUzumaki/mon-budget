@@ -894,7 +894,7 @@ dialog form input, dialog form select {
 @media (max-width: 768px) {
   .landing-content {
     grid-template-columns: 1fr;
-    padding: 24px;
+    padding: 0;
   }
   .landing-image {
     display: grid;
@@ -931,14 +931,11 @@ min-height: 0;
 /* 3. Disposition côte à côte (Présentation à gauche, Formulaire à droite) */
 .landing-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  max-width: 960px;
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  max-width: 1200px;
+  background: transparent;
+  padding: 0;
   align-items: center;
 }
 
