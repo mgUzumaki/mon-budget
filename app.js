@@ -135,7 +135,12 @@ if (savedPage && savedPage !== "dashboard") {
 
   sidebarToggle?.addEventListener("click", toggleSidebar);
   sidebarBackdrop?.addEventListener("click", toggleSidebar);
-
+$("sidebar-close")?.addEventListener("click", () => {
+  if (sidebar?.classList.contains("is-open")) {
+    toggleSidebar();
+    sidebarToggle?.focus();
+  }
+});
 document.querySelectorAll(".nav-link").forEach(btn => {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
