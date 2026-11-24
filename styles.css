@@ -751,16 +751,52 @@ dialog form input, dialog form select {
 }
 
 .landing-content > .landing-hero,
-.landing-content > .landing-auth-card {
+.landing-content > .landing-auth-layout {
   grid-column: 1 / -1;
   min-width: 0;
 }
 
-.landing-content > .landing-auth-card {
-  width: min(100%, 560px);
-  justify-self: center;
+.landing-auth-layout:not([hidden]) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: stretch;
+  gap: 16px 24px;
 }
 
+.landing-auth-back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  color: #105340;
+  font-weight: 700;
+}
+
+.landing-auth-layout .landing-image {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 16px;
+  background: #103b30;
+}
+
+.landing-auth-layout .landing-auth-card {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .landing-auth-layout:not([hidden]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-auth-layout .landing-image {
+    order: 1;
+  }
+
+  .landing-auth-layout .landing-phone {
+    width: min(100%, 185px);
+  }
+}
 .landing-hero {
   overflow: hidden;
   border: 1px solid #e4e9e2;
