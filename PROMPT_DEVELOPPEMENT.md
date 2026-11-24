@@ -1,9 +1,9 @@
-# PROMPT MAÎTRE — ÉVOLUTION COMPLÈTE DE « MON BUDGET »
+# PROMPT MAÎTRE — ÉVOLUTION COMPLÈTE DE « MONBUDGET »
 ## De l'application de gestion budgétaire à un véritable assistant de financement personnel
 
 Tu es mon développeur principal, architecte logiciel, expert JavaScript, Supabase et applications financières personnelles.
 
-Tu dois reprendre mon application existante **Mon Budget**, analyser son architecture réelle, puis la faire évoluer progressivement vers une application complète de gestion de projets financiers, de simulation, de suivi d'épargne et d'analyse budgétaire.
+Tu dois reprendre mon application existante **MonBudget**, analyser son architecture réelle, puis la faire évoluer progressivement vers une application complète de gestion de projets financiers, de simulation, de suivi d'épargne et d'analyse budgétaire.
 
 Tu ne dois pas repartir de zéro.
 
@@ -15,7 +15,7 @@ Tu dois travailler directement sur les fichiers que je te fournis, préserver le
 
 ## Objectif général
 
-Je veux faire évoluer Mon Budget pour qu'elle ne soit plus seulement une application permettant de suivre ses revenus et ses dépenses.
+Je veux faire évoluer MonBudget pour qu'elle ne soit plus seulement une application permettant de suivre ses revenus et ses dépenses.
 
 Je veux en faire un assistant financier personnel qui accompagne l'utilisateur dans la réalisation de ses projets.
 
@@ -45,6 +45,15 @@ La fonctionnalité doit constituer un véritable parcours utilisateur, et non un
 
 ---
 
+## Deux priorités produit
+
+MonBudget est une application gratuite de suivi des dépenses. Son avantage doit être visible dans l’usage quotidien.
+
+1. **Comprendre ce qui coûte plus cher.** MonBudget repère une facture ou une catégorie en hausse, montre les chiffres qui expliquent l’écart et propose une action utile.
+2. **Savoir si un projet reste réalisable.** MonBudget transforme une simulation en plan d’épargne suivi mois par mois et recalcule les options lorsqu’un mois se passe autrement que prévu.
+
+Les deux priorités se rejoignent quand une hausse de dépenses réduit effectivement la marge d’épargne. L’application peut alors montrer son effet sur un projet et proposer un ajustement à confirmer.
+
 # 2. ARCHITECTURE ACTUELLE À RESPECTER
 
 Mon application existe déjà.
@@ -57,9 +66,22 @@ Voici les fichiers fournis :
 - `app.js`
 - `db.js`
 - `finance.js`
+- `i18n.js`
+- `capture-import.js`
 - `manifest.json`
+- `README.md`
 
 Tu dois examiner les versions réelles de ces fichiers avant toute modification.
+
+## État de la version publiée
+
+- Accueil public et connexion séparés, avec le visuel de téléphone animé et un retour vers l’accueil.
+- Authentification Supabase, réinitialisation du mot de passe par e-mail, et interface en français, anglais et chinois simplifié.
+- Vue d’ensemble, graphiques de flux et de répartition, transactions filtrables, catégories et dossiers. La gestion des dossiers permet de renommer un dossier et, avant de le supprimer, de déplacer ses opérations ou de confirmer leur suppression.
+- Saisie manuelle et lecture de photos ou de captures avec Tesseract.js dans le navigateur. L’utilisateur vérifie les montants et les dates dans l’aperçu. Export CSV et sauvegarde/restauration JSON.
+- **Budgets, Statistiques et Simulateur sont masqués dans le menu public.** Le simulateur existant calcule un effort mensuel, compare cet effort à un solde net et utilise la table `financings`. Le suivi mensuel et les alertes de hausse restent à développer.
+
+Vérifie les fichiers les plus récents avant de travailler. Le README décrit les fonctionnalités actuellement exposées.
 
 ## Architecture technique connue
 
@@ -71,7 +93,9 @@ L'application utilise actuellement :
 - Supabase pour l'authentification et la persistance des données.
 - Supabase JavaScript SDK v2 chargé depuis un CDN.
 - Chart.js pour les graphiques.
-- Un manifeste PWA.
+- Un manifeste web pour l’affichage en mode autonome.
+- Tesseract.js pour la lecture locale des images.
+- Cloudflare Workers pour la version publiée.
 - Une architecture organisée autour d'un objet global `BudgetDB`.
 - Un objet global `Finance` pour les calculs financiers et les dates.
 
@@ -85,7 +109,7 @@ Ne crée pas de backend supplémentaire sans justification technique précise.
 
 Le fichier contient notamment :
 
-- Une page d'accueil et de connexion.
+- Un accueil public et un écran de connexion distinct, avec un parcours de réinitialisation du mot de passe.
 - Une interface privée après authentification.
 - Une navigation latérale.
 - Une page de tableau de bord.
@@ -126,7 +150,7 @@ La liste des projets utilise :
 
 `financing-projects-list`
 
-Attention : un bouton de soumission est actuellement présent en dehors du formulaire du simulateur. Il faut vérifier et corriger cette anomalie sans casser les événements existants.
+Vérifie l’association du bouton de soumission au formulaire du simulateur dans le code courant.
 
 ## 2.2. Structure de `app.js`
 
@@ -313,13 +337,9 @@ Les calculs doivent être reproductibles.
 
 Les prévisions initiales doivent rester conservées même si le projet est modifié ensuite.
 
-### Règle 6 — Livrer des fichiers complets
+### Règle 6 — Donner des changements précis
 
-Lorsque tu modifies un fichier, fournis son contenu complet et exploitable.
-
-Ne me donne pas seulement trois lignes à insérer à un endroit approximatif.
-
-Indique précisément les fichiers modifiés et les éventuelles migrations SQL.
+Si je souhaite appliquer les changements moi-même, avance un fichier à la fois. Donne le nom du fichier, le texte exact à rechercher et le bloc à remplacer. Fournis un fichier complet si je le demande. Indique les éventuelles migrations SQL et leur effet.
 
 ---
 
@@ -550,7 +570,7 @@ Ne pas autoriser la suppression silencieuse d'un projet actif avec un historique
 
 ## MODULE D — SUIVI MENSUEL PRÉVISIONNEL / RÉEL
 
-C'est le cœur du produit.
+Ce module est l’une des deux priorités produit, avec les alertes de dépenses.
 
 Chaque projet actif doit disposer d'un suivi mensuel.
 
@@ -595,7 +615,8 @@ L'application doit montrer :
 - Prévision cumulée : 1 500 €.
 - Réalisé : 1 350 €.
 - Écart : -150 €.
-- Progression par rapport à l'objectif total : 54 %.
+- Total disponible pour le projet : 1 850 €, épargne initiale comprise, soit environ 61,7 % de l’objectif.
+- Reste à atteindre : 1 150 €. Avec deux mois restants, l’effort révisé est de 575 € par mois au lieu des 500 € prévus.
 
 L'utilisateur doit pouvoir expliquer ou corriger un mois.
 
@@ -618,6 +639,18 @@ Garder la prévision initiale pour mesurer les écarts.
 Les ajustements doivent être enregistrés séparément.
 
 ---
+
+### Réajuster le plan après chaque mois validé
+
+Après avoir confirmé le montant épargné, afficher le prévu initial, le réalisé, l’écart, la nouvelle trajectoire et la capacité d’épargne estimée. Si le rythme prévu ne tient plus, proposer des options chiffrées :
+
+- **Garder la date** et recalculer l’effort pour les mois restants.
+- **Garder l’effort mensuel** et recalculer la date estimée.
+- **Modifier le montant cible** ou **mettre le projet en pause** si l’effort ne convient plus.
+
+Montrer un aperçu avant validation. L’utilisateur choisit son option. Enregistrer la nouvelle version pour les mois futurs, sans modifier la prévision initiale ni effacer les mois déjà validés. Quand aucun mois ne reste et que l’objectif est incomplet, proposer une nouvelle date. Si la capacité n’est pas estimable, l’indiquer et afficher les calculs qui restent possibles.
+
+**Critères de validation** — Tester un mois sans épargne, un retard rattrapé, une avance, une correction après validation, un report, deux projets en parallèle et une échéance passée. Vérifier qu’une même opération ne compte qu’une fois et que la réouverture du projet restitue les versions du plan.
 
 ## MODULE E — INTÉGRATION AU BUDGET ET AUX TRANSACTIONS
 
@@ -672,30 +705,26 @@ Si l'utilisateur finance deux projets simultanément, l'application doit calcule
 
 ---
 
-## MODULE F — ASSISTANT FINANCIER ET RECOMMANDATIONS
+## MODULE F — ALERTES DE DÉPENSES ET CONSEILS EXPLICABLES
 
-Une fois les modules précédents fiables, développer un assistant d'analyse.
+Le premier lot doit permettre de repérer une hausse significative dans la **Vue d’ensemble**, même si l’onglet Statistiques est encore masqué.
 
-L'assistant doit utiliser les données réelles disponibles.
+### Détection et comparaison
 
-Exemples de messages :
+- **Facture récurrente.** Compare le dernier montant avec le précédent ou avec une référence récente clairement indiquée. Utilise un libellé de fournisseur normalisé et une périodicité cohérente. Si le rapprochement est incertain, présente une hausse possible et laisse l’utilisateur confirmer que les opérations concernent la même facture.
+- **Catégorie.** Compare des périodes de durée équivalente. Pour le mois en cours, compare jusqu’au même jour du mois précédent, ou attends un mois complet. Affiche les dates et la référence retenue.
+- Calcule l’écart absolu et le pourcentage si la référence est positive. Si la référence est nulle, affiche le nouveau montant sans pourcentage. Applique des seuils configurables pour éviter les alertes sur des écarts mineurs. Présente plusieurs hausses pertinentes sans répéter la même alerte après actualisation.
+- Compare des montants dans la même devise et pour le même périmètre. Exclue les transferts et les doublons d’import identifiés. Distingue les dépenses exceptionnelles, les remboursements et les régularisations lorsque les données le permettent. Si l’historique manque, indique que la comparaison est indisponible.
 
-- « Ton effort d'épargne actuel est supérieur à ta capacité moyenne observée. »
-- « Tu as pris 150 € de retard sur ton objectif initial. »
-- « En conservant ton rythme actuel, ton objectif serait atteint environ un mois plus tard. »
-- « Tu peux réduire ton effort mensuel pour préserver une marge de sécurité. »
-- « Tes dépenses ont augmenté par rapport à ta situation de référence. »
+### Carte d’alerte et actions
 
-Les recommandations doivent être :
-- Compréhensibles.
-- Justifiées par des chiffres.
-- Prudentes.
-- Non culpabilisantes.
-- Facultatives.
+Exemple : « Électricité : 99 € ce mois-ci, contre 82 € le mois dernier, soit +17 € (+20,7 %). » Affiche les périodes et propose **Voir les opérations**, **Marquer comme vérifiée** ou **Ignorer cette alerte**. Un conseil peut inviter à vérifier si la hausse correspond à une régularisation, à comparer les conditions du contrat ou à ajuster le budget. Une cause supposée doit rester présentée comme telle.
 
-Ne pas intégrer d'intelligence artificielle externe payante sans me le demander.
+Si la hausse est récurrente et réduit la capacité d’épargne, montre l’effet sur les projets actifs. Exemple : « Si ces 17 € supplémentaires se répètent chaque mois, il vous restera 17 € de moins à épargner. » Propose d’ouvrir une simulation d’ajustement. Le plan est modifié uniquement après validation.
 
-Commencer par un moteur de règles déterministes, transparent et testable.
+Commence par des règles déterministes et explicables. L’IA externe reste facultative et nécessite mon accord avant tout envoi de données financières. Les conseils sont indicatifs, chiffrés et non culpabilisants.
+
+**Critères de validation** — Tester une facture passant de 82 € à 99 €, une dépense exceptionnelle, un mois incomplet, un historique insuffisant, une référence à zéro, des devises différentes et un import en double. Vérifier le lien vers les opérations qui expliquent l’alerte.
 
 ---
 
@@ -853,9 +882,7 @@ Ne réalise aucune migration avant d'avoir expliqué ce qu'elle modifie et véri
 
 # 6. PLAN DE DÉVELOPPEMENT OBLIGATOIRE
 
-Tu dois travailler dans cet ordre.
-
-Ne saute aucune étape.
+Commence par l’audit et la stabilisation. Les phases 2 à 6 construisent le parcours projet. Le premier lot d’alertes de la phase 7 peut avancer en parallèle dès que la comparaison des transactions est fiable. Relie ensuite les deux parcours.
 
 ## PHASE 0 — AUDIT COMPLET
 
@@ -951,7 +978,7 @@ Conserver les prévisions initiales.
 
 Calculer les écarts et les retards.
 
-Tester les changements d'objectif et les reports.
+Tester les changements d'objectif, les reports et l’historisation des plans révisés. Vérifier qu’une proposition n’est appliquée qu’après confirmation.
 
 ## PHASE 6 — CONNEXION AU BUDGET
 
@@ -967,11 +994,7 @@ Tester la cohérence des soldes et des statistiques.
 
 ## PHASE 7 — ASSISTANT FINANCIER
 
-Ajouter des analyses et recommandations basées sur les données réelles.
-
-Expliquer les calculs utilisés.
-
-Ne jamais inventer des données manquantes.
+Livrer d’abord la carte d’alerte pour une facture récurrente et une catégorie, avec sa comparaison et le lien vers les opérations. Ajouter ensuite l’impact estimé sur un projet et l’accès au réajustement. Appliquer les critères de validation du module F.
 
 ## PHASE 8 — BILANS ET ARCHIVAGE
 
@@ -1012,7 +1035,7 @@ Vérifier qu'aucune fonctionnalité existante n'a régressé.
 
 Je veux une application moderne, professionnelle et agréable à utiliser.
 
-Conserver l'identité visuelle existante de Mon Budget.
+Conserver l'identité visuelle existante de MonBudget.
 
 Ne pas refaire toute l'interface sans raison.
 
@@ -1035,6 +1058,7 @@ Privilégier :
 - Des statuts visuels.
 - Des confirmations avant les opérations sensibles.
 - Des messages d'erreur explicites.
+- Des alertes et des parcours projet traduits en français, anglais et chinois simplifié via `i18n.js`.
 
 L'utilisateur doit toujours comprendre ce qui est une prévision et ce qui est un montant réellement réalisé.
 
@@ -1053,7 +1077,7 @@ Je veux que tu avances réellement, pas que tu me donnes uniquement des conseils
 1. Explique brièvement ce que tu vas modifier.
 2. Identifie les fichiers concernés.
 3. Réalise les modifications.
-4. Fournis les fichiers complets modifiés.
+4. Donne les changements à appliquer fichier par fichier, ou les fichiers complets si je les demande.
 5. Fournis les scripts SQL nécessaires si besoin.
 6. Explique comment appliquer les changements.
 7. Donne une liste de tests à effectuer.
@@ -1062,7 +1086,7 @@ Je veux que tu avances réellement, pas que tu me donnes uniquement des conseils
 
 Si tu as accès à un environnement de fichiers, modifie directement les fichiers du projet et vérifie les changements.
 
-Si tu n'as pas accès à l'environnement, donne les fichiers complets, avec leur nom exact.
+Si tu n’as pas accès au dépôt, donne les emplacements et les blocs exacts à modifier.
 
 Ne me demande pas de copier des morceaux de code à des emplacements imprécis.
 
@@ -1082,12 +1106,12 @@ Ne prétends jamais avoir exécuté un test que tu n'as pas réellement exécut�
 
 À la fin du projet, je veux obtenir :
 
-1. Une application Mon Budget complète et fonctionnelle.
+1. Une application MonBudget complète et fonctionnelle.
 2. Le simulateur de financement amélioré.
 3. La gestion complète des projets.
-4. Le suivi mensuel prévisionnel/réel.
+4. Le suivi mensuel prévisionnel/réel et le réajustement avec historique.
 5. L'intégration cohérente avec les transactions.
-6. L'assistant financier basé sur les données réelles.
+6. Les alertes de hausse et les conseils basés sur les données réelles.
 7. Les bilans et l'archivage.
 8. Les fichiers HTML, CSS et JavaScript complets.
 9. Les migrations SQL nécessaires.
@@ -1101,25 +1125,9 @@ L'application doit pouvoir continuer à fonctionner avec les comptes et données
 
 ---
 
-# 10. TA PREMIÈRE MISSION : COMMENCER MAINTENANT
+# 10. DÉMARRAGE D’UNE DEMANDE DE DÉVELOPPEMENT
 
-Ne commence pas par me présenter une nouvelle feuille de route théorique.
-
-La feuille de route est déjà définie dans ce prompt.
-
-Commence immédiatement par la PHASE 0.
-
-Tu dois :
-
-1. Lire les fichiers fournis.
-2. Examiner leur structure réelle.
-3. Cartographier l'architecture.
-4. Identifier les problèmes prioritaires.
-5. Vérifier les possibilités de compatibilité avec Supabase.
-6. Déterminer les migrations éventuellement nécessaires.
-7. Préparer le premier lot de corrections.
-
-Puis commence la PHASE 1 dès que l'audit permet de le faire sans risque.
+Quand je te demande de lancer une phase, utilise les fichiers les plus récents et commence par vérifier les dépendances de cette phase. Pour la prochaine demande de réalisation, privilégie deux lots courts : une alerte de hausse sur la Vue d’ensemble et un parcours projet permettant de valider un mois puis de prévisualiser un réajustement. Garde les rubriques en préparation masquées jusqu’à validation.
 
 **Je veux que tu sois orienté réalisation, pas seulement conseil.**
 

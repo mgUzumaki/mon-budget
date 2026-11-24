@@ -1,157 +1,62 @@
-Voici une version mise à jour de votre fichier **`README.md`**. Elle prend en compte l'évolution du projet (passé de IndexedDB à **Supabase** pour l'authentification et le stockage distant), ainsi que le nouveau module de **Simulateur de financement & Analyse de faisabilité**, rédigé de façon structurée et explicite pour être parfaitement lisible par une IA ou un développeur.
+# MonBudget
 
----
+MonBudget est une application web gratuite de suivi des finances personnelles. Elle permet de saisir ses revenus et ses dépenses, de les organiser par catégorie ou par dossier et de consulter l’évolution de son budget. Elle s’utilise sur ordinateur et sur téléphone, en français, en anglais et en chinois simplifié.
 
-### 📄 Contenu complet du nouveau `README.md`
+[Ouvrir MonBudget](https://mon-budget.gedeonmoufouma.workers.dev/)
 
-```markdown
-# Mon Budget — Application de Gestion Financière & Intelligence de Financement
+## Fonctionnalités disponibles
 
-Application personnelle de gestion financière moderne et intuitive en HTML, CSS et JavaScript vanilla. L'application est désormais connectée à **Supabase** pour gérer l'authentification sécurisée des utilisateurs et la persistance des données en base de données relationnelle distante.
+- **Compte** — L’accueil présente MonBudget et ouvre un écran de connexion séparé. L’utilisateur peut créer un compte, se connecter ou demander un lien de réinitialisation. Le formulaire de récupération affiche l’adresse du compte et demande de confirmer le nouveau mot de passe.
+- **Vue d’ensemble** — Consultez le solde net, les revenus, les dépenses et leur répartition par catégorie. Choisissez une période (semaine, mois ou année), un dossier et, pour la vue globale, une devise d’affichage. Le graphique des flux affiche les dépenses en rouge sous zéro, les revenus en vert et le solde net en bleu.
+- **Transactions** — Ajoutez, modifiez et supprimez des opérations. Recherchez-les par description et filtrez-les par type ou par catégorie. Le bouton **Voir tout** ouvre le journal des transactions.
+- **Import depuis une image** — Téléversez une photo ou une capture d’écran. Tesseract.js lit l’image dans le navigateur et MonBudget propose les opérations reconnues. Vérifiez les montants et les dates dans l’aperçu avant d’enregistrer. Pour les dates relatives, comme « hier », indiquez la date de la capture.
+- **Dossiers et catégories** — Dans **Réglages**, consultez et renommez vos dossiers ou gérez vos catégories. Avant de supprimer un dossier, choisissez soit de déplacer ses opérations vers un autre dossier, soit de les supprimer avec lui après confirmation.
+- **Exports et sauvegardes** — Exportez le journal en CSV. Dans **Réglages**, vous pouvez aussi exporter et restaurer une sauvegarde JSON.
+- **Navigation** — Une nouvelle connexion ouvre **Vue d’ensemble**. L’actualisation dans le même onglet reprend la rubrique ouverte pendant la session.
 
----
+L’interface est traduite en français, en anglais et en chinois simplifié. La lecture d’images charge aussi des modèles espagnol et allemand. L’interprétation des dates et des montants dépend du format de la capture.
 
-## 🛠️ Architecture & Technologies
+## En préparation
 
-- **Frontend** : Vanilla JavaScript (ES6+), HTML5, CSS3 responsive.
-- **Visualisation** : [Chart.js](https://www.chartjs.org/) pour les graphiques interactifs (évolutions et répartitions).
-- **Backend & Base de données** : [Supabase](https://supabase.com/) (Auth, PostgreSQL, Row Level Security).
-- **Déploiement / Local** : Hébergeable sur n'importe quel serveur web statique (ex: Cloudflare Workers, GitHub Pages, serveur Python local).
+**Budgets**, **Statistiques** et **Simulateur** sont masqués dans le menu public pendant leur mise au point. Les graphiques de la **Vue d’ensemble** restent accessibles.
 
----
+Le code du simulateur calcule l’effort d’épargne mensuel à partir du montant cible, de l’épargne déjà disponible et de la durée du projet. Il le compare au solde net de la période et enregistre les projets dans la table `financings`.
 
-## 🚀 Lancer l'application en local
+## Lancer le projet en local
 
-Pour éviter les restrictions de sécurité du navigateur lors du développement local :
+Ouvrez un terminal à la racine du dépôt et lancez un serveur HTTP.
 
-### macOS / Linux
-1. Ouvrez votre terminal et naviguez vers le dossier du projet :
-   ```bash
-   cd /chemin/vers/le/projet
-
-```
-
-2. Lancez un serveur HTTP local :
 ```bash
 python3 -m http.server 8000
-
 ```
 
+Sous Windows, utilisez `python -m http.server 8000` si la commande `python3` est indisponible. Ouvrez ensuite [localhost:8000](http://localhost:8000/).
 
-3. Ouvrez votre navigateur sur `http://localhost:8000`.
+L’interface utilise HTML, CSS et JavaScript, avec Chart.js pour les graphiques. La version publiée est hébergée sur Cloudflare Workers. Les comptes et les données sont gérés par Supabase Auth et PostgreSQL.
 
-### Windows
+### Configuration Supabase
 
-1. Dans l'Explorateur Windows, tapez `cmd` dans la barre d'adresse du dossier.
-2. Exécutez la commande :
-```cmd
-python -m http.server 8000
+- Pour développer, utilisez un projet Supabase de test. Renseignez son URL et sa clé publique dans l’initialisation du client dans `index.html`. Gardez les clés d’administration et les identifiants SMTP côté serveur.
+- Configurez les politiques **Row Level Security (RLS)** des tables de données pour limiter chaque compte à ses propres enregistrements. Le frontend utilise notamment `transactions`, `categories`, `budget_folders` et `financings`.
+- La suppression d’un dossier appelle la fonction SQL `remove_budget_folder`. Elle effectue le déplacement ou la suppression des opérations et supprime le dossier dans la même transaction.
+- Configurez **Authentication → URL Configuration** pour autoriser l’adresse de retour en `?reset-password=1`, ainsi qu’un service SMTP pour l’envoi aux utilisateurs. Le modèle d’e-mail **Reset password** transmet le jeton au site, où Supabase le vérifie avant la modification du mot de passe.
 
-```
+## Structure du projet
 
+| Fichier | Rôle |
+|---|---|
+| `index.html` | Accueil public, écrans de connexion et de récupération, vues et dialogues |
+| `styles.css`, `styles-fix.css` | Mise en page, composants et adaptation mobile |
+| `app.js` | Navigation, authentification, tableaux de bord et gestion des opérations |
+| `db.js` | Accès aux données Supabase via `BudgetDB` |
+| `finance.js` | Calculs monétaires et conversion en centimes |
+| `i18n.js` | Textes de l’interface et formats par langue |
+| `capture-import.js` | Reconnaissance d’images, interprétation du texte et aperçu de l’import |
+| `manifest.json` | Métadonnées de l’application web |
+| `monbudget-telephone.webp` | Visuel animé sur l’accueil et la connexion |
 
-3. Ouvrez votre navigateur sur `http://localhost:8000`.
+## Assistance
 
----
+Depuis l’écran de connexion, cliquez sur **Contacter le support**. Une fois connecté, ouvrez **Réglages → Aide et signalement**. Si vous joignez une capture, masquez les montants et les informations personnelles.
 
-## ✨ Fonctionnalités Incluses
-
-### 1. Authentification & Profils
-
-* Connexion et inscription sécurisées via Supabase Auth.
-* Gestion des sessions et déconnexion automatique après 15 minutes d'inactivité.
-* Personnalisation du profil (nom, prénom, avatar dynamique).
-
-### 2. Vue d'ensemble & Dashboard
-
-* Calcul des métriques en temps réel : Solde net, Total des dépenses, Total des revenus, Épargne.
-* Filtres temporels : Semaine, Mois, Année.
-* Visualisations graphiques dynamiques :
-* Évolution quotidienne (Barres Dépenses/Revenus + Ligne de tendance du solde).
-* Camembert (Donut) de répartition des dépenses par catégorie.
-
-
-
-### 3. Gestion des Operations & Catégories
-
-* Saisie d'opérations (Dépenses, Revenus, Transferts) avec calcul monétaire sécurisé en centimes entiers (`Finance.toCents`).
-* Filtrage par type, par catégorie et par recherche textuelle.
-* Gestionnaire de catégories personnalisables (ajout, suppression et catégories globales par défaut).
-
-### 4. Import / Export
-
-* Exportation des opérations au format **CSV**.
-* Sauvegarde globale et restauration des données au format **JSON**.
-
----
-
-## 💡 Module : Simulateur de Financement & Intelligence de Suivi
-
-Ce module permet à l'utilisateur de simuler des projets d'achat ou d'épargne (ex: voiture, travaux, vacances) et d'évaluer automatiquement leur faisabilité au regard de sa situation budgétaire réelle.
-
-### A. Spécifications & Logique Métier (Vue IA / Développeur)
-
-1. **Calcul de l'effort d'épargne** :
-
-$$\text{Reste à financer (centimes)} = \max(0, \text{TargetAmount} - \text{CurrentAmount})$$
-
-
-$$\text{Effort mensuel (centimes)} = \text{Math.round}\left(\frac{\text{Reste à financer}}{\text{Months}}\right)$$
-
-
-2. **Connexion au Budget Réel & Analyse de Faisabilité** :
-* L'application calcule le **solde net réel** de la période courante ($\text{Revenus réels} - \text{Dépenses réelles}$).
-* **Diagnostic de faisabilité** :
-* Si $\text{Solde Net Réel} \ge \text{Effort Mensuel}$ : Le projet est marqué comme `faisable` (Alerte verte ✅).
-* Si $\text{Solde Net Réel} < \text{Effort Mensuel}$ : Le projet est marqué comme `tendu` (Alerte rouge ⚠️ précisant le déficit mensuel).
-
-
-
-
-3. **Actions sur les projets** :
-* **Calcul & Enregistrement** : Sauvegarde synchrone dans la table Supabase `financings`.
-* **Réinitialisation (`#btn-reset-sim`)** : Remet à zéro le formulaire et masque la carte de résultat.
-* **Suppression (`deleteFinancingProject(id)`)** : Supprime la simulation de la base de données et met à jour la liste visuelle sans rechargement de page.
-
-
-
-### B. Structure de la table Supabase `financings`
-
-| Champ | Type | Description |
-| --- | --- | --- |
-| `id` | `uuid` | Identifiant unique (Primary Key) |
-| `user_id` | `uuid` | Clé étrangère vers `auth.users` |
-| `name` | `text` | Intitulé du projet |
-| `target_amount` | `numeric` | Objectif financier total |
-| `current_amount` | `numeric` | Montant déjà disponible |
-| `months` | `integer` | Durée souhaitée en mois |
-| `monthly_effort` | `numeric` | Effort d'épargne mensuel requis |
-| `status` | `text` | Statut du projet (`simulation`, `faisable`, `tendu`) |
-| `created_at` | `timestamp` | Date de création |
-
----
-
-## 📁 Structure du Code Source
-
-* **`index.html`** : Conteneurs HTML structurels, navigation, vues modulaires (`#page-dashboard`, `#page-financing`, etc.) et fenêtres modales.
-* **`styles.css` & `styles-fix.css**` : Charte graphique moderne, mise en page Flexbox/Grid et styles réactifs mobile-first.
-* **`db.js` (`BudgetDB`)** : API d'accès aux données Supabase (`getTransactions`, `putTransaction`, `getCategories`, `getFinancings`, `putFinancing`, `deleteFinancing`, etc.).
-* **`finance.js` (`Finance`)** : Utilitaire de calculs monétaires stricts (conversion en centimes entiers pour éviter les dérives de virgule flottante).
-* **`app.js`** : Moteur applicatif principal, contrôleur d'événements DOM, rafraîchissement des graphiques et logique de faisabilité.
-* **`manifest.json`** : Configuration Progressive Web App (PWA).
-
----
-
-## 🛡️ Règles Métier & Confidentialité
-
-* **Sécurité RLS** : Toutes les données stockées dans Supabase sont protégées par des politiques de sécurité au niveau des lignes (Row Level Security), garantissant qu'un utilisateur ne peut lire/écrire que ses propres enregistrements.
-* **Règles d'isolation** : Les transferts internes sont isolés et n'impactent pas le calcul du solde de consommation.
-* **Précision financière** : L'ensemble des montants traités dans JavaScript sont manipulés sous forme d'entiers en centimes pour éliminer les erreurs d'arrondi binaire.
-
-```
-
----
-
-Vous pouvez remplacer l'intégralité du contenu de votre fichier `README.md` par ce texte. Il reflète exactement où en est votre application aujourd'hui !
-
-```
+[Contacter le support MonBudget](mailto:monbudget2@gmail.com)
