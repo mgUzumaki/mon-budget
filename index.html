@@ -97,6 +97,21 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 
           <p id="auth-error" class="form-error" role="alert"></p>
         </form>
+        <form id="request-password-reset-form" hidden>
+  <h3>Réinitialiser le mot de passe</h3>
+
+  <label for="recovery-email">Adresse e-mail</label>
+  <input id="recovery-email" type="email" autocomplete="email" required>
+
+  <div class="auth-buttons">
+    <button type="submit" class="primary-btn">Envoyer le lien</button>
+    <button type="button" id="btn-back-to-login" class="secondary-btn">
+      Retour à la connexion
+    </button>
+  </div>
+
+  <p id="recovery-email-status" role="status"></p>
+</form>
           <form id="reset-password-form" hidden>
   <label for="reset-new-password">
     <span data-i18n="new_password">Nouveau mot de passe</span>
