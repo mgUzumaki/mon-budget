@@ -115,11 +115,12 @@ body.sidebar-open {
   box-shadow: 0 1px 3px rgb(24 37 34 / 6%);
 }
 
-#auth-form {
+#auth-form,
+#request-password-reset-form:not([hidden]),
+#reset-password-form:not([hidden]) {
   display: grid;
   gap: 16px;
 }
-
 #signup-fields[hidden] {
   display: none !important;
 }
