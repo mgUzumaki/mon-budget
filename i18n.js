@@ -997,19 +997,22 @@
   });
   Object.assign(messages.fr, {
 welcome_headline: "Vos projets commencent ici",
-welcome_intro: "Importez vos dépenses depuis un fichier ou une photo, ou saisissez-les à la main. Comparez vos dépenses d’un mois à l’autre et simulez votre prochain projet, gratuitement.",
-});
+welcome_feature_import: "Importer un fichier ou une photo",
+welcome_feature_compare: "Comparer ses dépenses",
+welcome_feature_plan: "Simuler un projet",});
 
 Object.assign(messages.en, {
   welcome_headline: "See where your money goes. Plan for what matters.",welcome_headline: "Your plans start here",
-welcome_intro: "Import expenses from a file or photo, or enter them by hand. Compare your spending month to month and plan your next project for free.",
-  
+welcome_feature_import: "Import from a file or photo",
+welcome_feature_compare: "Compare your spending",
+welcome_feature_plan: "Plan a project",  
 });
 
 Object.assign(messages.zh, {
   welcome_headline: "看清钱花在哪，为重要的计划做好准备。",welcome_headline: "从记账开始，为目标做准备",
-welcome_intro: "从文件或照片导入支出，也可手动记账。免费对比每月支出，模拟下一项计划。",
-  
+welcome_feature_import: "从文件或照片导入",
+welcome_feature_compare: "对比支出",
+welcome_feature_plan: "模拟项目计划",  
 });
   Object.assign(messages.fr, { back_to_home: "← Retour à l’accueil" });
 Object.assign(messages.en, { back_to_home: "← Back to home" });
