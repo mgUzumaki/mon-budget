@@ -834,14 +834,20 @@ dialog form input, dialog form select {
 }
 
 .landing-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   margin-inline-start: auto;
-  display: inline-block;
-  padding: 12px 18px;
+  min-height: 44px;
+  padding: 10px clamp(10px, 2vw, 18px);
   border-radius: 10px;
-  background: #f8f5eb;
-  color: #103b30;
+  background: #103b30;
+  color: #fff;
+  font-size: 14px;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .landing-hero-panel .landing-image {
