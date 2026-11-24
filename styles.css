@@ -818,8 +818,8 @@ dialog form input, dialog form select {
   align-items: center;
   gap: 20px;
   padding: clamp(18px, 4vw, 40px);
-  background: radial-gradient(ellipse at right, #1b654d, #103b30 75%);
-  color: #f8f5eb;
+  background: #f8f5eb;
+  color: #103b30;
 }
 
 .landing-hero-copy {
@@ -850,6 +850,9 @@ dialog form input, dialog form select {
   justify-items: center;
   gap: 10px;
   min-width: 0;
+    padding: 20px;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at top right, #23775a, #103b30 75%);
 }
 
 .landing-phone {
