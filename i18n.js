@@ -910,6 +910,41 @@
     folder_move_and_delete: "转移交易并删除文件夹",
     folder_delete_with_transactions: "删除文件夹及其所有交易"
   });
+    Object.assign(messages.fr, {
+    forgot_password: "Mot de passe oublié ?",
+    recovery_title: "Réinitialiser le mot de passe",
+    recovery_send: "Envoyer le lien",
+    recovery_back: "Retour à la connexion",
+    recovery_choose: "Choisir un nouveau mot de passe",
+    recovery_account: "Compte",
+    new_password: "Nouveau mot de passe",
+    recovery_confirm: "Confirmer le mot de passe",
+    save_new_password: "Enregistrer le nouveau mot de passe"
+  });
+
+  Object.assign(messages.en, {
+    forgot_password: "Forgot your password?",
+    recovery_title: "Reset your password",
+    recovery_send: "Send reset link",
+    recovery_back: "Back to sign in",
+    recovery_choose: "Choose a new password",
+    recovery_account: "Account",
+    new_password: "New password",
+    recovery_confirm: "Confirm new password",
+    save_new_password: "Save new password"
+  });
+
+  Object.assign(messages.zh, {
+    forgot_password: "忘记密码？",
+    recovery_title: "重置密码",
+    recovery_send: "发送重置链接",
+    recovery_back: "返回登录",
+    recovery_choose: "设置新密码",
+    recovery_account: "账户",
+    new_password: "新密码",
+    recovery_confirm: "确认新密码",
+    save_new_password: "保存新密码"
+  });
   const locales = { fr: "fr-FR", en: "en-US", zh: "zh-CN" };
 
   function supportedLanguage(value) {
