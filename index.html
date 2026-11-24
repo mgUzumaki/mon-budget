@@ -51,10 +51,20 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 
     <div class="landing-hero-copy">
 <h1 data-i18n="welcome_headline">Tout votre budget, en un coup d’œil</h1>
-<p data-i18n="welcome_intro">
-  Suivez vos revenus et vos dépenses, fixez vos budgets et voyez combien
-  il vous reste pour vos projets.
-</p>
+<ul class="landing-features">
+  <li>
+    <span class="landing-feature-icon" aria-hidden="true">↑</span>
+    <span data-i18n="welcome_feature_import">Importer un fichier ou une photo</span>
+  </li>
+  <li>
+    <span class="landing-feature-icon" aria-hidden="true">▥</span>
+    <span data-i18n="welcome_feature_compare">Comparer ses dépenses</span>
+  </li>
+  <li>
+    <span class="landing-feature-icon" aria-hidden="true">◎</span>
+    <span data-i18n="welcome_feature_plan">Simuler un projet</span>
+  </li>
+</ul>
 
     </div>
 
