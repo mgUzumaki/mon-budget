@@ -996,19 +996,19 @@
     recovery_check_error: "无法验证链接，请重试。"
   });
   Object.assign(messages.fr, {
-  welcome_headline: "Voyez où va votre argent. Préparez ce qui compte.",
-  welcome_intro: "MonBudget est gratuit. Importez vos opérations depuis un fichier ou une photo, ou ajoutez-les à la main en quelques secondes. Un voyage dans six mois ? Un achat dans huit ? Simulez votre projet pour savoir combien mettre de côté chaque mois. Ensuite, suivez vos dépenses pour voir si vous êtes toujours dans les temps. Comparez vos dépenses d’un mois à l’autre pour repérer les postes qui augmentent et savoir où ajuster votre budget.",
+welcome_headline: "Vos projets commencent ici",
+welcome_intro: "Importez vos dépenses depuis un fichier ou une photo, ou saisissez-les à la main. Comparez vos dépenses d’un mois à l’autre et simulez votre prochain projet, gratuitement.",
 });
 
 Object.assign(messages.en, {
-  welcome_headline: "See where your money goes. Plan for what matters.",
-  welcome_intro: "MonBudget is free. Import transactions from a file or photo, or add them by hand in seconds. Planning a trip in six months or a big purchase in eight? Use the simulator to see how much to set aside each month. Then track your spending to see whether you’re still on schedule. Compare your spending month to month to spot which categories are costing more and where you could adjust your budget.",
+  welcome_headline: "See where your money goes. Plan for what matters.",welcome_headline: "Your plans start here",
+welcome_intro: "Import expenses from a file or photo, or enter them by hand. Compare your spending month to month and plan your next project for free.",
   
 });
 
 Object.assign(messages.zh, {
-  welcome_headline: "看清钱花在哪，为重要的计划做好准备。",
-  welcome_intro: "MonBudget 免费使用。你可以从文件或照片导入收支记录，也可以快速手动记账。想在六个月后旅行，或八个月后买一件大件？用项目模拟器算出每月需要存多少钱，再根据实际支出看看能否按时实现目标。对比每个月的支出，找出哪些类别花得更多，看看哪里可以调整预算。",
+  welcome_headline: "看清钱花在哪，为重要的计划做好准备。",welcome_headline: "从记账开始，为目标做准备",
+welcome_intro: "从文件或照片导入支出，也可手动记账。免费对比每月支出，模拟下一项计划。",
   
 });
   Object.assign(messages.fr, { back_to_home: "← Retour à l’accueil" });
