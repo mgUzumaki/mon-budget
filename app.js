@@ -107,7 +107,7 @@ await loadDashboardFolders();
     const savedPage = sessionStorage.getItem("monbudget-active-page");
 if (savedPage && savedPage !== "dashboard") {
   const savedTab = Array.from(document.querySelectorAll(".nav-link"))
-    .find(link => link.dataset.page === savedPage);
+    .find(link => !link.hidden && link.dataset.page === savedPage);
 
   savedTab?.click();
 }
