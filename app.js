@@ -1967,6 +1967,103 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
       document.querySelector('.nav-link[data-page="transactions"]')?.click();
     });
   // <--- COLLER checkAuthAndStart(); ICI, TOUT À LA FIN
-  checkAuthAndStart();
+   const forgotPasswordButton = $("btn-forgot-password");
+  const resetPasswordForm = $("reset-password-form");
+  const resetPasswordStatus = $("reset-password-status");
+
+  forgotPasswordButton.hidden = false;
+
+  forgotPasswordButton.addEventListener("click", async () => {
+    const email = $("auth-email");
+    const status = $("auth-error");
+
+    if (!email.value.trim() || !email.reportValidity()) {
+      status.textContent = "Saisis ton adresse e-mail pour recevoir le lien.";
+      email.focus();
+      return;
+    }
+
+    const redirect = new URL(window.location.href);
+    redirect.search = "?reset-password=1";
+    redirect.hash = "";
+
+    forgotPasswordButton.disabled = true;
+    try {
+      const { error } = await BudgetDB.client().auth.resetPasswordForEmail(
+        email.value.trim(),
+        { redirectTo: redirect.href }
+      );
+
+      status.textContent = error
+        ? "Impossible d’envoyer le lien pour le moment. Réessaie plus tard."
+        : "Si un compte correspond à cette adresse, tu recevras un lien par e-mail.";
+    } catch {
+      status.textContent = "Impossible d’envoyer le lien. Réessaie plus tard.";
+    } finally {
+      forgotPasswordButton.disabled = false;
+    }
+  });
+
+  resetPasswordForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!window.monBudgetPasswordRecovery) return;
+
+    const submit = resetPasswordForm.querySelector('button[type="submit"]');
+    submit.disabled = true;
+
+    try {
+      const { error } = await BudgetDB.client().auth.updateUser({
+        password: $("reset-new-password").value
+      });
+
+      if (error) {
+        resetPasswordStatus.textContent =
+          "Le mot de passe n’a pas été modifié. Vérifie qu’il respecte les critères ou demande un nouveau lien.";
+        return;
+      }
+
+      window.monBudgetPasswordRecovery = false;
+      resetPasswordForm.reset();
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("reset-password");
+      url.hash = "";
+      window.history.replaceState(null, "", url);
+
+      window.location.reload();
+    } catch {
+      resetPasswordStatus.textContent =
+        "Impossible d’enregistrer le mot de passe pour le moment.";
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  async function startWithPasswordRecovery() {
+    const url = new URL(window.location.href);
+
+    if (url.searchParams.get("reset-password") !== "1") {
+      return checkAuthAndStart();
+    }
+
+    showLogin();
+
+    const { data } = await BudgetDB.client().auth.getSession();
+    if (window.monBudgetPasswordRecovery && data?.session) {
+      $("auth-form").hidden = true;
+      resetPasswordForm.hidden = false;
+      $("reset-new-password").focus();
+      return;
+    }
+
+    $("auth-error").textContent =
+      "Ce lien est invalide ou a expiré. Demande un nouveau lien.";
+  }
+
+  startWithPasswordRecovery().catch(() => {
+    showLogin();
+    $("auth-error").textContent =
+      "Impossible de vérifier le lien. Demande un nouveau lien.";
+  });
 
 })();
