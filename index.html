@@ -21,6 +21,13 @@
       window.SUPABASE_URL,
       window.SUPABASE_ANON_KEY
     );
+    window.monBudgetPasswordRecovery = false;
+
+window.supabaseClient.auth.onAuthStateChange(event => {
+  if (event === "PASSWORD_RECOVERY") {
+    window.monBudgetPasswordRecovery = true;
+  }
+});
   </script>
 </head>
 
@@ -80,14 +87,30 @@
 
 <label><span><span data-i18n="email_address">Adresse e-mail</span></span><input id="auth-email" type="email" autocomplete="email" required placeholder="vous@exemple.com" data-i18n-placeholder="you_example_com"></label>
 <label><span><span data-i18n="password">Mot de passe</span></span><input id="auth-password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe" data-i18n-placeholder="your_password"></label>
-<div class="auth-buttons">
+<button type="button" id="btn-forgot-password" class="text-btn" hidden>
+  <span data-i18n="forgot_password">Mot de passe oublié ?</span>
+</button>
+          <div class="auth-buttons">
   <button type="submit" id="btn-auth-submit" class="primary-btn" style="cursor: pointer;"><span data-i18n="sign_in">Se connecter</span></button>
   <button type="button" id="btn-cancel-auth" class="secondary-btn"><span data-i18n="cancel">Annuler</span></button>
 </div>
 
           <p id="auth-error" class="form-error" role="alert"></p>
         </form>
-        <p style="margin-top: 12px;">
+          <form id="reset-password-form" hidden>
+  <label for="reset-new-password">
+    <span data-i18n="new_password">Nouveau mot de passe</span>
+  </label>
+  <input id="reset-new-password" type="password"
+         autocomplete="new-password" required>
+
+  <button type="submit" class="primary-btn">
+    <span data-i18n="save_new_password">Enregistrer le nouveau mot de passe</span>
+  </button>
+
+  <p id="reset-password-status" role="status"></p>
+</form>
+  <p style="margin-top: 12px;">
  <span data-i18n="sign_in_problem">Un problème de connexion ?</span>
   <a data-i18n="contact_support" href="mailto:monbudget2@gmail.com?subject=MonBudget%20-%20Probl%C3%A8me%20de%20connexion&amp;body=Ce%20que%20je%20vois%20%C3%A0%20l%E2%80%99%C3%A9cran%20%3A%0A%0AT%C3%A9l%C3%A9phone%20ou%20ordinateur%20et%20navigateur%20%3A">
     Contacter le support
