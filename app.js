@@ -1971,38 +1971,67 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   const resetPasswordForm = $("reset-password-form");
   const resetPasswordStatus = $("reset-password-status");
 
-  forgotPasswordButton.hidden = false;
+    const loginForm = $("auth-form");
+  const authTabs = $("tab-login").parentElement;
+  const requestForm = $("request-password-reset-form");
+  const recoveryEmail = $("recovery-email");
+  const recoveryStatus = $("recovery-email-status");
 
-  forgotPasswordButton.addEventListener("click", async () => {
-    const email = $("auth-email");
-    const status = $("auth-error");
+  function showAuthScreen(screen) {
+    const showLoginForm = screen === "login";
 
-    if (!email.value.trim() || !email.reportValidity()) {
-      status.textContent = "Saisis ton adresse e-mail pour recevoir le lien.";
-      email.focus();
-      return;
-    }
+    loginForm.style.display = showLoginForm ? "" : "none";
+    authTabs.style.display = showLoginForm ? "" : "none";
+    requestForm.hidden = screen !== "request";
+    resetPasswordForm.hidden = screen !== "reset";
+    forgotPasswordButton.hidden =
+      !showLoginForm || loginForm.dataset.mode === "signup";
+  }
 
+  showAuthScreen("login");
+
+  $("tab-login").addEventListener("click", () => showAuthScreen("login"));
+  $("tab-signup").addEventListener("click", () => showAuthScreen("login"));
+
+  forgotPasswordButton.addEventListener("click", () => {
+    recoveryEmail.value = $("auth-email").value.trim();
+    recoveryStatus.textContent = "";
+    showAuthScreen("request");
+    recoveryEmail.focus();
+  });
+
+  $("btn-back-to-login").addEventListener("click", () => {
+    showAuthScreen("login");
+    forgotPasswordButton.focus();
+  });
+
+  requestForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const submit = requestForm.querySelector('button[type="submit"]');
     const redirect = new URL(window.location.href);
     redirect.search = "?reset-password=1";
     redirect.hash = "";
 
-    forgotPasswordButton.disabled = true;
+    submit.disabled = true;
+    recoveryStatus.textContent = "Envoi en cours…";
+
     try {
       const { error } = await BudgetDB.client().auth.resetPasswordForEmail(
-        email.value.trim(),
+        recoveryEmail.value.trim(),
         { redirectTo: redirect.href }
       );
 
-      status.textContent = error
-        ? "Impossible d’envoyer le lien pour le moment. Réessaie plus tard."
-        : "Si un compte correspond à cette adresse, tu recevras un lien par e-mail.";
+      if (error) throw error;
+
+      recoveryStatus.textContent =
+        "Si un compte correspond à cette adresse, tu recevras un lien par e-mail.";
     } catch {
-      status.textContent = "Impossible d’envoyer le lien. Réessaie plus tard.";
+      recoveryStatus.textContent = "Impossible d’envoyer le lien. Réessaie plus tard.";
     } finally {
-      forgotPasswordButton.disabled = false;
+      submit.disabled = false;
     }
   });
+
 
   resetPasswordForm.addEventListener("submit", async event => {
     event.preventDefault();
@@ -2050,8 +2079,7 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
     const { data } = await BudgetDB.client().auth.getSession();
     if (window.monBudgetPasswordRecovery && data?.session) {
-      $("auth-form").hidden = true;
-      resetPasswordForm.hidden = false;
+showAuthScreen("reset");
       $("reset-new-password").focus();
       return;
     }
