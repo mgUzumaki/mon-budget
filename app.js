@@ -2033,36 +2033,60 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   });
 
 
+    let recoveryUserId = null;
+
   resetPasswordForm.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!window.monBudgetPasswordRecovery) return;
+    if (!recoveryUserId) return;
+
+    const password = $("reset-new-password").value;
+    const confirmation = $("reset-confirm-password").value;
+
+    if (password !== confirmation) {
+      resetPasswordStatus.textContent = "Les deux mots de passe doivent être identiques.";
+      $("reset-confirm-password").focus();
+      return;
+    }
 
     const submit = resetPasswordForm.querySelector('button[type="submit"]');
     submit.disabled = true;
+    resetPasswordStatus.textContent = "Enregistrement…";
 
     try {
-      const { error } = await BudgetDB.client().auth.updateUser({
-        password: $("reset-new-password").value
-      });
+      const auth = BudgetDB.client().auth;
+      const { data, error: userError } = await auth.getUser();
 
-      if (error) {
-        resetPasswordStatus.textContent =
-          "Le mot de passe n’a pas été modifié. Vérifie qu’il respecte les critères ou demande un nouveau lien.";
+      if (userError || data?.user?.id !== recoveryUserId) {
+        resetPasswordStatus.textContent = "La session de récupération a expiré. Demande un nouveau lien.";
         return;
       }
 
-      window.monBudgetPasswordRecovery = false;
+      const { error } = await auth.updateUser({ password });
+
+      if (error) {
+        resetPasswordStatus.textContent =
+          "Mot de passe non modifié. Essaie un mot de passe plus fort ou demande un nouveau lien.";
+        return;
+      }
+
+      recoveryUserId = null;
       resetPasswordForm.reset();
 
-      const url = new URL(window.location.href);
-      url.searchParams.delete("reset-password");
-      url.hash = "";
-      window.history.replaceState(null, "", url);
+      const { error: signOutError } = await auth.signOut({ scope: "local" });
+      if (signOutError) {
+        resetPasswordStatus.textContent =
+          "Mot de passe enregistré. Ferme cet onglet, puis ouvre MonBudget pour te connecter.";
+        return;
+      }
 
-      window.location.reload();
+      $("auth-email").value = data.user.email || "";
+      $("auth-password").value = "";
+      showAuthScreen("login");
+      $("auth-error").textContent =
+        "Mot de passe modifié. Tu peux maintenant te connecter.";
+      $("auth-password").focus();
     } catch {
-      resetPasswordStatus.textContent =
-        "Impossible d’enregistrer le mot de passe pour le moment.";
+      resetPasswordStatus.textContent = "Une erreur est survenue. Réessaie.";
     } finally {
       submit.disabled = false;
     }
@@ -2070,28 +2094,44 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
 
   async function startWithPasswordRecovery() {
     const url = new URL(window.location.href);
-
     if (url.searchParams.get("reset-password") !== "1") {
       return checkAuthAndStart();
     }
 
     showLogin();
+    showAuthScreen("request");
 
-    const { data } = await BudgetDB.client().auth.getSession();
-    if (window.monBudgetPasswordRecovery && data?.session) {
-showAuthScreen("reset");
-      $("reset-new-password").focus();
+    const tokenHash = url.searchParams.get("token_hash");
+    if (!tokenHash) {
+      recoveryStatus.textContent = "Demande un nouveau lien de réinitialisation.";
       return;
     }
 
-    $("auth-error").textContent =
-      "Ce lien est invalide ou a expiré. Demande un nouveau lien.";
+    url.searchParams.delete("token_hash");
+    window.history.replaceState(null, "", url);
+
+    recoveryStatus.textContent = "Vérification du lien…";
+    const { data, error } = await BudgetDB.client().auth.verifyOtp({
+      token_hash: tokenHash,
+      type: "recovery"
+    });
+
+    if (error || !data?.session || !data.user?.id) {
+      recoveryStatus.textContent =
+        "Ce lien a expiré ou a déjà été utilisé. Demande un nouveau lien.";
+      return;
+    }
+
+    recoveryUserId = data.user.id;
+    $("reset-account-email").textContent = data.user.email || "";
+    showAuthScreen("reset");
+    $("reset-new-password").focus();
   }
 
   startWithPasswordRecovery().catch(() => {
     showLogin();
-    $("auth-error").textContent =
-      "Impossible de vérifier le lien. Demande un nouveau lien.";
+    showAuthScreen("request");
+    recoveryStatus.textContent = "Impossible de vérifier le lien. Réessaie.";
   });
 
 })();
