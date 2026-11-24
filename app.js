@@ -69,12 +69,16 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   });
 
   // --- GESTION DE L'AFFICHAGE (Landing Page vs Tableau de bord) ---
-  function showLogin() {
-    const landingPage = $("landing-page");
-    const appDiv = $("app");
-    if (landingPage) landingPage.hidden = false;
-    if (appDiv) appDiv.hidden = true;
-  }
+function showLogin() {
+  const params = new URLSearchParams(window.location.search);
+  const showAuth = params.get("connexion") === "1" ||
+    params.get("reset-password") === "1";
+
+  $("landing-welcome").hidden = showAuth;
+  $("landing-auth").hidden = !showAuth;
+  $("landing-page").hidden = false;
+  $("app").hidden = true;
+}
 
 async function showApp() {
   const landingPage = $("landing-page");
