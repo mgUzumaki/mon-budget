@@ -1011,6 +1011,9 @@ Object.assign(messages.zh, {
   welcome_intro: "MonBudget 免费使用。你可以从文件或照片导入收支记录，也可以快速手动记账。想在六个月后旅行，或八个月后买一件大件？用项目模拟器算出每月需要存多少钱，再根据实际支出看看能否按时实现目标。对比每个月的支出，找出哪些类别花得更多，看看哪里可以调整预算。",
   
 });
+  Object.assign(messages.fr, { back_to_home: "← Retour à l’accueil" });
+Object.assign(messages.en, { back_to_home: "← Back to home" });
+Object.assign(messages.zh, { back_to_home: "← 返回首页" });
   const locales = { fr: "fr-FR", en: "en-US", zh: "zh-CN" };
 
   function supportedLanguage(value) {
