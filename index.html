@@ -68,7 +68,17 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 </div>
 
       <!-- Section Connexion (Droite) -->
-      <div id="landing-auth" class="landing-auth-card" hidden>
+      <section id="landing-auth" class="landing-auth-layout" hidden>
+  <a class="landing-auth-back" href="./" data-i18n="back_to_home">
+    ← Retour à l’accueil
+  </a>
+
+  <div class="landing-image">
+    <img class="landing-phone" src="./monbudget-telephone.webp" alt="">
+    <small data-i18n="welcome_budget_example">Exemple de budget</small>
+  </div>
+
+  <div class="landing-auth-card">
         <div class="auth-header">
           <h2><span data-i18n="secure_access">Accès sécurisé</span></h2>
           <select id="auth-lang-select">
@@ -157,7 +167,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   </a>
 </p>
       </div>
-
+</section>
     </div>
   </div>
 
