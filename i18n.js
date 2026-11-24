@@ -945,6 +945,56 @@
     recovery_confirm: "确认新密码",
     save_new_password: "保存新密码"
   });
+    Object.assign(messages.fr, {
+    recovery_sending: "Envoi en cours…",
+    recovery_sent: "Si un compte correspond à cette adresse, vous recevrez un lien par e-mail.",
+    recovery_send_error: "Impossible d’envoyer le lien. Réessayez plus tard.",
+    recovery_mismatch: "Les deux mots de passe doivent être identiques.",
+    recovery_saving: "Enregistrement…",
+    recovery_session_expired: "La session de récupération a expiré. Demandez un nouveau lien.",
+    recovery_update_error: "Mot de passe non modifié. Essayez un mot de passe plus fort ou demandez un nouveau lien.",
+    recovery_signout_error: "Mot de passe enregistré. Fermez cet onglet, puis ouvrez MonBudget pour vous connecter.",
+    recovery_done: "Mot de passe modifié. Vous pouvez maintenant vous connecter.",
+    recovery_generic_error: "Une erreur est survenue. Réessayez.",
+    recovery_request_again: "Demandez un nouveau lien de réinitialisation.",
+    recovery_checking: "Vérification du lien…",
+    recovery_link_expired: "Ce lien a expiré ou a déjà été utilisé. Demandez un nouveau lien.",
+    recovery_check_error: "Impossible de vérifier le lien. Réessayez."
+  });
+
+  Object.assign(messages.en, {
+    recovery_sending: "Sending…",
+    recovery_sent: "If an account matches this address, you’ll receive a reset link by email.",
+    recovery_send_error: "Couldn’t send the link. Please try again later.",
+    recovery_mismatch: "The passwords must match.",
+    recovery_saving: "Saving…",
+    recovery_session_expired: "Your recovery session has expired. Request a new link.",
+    recovery_update_error: "Password unchanged. Try a stronger password or request a new link.",
+    recovery_signout_error: "Password saved. Close this tab, then open MonBudget to sign in.",
+    recovery_done: "Password changed. You can now sign in.",
+    recovery_generic_error: "Something went wrong. Please try again.",
+    recovery_request_again: "Request a new password reset link.",
+    recovery_checking: "Checking the link…",
+    recovery_link_expired: "This link has expired or has already been used. Request a new link.",
+    recovery_check_error: "Couldn’t verify the link. Please try again."
+  });
+
+  Object.assign(messages.zh, {
+    recovery_sending: "正在发送…",
+    recovery_sent: "如果该邮箱关联了账户，您将收到一封包含重置链接的邮件。",
+    recovery_send_error: "无法发送链接，请稍后重试。",
+    recovery_mismatch: "两次输入的密码必须一致。",
+    recovery_saving: "正在保存…",
+    recovery_session_expired: "密码重置会话已过期，请申请新链接。",
+    recovery_update_error: "密码未更改。请尝试使用更强的密码，或申请新链接。",
+    recovery_signout_error: "密码已保存。请关闭此标签页，然后重新打开 MonBudget 登录。",
+    recovery_done: "密码已更改，现在可以登录。",
+    recovery_generic_error: "出了点问题，请重试。",
+    recovery_request_again: "请申请新的密码重置链接。",
+    recovery_checking: "正在验证链接…",
+    recovery_link_expired: "此链接已过期或已被使用，请申请新链接。",
+    recovery_check_error: "无法验证链接，请重试。"
+  });
   const locales = { fr: "fr-FR", en: "en-US", zh: "zh-CN" };
 
   function supportedLanguage(value) {
