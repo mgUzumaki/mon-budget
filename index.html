@@ -113,12 +113,16 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   <p id="recovery-email-status" role="status"></p>
 </form>
           <form id="reset-password-form" hidden>
+            <h3>Choisir un nouveau mot de passe</h3>
+<p>Compte : <strong id="reset-account-email"></strong></p>
   <label for="reset-new-password">
     <span data-i18n="new_password">Nouveau mot de passe</span>
   </label>
   <input id="reset-new-password" type="password"
          autocomplete="new-password" required>
-
+<label for="reset-confirm-password">Confirmer le mot de passe</label>
+<input id="reset-confirm-password" type="password"
+       autocomplete="new-password" required>
   <button type="submit" class="primary-btn">
     <span data-i18n="save_new_password">Enregistrer le nouveau mot de passe</span>
   </button>
