@@ -726,7 +726,17 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   </button>
   <p id="opening-balance-status" role="status"></p>
 </form>
+<div class="opening-balance-setting" hidden>
+  <div class="opening-balance-info">
+    <span class="opening-balance-icon" aria-hidden="true">€</span>
+    <strong data-i18n="opening_balance_manage">Gestion du solde de départ</strong>
+  </div>
 
+  <button id="add-opening-balance" class="primary-btn" type="button">
+    <span aria-hidden="true">+</span>
+    <span data-i18n="opening_balance_add">Ajouter un solde de départ</span>
+  </button>
+</div>
             <!-- Row Langue -->
             <div class="settings-row-btn">
               <div class="settings-icon-box lang-bg">🌐</div>
