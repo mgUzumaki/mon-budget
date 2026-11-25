@@ -333,14 +333,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   </button>
 </div>
 <p id="folder-rates-status" role="status"></p>
-        <article id="tracked-balance-card" class="metric-card balance" hidden>
-  <div class="metric-header">
-    <span data-i18n="tracked_balance_title">Solde suivi à ce jour</span>
-    <span class="metric-badge balance-badge" aria-hidden="true">💰</span>
-  </div>
-  <strong id="tracked-balance-value">—</strong>
-  <small id="tracked-balance-status" role="status"></small>
-</article>
+        
         <div class="metrics-grid">
           <article class="metric-card balance">
             <div class="metric-header">
@@ -703,29 +696,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
               <span class="chevron">›</span>
             </div>
 
-            <form id="opening-balance-form" hidden>
-  <h3 data-i18n="opening_balance_title">Solde de départ</h3>
-  <p data-i18n="opening_balance_hint">
-    Indiquez le solde de votre compte au début de la journée choisie.
-  </p>
-
-  <div class="form-row">
-    <label for="opening-balance-amount">
-      <span data-i18n="amount">Montant</span>
-      <input id="opening-balance-amount" type="number" step="0.01" required>
-    </label>
-
-    <label for="opening-balance-date">
-      <span data-i18n="date">Date</span>
-      <input id="opening-balance-date" type="date" required>
-    </label>
-  </div>
-
-  <button type="submit" class="primary-btn">
-    <span data-i18n="save">Enregistrer</span>
-  </button>
-  <p id="opening-balance-status" role="status"></p>
-</form>
+           
 <div class="opening-balance-setting" hidden>
   <div class="opening-balance-info">
     <span class="opening-balance-icon" aria-hidden="true">€</span>
