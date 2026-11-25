@@ -188,13 +188,18 @@ return (data || []).map(row => ({
       throw new Error("La date de l'opération est obligatoire.");
     }
 
-    if (!["expense", "income", "transfer"].includes(transaction.type)) {
+       const isOpeningBalance = transaction.type === "opening_balance";
+    if (!["expense", "income", "transfer", "opening_balance"].includes(transaction.type)) {
       throw new Error("Le type d'opération est invalide.");
     }
 
-    const amountCents = Number(transaction.amountCents);
+       const amountCents = Number(transaction.amountCents);
 
-    if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+    if (!Number.isSafeInteger(amountCents)) {
+      throw new Error("Le montant est invalide.");
+    }
+
+    if (!isOpeningBalance && amountCents <= 0) {
       throw new Error("Le montant doit être positif et valide.");
     }
 
@@ -208,7 +213,7 @@ const payload = {
   user_id: user.id,
   date: transaction.date,
   type: transaction.type,
-  category: transaction.categoryId || null,
+  category: isOpeningBalance ? "opening_balance" : (transaction.categoryId || null),
 
   // Montant converti dans la devise principale
   amount: Number(transaction.convertedAmountCents ?? amountCents) / 100,
