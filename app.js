@@ -38,8 +38,9 @@ function applyTranslations() {
   const today = Finance.localDate();
   const categoryName = id => categories.find(c => c.id === id)?.name || translate("category");
   const categoryLabel = category => window.BudgetI18n.categoryLabel(category, BudgetDB.defaults);
-  const displayCategoryName = id => categoryLabel(categories.find(category => category.id === id));
-  const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const displayCategoryName = id => id === "opening_balance"
+    ? translate("opening_balance_operation")
+    : categoryLabel(categories.find(category => category.id === id));  const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   
   function customMoney(cents, currency = currentCurrency) {
     const formatted = (cents / 100).toLocaleString(window.BudgetI18n.locale, {
@@ -321,7 +322,9 @@ function renderAll() {
     if (customRecentEl) {
       const latest = transactionsInSelectedFolder().slice(0, 4);
       customRecentEl.innerHTML = latest.length ? latest.map(t => {
-        const amountFormatted = t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
+               const amountFormatted = t.type === "opening_balance"
+          ? customMoney(t.amountCents, t.baseCurrency || currentCurrency)
+          : t.type === "income" ? `+ ${customMoney(t.amountCents)}` : `− ${customMoney(t.amountCents)}`;
         const cls = t.type === "income" ? "positive" : "negative";
         const catName = displayCategoryName(t.categoryId);
         const mainText = t.description ? t.description : catName;
@@ -714,19 +717,16 @@ const journalHTML = ordered.map(t => {
   const catName = categoryName(t.categoryId);
   const title = t.description || displayCategoryName(t.categoryId);
 
-  const icon = typeof categoryIcon === "function"
-    ? categoryIcon(catName)
-    : ({ expense: "🛒", income: "💰", transfer: "🔄" }[t.type] || "🏷️");
-
-  const kind = ["expense", "income", "transfer"].includes(t.type)
+    const isOpening = t.type === "opening_balance";
+  const kind = ["expense", "income", "transfer", "opening_balance"].includes(t.type)
     ? t.type
     : "expense";
 
-  const sign = {
-    expense: "−",
-    income: "+",
-    transfer: "↔"
-  }[kind];
+  const icon = isOpening ? "💰" : typeof categoryIcon === "function"
+    ? categoryIcon(catName)
+    : ({ expense: "🛒", income: "💰", transfer: "🔄" }[kind] || "🏷️");
+
+  const sign = { expense: "− ", income: "+ ", transfer: "↔ " }[kind] || "";
 
   const selected = selectedTransactionIds.has(String(t.id));
 
@@ -773,7 +773,7 @@ const journalHTML = ordered.map(t => {
       </div>
 
       <div class="amount journal-amount">
-        ${escapeHTML(sign + " " + customMoney(t.amountCents))}
+                ${escapeHTML(sign + customMoney(t.amountCents, t.baseCurrency || currentCurrency))}
       </div>
     </div>
   `;
@@ -1209,6 +1209,99 @@ document.addEventListener("capture-import:select", event => {
   closeDialog("capture-import-dialog");
   openNewTransactionModal(event.detail);
 });
+  const openingOperationDialog = $("opening-balance-dialog");
+const openingOperationForm = $("opening-balance-operation-form");
+
+function openOpeningOperation(transaction) {
+  openingOperationForm.reset();
+  openingOperationForm.dataset.id = transaction?.id ?? crypto.randomUUID();
+  openingOperationForm.dataset.currency = transaction?.originalCurrency ?? currentCurrency;
+
+  const title = $("opening-balance-dialog-title");
+  title.dataset.i18n = transaction ? "edit_transaction" : "opening_balance_add";
+  title.textContent = translate(title.dataset.i18n);
+
+  $("opening-operation-name").value =
+    transaction?.description || translate("opening_balance_operation");
+  $("opening-operation-amount").value = transaction
+    ? String((transaction.originalAmountCents ?? transaction.amountCents) / 100)
+    : "";
+  $("opening-operation-date").value = transaction?.date ?? Finance.localDate();
+  $("opening-operation-currency").textContent = openingOperationForm.dataset.currency;
+
+  const status = $("opening-operation-status");
+  delete status.dataset.i18n;
+  status.textContent = "";
+
+  openingOperationDialog.showModal();
+}
+
+if (openingOperationDialog && openingOperationForm) {
+  const addButton = $("add-opening-balance");
+
+  addButton?.addEventListener("click", () => openOpeningOperation());
+  const setting = addButton?.closest(".opening-balance-setting");
+  if (setting) setting.hidden = false;
+
+  openingOperationForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = openingOperationForm.querySelector('button[type="submit"]');
+    if (button.disabled) return;
+
+    const status = $("opening-operation-status");
+    const date = $("opening-operation-date").value;
+    const amountCents = Math.round($("opening-operation-amount").valueAsNumber * 100);
+    const currency = openingOperationForm.dataset.currency;
+    const baseCurrency = currentCurrency;
+
+    const showStatus = key => {
+      status.dataset.i18n = key;
+      status.textContent = translate(key);
+    };
+
+    if (!Number.isSafeInteger(amountCents) || !date) {
+      showStatus("opening_balance_invalid");
+      return;
+    }
+
+    button.disabled = true;
+    delete status.dataset.i18n;
+    status.textContent = "";
+
+    try {
+      const conversion = await getExchangeRate(currency, baseCurrency, date);
+      const convertedAmountCents = Math.round(amountCents * conversion.rate);
+
+      await BudgetDB.putTransaction({
+        id: openingOperationForm.dataset.id,
+        type: "opening_balance",
+        folderId: null,
+        date,
+        description: $("opening-operation-name").value.trim()
+          || translate("opening_balance_operation"),
+        amountCents: convertedAmountCents,
+        convertedAmountCents,
+        originalAmountCents: amountCents,
+        originalCurrency: currency,
+        baseCurrency,
+        exchangeRate: conversion.rate,
+        exchangeRateDate: conversion.date
+      });
+
+      openingOperationDialog.close();
+      const refreshed = await refresh();
+      toast(translate(refreshed
+        ? "transaction_saved"
+        : "could_not_load_your_data_refresh_the_page_to_try_again"));
+    } catch (error) {
+      console.error("Enregistrement du solde initial", error);
+      showStatus("opening_balance_save_error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
 // Ouvrir une opération existante pour la consulter ou la modifier
 function openEditTransactionModal(transactionId) {
   const transaction = transactions.find(item => String(item.id) === String(transactionId));
@@ -1217,7 +1310,10 @@ function openEditTransactionModal(transactionId) {
     toast(translate("transaction_not_found"));
     return;
   }
-
+  if (transaction.type === "opening_balance") {
+    openOpeningOperation(transaction);
+    return;
+  }
   const form = $("transaction-form");
 
   form.reset();
