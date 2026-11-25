@@ -192,24 +192,41 @@ function categoryIcon(name) {
 
   return icons.find(([pattern]) => pattern.test(text))?.[1] || "🏷️";
 }
+  function isOtherCategory(category) {
+    return ["cat-autre", "cat-autre-rev"].includes(category.id)
+      || category.name.trim().toLowerCase() === "autre";
+  }
+
   function fillCategorySelect(selectId, filterFn, includeAllOption = false) {
-    const sel = $(selectId);
-    if (!sel) return;
-    const old = sel.value;
-    let html = includeAllOption ? `<option value="">${translate('filter_all_cats')}</option>` : "";
-html += categories
-  .filter(filterFn)
-  .sort((a, b) =>
-    categoryLabel(a).localeCompare(categoryLabel(b), window.BudgetI18n.locale, {
-      sensitivity: "base",
-      numeric: true
-    })
-  )
-  .map(c =>
-    `<option value="${escapeHTML(c.id)}">${categoryIcon(c.name)} ${escapeHTML(categoryLabel(c))}</option>`
-  )
-  .join("");    sel.innerHTML = html;
-    if ([...sel.options].some(o => o.value === old)) sel.value = old;
+    const select = $(selectId);
+    if (!select) return;
+
+    const previous = select.value;
+    const options = categories.filter(filterFn).sort((a, b) =>
+      Number(isOtherCategory(a)) - Number(isOtherCategory(b))
+      || categoryLabel(a).localeCompare(categoryLabel(b), window.BudgetI18n.locale, {
+        sensitivity: "base",
+        numeric: true
+      })
+    );
+
+    select.replaceChildren(
+      ...options.map(category => new Option(
+        `${categoryIcon(category.name)} ${categoryLabel(category)}`,
+        category.id
+      ))
+    );
+
+    if (includeAllOption) {
+      select.prepend(new Option(translate("filter_all_cats"), ""));
+    }
+
+    if (Array.from(select.options).some(option => option.value === previous)) {
+      select.value = previous;
+    } else if (selectId === "transaction-category" && $("transaction-type").value === "expense") {
+      const other = options.find(category => category.kind === "expense" && isOtherCategory(category));
+      if (other) select.value = other.id;
+    }
   }
 
 function renderCategoryOptions() {
@@ -297,6 +314,10 @@ chartModeButtons.forEach(button => {
         BudgetDB.getCategories(),
         BudgetDB.getBudgets()
       ]);
+            if (!categories.some(category => category.kind === "expense" && isOtherCategory(category))) {
+        const other = BudgetDB.defaults.find(category => category.id === "cat-autre");
+        categories.push({ ...other, is_global: true });
+      }
       transactions.sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || "").localeCompare(a.createdAt || ""));
       await refreshFolderTotals();
       renderAll();
@@ -334,7 +355,7 @@ function renderAll() {
             <td><input type="checkbox"></td>
             <td>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="settings-icon-box ${t.type === 'income' ? 'currency-bg' : 'email-bg'}" style="width: 28px; height: 28px; font-size: 12px; margin:0;">💳</div>
+                <div class="settings-icon-box ${t.type === 'income' ? 'currency-bg' : 'email-bg'}" style="width: 28px; height: 28px; font-size: 12px; margin:0;">${t.type === "opening_balance" ? "💰" : categoryIcon(categoryName(t.categoryId))}</div>
                 <strong>${escapeHTML(mainText)}</strong>
               </div>
             </td>
@@ -1196,7 +1217,7 @@ function openNewTransactionModal(prefill = {}) {
   if ($("transaction-conversion")) {
     $("transaction-conversion").hidden = true;
   }
-
+  $("transaction-category").value = "";
   renderCategoryOptions();
 
   if (!dialog.open) {
@@ -1411,7 +1432,6 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   const submitBtn = form.querySelector('button[type="submit"]');
 
   if (submitBtn.disabled) return;
-    if ($("transaction-folder").disabled || !$("transaction-folder").value) return;
 
   try {
     submitBtn.disabled = true;
