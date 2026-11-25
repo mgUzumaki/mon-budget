@@ -94,7 +94,7 @@ async function showApp() {
 
   try {
     currentCurrency = await BudgetDB.getMainCurrency();
-
+    void loadOpeningBalanceForm();
     if ($("app-currency")) {
       $("app-currency").value = currentCurrency;
     }
@@ -1024,7 +1024,72 @@ showApp();
     currentLang = window.BudgetI18n.setLanguage(e.target.value);
     renderAll();
   });
+async function loadOpeningBalanceForm() {
+  const form = $("opening-balance-form");
+  if (!form) return;
 
+  try {
+    const balance = await BudgetDB.getOpeningBalance();
+    const amount = $("opening-balance-amount");
+    const date = $("opening-balance-date");
+
+    form.dataset.currency = balance?.currency ?? currentCurrency;
+    amount.value = balance ? String(balance.amountCents / 100) : "";
+    date.max = Finance.localDate();
+    date.value = balance?.date ?? date.max;
+
+    let currencyLabel = $("opening-balance-currency-label");
+    if (!currencyLabel) {
+      currencyLabel = document.createElement("span");
+      currencyLabel.id = "opening-balance-currency-label";
+      amount.before(currencyLabel);
+    }
+    currencyLabel.textContent = ` (${form.dataset.currency})`;
+
+    form.hidden = false;
+  } catch (error) {
+    console.error("Impossible de charger le solde de départ", error);
+  }
+}
+
+$("opening-balance-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const status = $("opening-balance-status");
+  const amount = $("opening-balance-amount");
+  const date = $("opening-balance-date");
+  const amountCents = Math.round(amount.valueAsNumber * 100);
+
+  const showStatus = (key) => {
+    status.dataset.i18n = key;
+    status.textContent = translate(key);
+  };
+
+  if (!Number.isSafeInteger(amountCents) || !date.value) {
+    showStatus("opening_balance_invalid");
+    return;
+  }
+
+  button.disabled = true;
+  delete status.dataset.i18n;
+  status.textContent = "";
+
+  try {
+    await BudgetDB.setOpeningBalance({
+      amountCents,
+      date: date.value,
+      currency: form.dataset.currency
+    });
+    showStatus("opening_balance_saved");
+  } catch (error) {
+    console.error("Impossible d’enregistrer le solde de départ", error);
+    showStatus("opening_balance_save_error");
+  } finally {
+    button.disabled = false;
+  }
+});
 $("app-currency")?.addEventListener("change", async (e) => {
   const newCurrency = e.target.value;
 
