@@ -92,6 +92,21 @@ defaults: [
     if (error) throw error;
     return data;
   },
+     async getOpeningBalance() {
+    const user = await this.requireUser();
+    return user.user_metadata?.opening_balance ?? null;
+  },
+
+  async setOpeningBalance({ amountCents, date, currency }) {
+    const { data, error } = await this.client().auth.updateUser({
+      data: {
+        opening_balance: { amountCents, date, currency }
+      }
+    });
+
+    if (error) throw error;
+    return data.user.user_metadata.opening_balance;
+  },
   async setMainCurrency(currency) {
     const allowed = ["EUR", "CNY", "USD", "GBP", "CHF", "XOF", "XAF","MAD"];
     if (!allowed.includes(currency)) {
