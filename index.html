@@ -874,7 +874,6 @@ window.supabaseClient.auth.onAuthStateChange(event => {
     <div class="form-row">
       <label>
         <span data-i18n="amount">Montant</span>
-        <small id="opening-operation-currency"></small>
         <input id="opening-operation-amount" type="number" step="0.01"
                inputmode="decimal" required>
       </label>
@@ -883,7 +882,19 @@ window.supabaseClient.auth.onAuthStateChange(event => {
         <input id="opening-operation-date" type="date" required>
       </label>
     </div>
+<div class="form-row">
+  <label>
+    <span data-i18n="transaction_currency">Devise de saisie</span>
+    <select id="opening-operation-currency" required></select>
+  </label>
 
+  <label>
+    <span data-i18n="opening_balance_folder">Dossier</span>
+    <select id="opening-operation-folder">
+      <option value="" data-i18n="opening_balance_no_folder">Sans dossier</option>
+    </select>
+  </label>
+</div>
     <p id="opening-operation-status" role="status"></p>
 
     <div class="modal-actions">
