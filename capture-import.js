@@ -305,12 +305,7 @@ if (relativeDate) {
 
     saveButton.addEventListener("click", async () => {
             const folderId = folder.value;
-
-      if (folder.disabled || !folderId) {
-        saveStatus.textContent = "Choisis un dossier de destination.";
-        if (!folder.disabled) folder.focus();
-        return;
-      }
+      if (folder.disabled) return;
       const rows = Array.from(preview.querySelectorAll(".capture-operation"));
       const entries = [];
 
