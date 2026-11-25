@@ -205,7 +205,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 
         <button class="nav-link" data-page="transactions">
           <span class="nav-icon" aria-hidden="true">⇄</span>
-          <span data-i18n="nav_transactions">Transactions</span>
+          <span data-i18n="nav_transactions">Mes opérations</span>
         </button>
 
         <button class="nav-link" data-page="budgets" hidden style="display: none;">
@@ -840,7 +840,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
 </div>
       <label for="transaction-folder">
   Dossier
-  <select id="transaction-folder" required>
+  <select id="transaction-folder">
     <option value="">Choisir un dossier</option>
   </select>
 </label>
@@ -1019,7 +1019,7 @@ window.supabaseClient.auth.onAuthStateChange(event => {
     </p>
     <p>
   <label for="capture-folder">Dossier de destination</label>
-  <select id="capture-folder" required>
+  <select id="capture-folder">
     <option value="">Choisir un dossier</option>
   </select>
 </p>
