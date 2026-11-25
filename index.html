@@ -853,7 +853,46 @@ window.supabaseClient.auth.onAuthStateChange(event => {
       </div>
     </form>
   </dialog>
+<dialog id="opening-balance-dialog" class="modal" aria-labelledby="opening-balance-dialog-title">
+  <form id="opening-balance-operation-form">
+    <div class="modal-heading">
+      <div class="opening-balance-info">
+        <span class="opening-balance-icon" aria-hidden="true">€</span>
+        <h2 id="opening-balance-dialog-title" data-i18n="opening_balance_add">
+          Ajouter un solde de départ
+        </h2>
+      </div>
+      <button type="button" class="icon-btn" data-close="opening-balance-dialog"
+              aria-label="Fermer" data-i18n-aria-label="close">×</button>
+    </div>
 
+    <label>
+      <span data-i18n="description">Description</span>
+      <input id="opening-operation-name" maxlength="200">
+    </label>
+
+    <div class="form-row">
+      <label>
+        <span data-i18n="amount">Montant</span>
+        <small id="opening-operation-currency"></small>
+        <input id="opening-operation-amount" type="number" step="0.01"
+               inputmode="decimal" required>
+      </label>
+      <label>
+        <span data-i18n="date">Date</span>
+        <input id="opening-operation-date" type="date" required>
+      </label>
+    </div>
+
+    <p id="opening-operation-status" role="status"></p>
+
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" data-close="opening-balance-dialog"
+              data-i18n="cancel">Annuler</button>
+      <button type="submit" class="primary-btn" data-i18n="save">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
   <!-- MODALE MODIFIER PROFIL -->
   <dialog id="profile-dialog" class="modal">
     <form id="profile-form" method="dialog">
