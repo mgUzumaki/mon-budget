@@ -94,7 +94,6 @@ async function showApp() {
 
   try {
     currentCurrency = await BudgetDB.getMainCurrency();
-    void loadOpeningBalanceForm();
     if ($("app-currency")) {
       $("app-currency").value = currentCurrency;
     }
@@ -476,7 +475,6 @@ $("dashboard-folder")?.addEventListener("change", () => {
     });
   }
 function renderDashboard() {
-    void renderTrackedBalance();
         const ready = folderTotals.state === "ready";
     $("folder-rates-status").textContent = ready
       ? ""
@@ -1025,120 +1023,7 @@ showApp();
     currentLang = window.BudgetI18n.setLanguage(e.target.value);
     renderAll();
   });
-  let openingBalance = null;
-
-async function renderTrackedBalance() {
-  const card = $("tracked-balance-card");
-  if (!card) return;
-
-  const balance = openingBalance;
-  const totals = folderTotals;
-  const isGlobalView = () => !$("dashboard-folder")?.value;
-  const today = Finance.localDate();
-
-  card.hidden =
-    !balance || !isGlobalView() || totals.state !== "ready" || balance.date > today;
-  if (card.hidden) return;
-
-  const value = $("tracked-balance-value");
-  const status = $("tracked-balance-status");
-  value.textContent = "—";
-  delete status.dataset.i18n;
-  status.textContent = "";
-
-  const isCurrentView = () =>
-    balance === openingBalance && totals === folderTotals && isGlobalView();
-
-  try {
-    let startingCents = balance.amountCents;
-    if (balance.currency !== totals.currency) {
-      const { rate } = await getExchangeRate(balance.currency, totals.currency, balance.date);
-      startingCents = Math.round(startingCents * rate);
-    }
-
-    if (!isCurrentView()) return;
-
-    const rows = totals.rows.filter(row => row.date >= balance.date && row.date <= today);
-    const trackedCents =
-      startingCents + Finance.sum(rows, "income") - Finance.sum(rows, "expense");
-
-    value.textContent = customMoney(trackedCents, totals.currency);
-  } catch (error) {
-    if (!isCurrentView()) return;
-    status.dataset.i18n = "tracked_balance_conversion_error";
-    status.textContent = translate(status.dataset.i18n);
-    console.error("Conversion du solde suivi", error);
-  }
-}
-async function loadOpeningBalanceForm() {
-  const form = $("opening-balance-form");
-  if (!form) return;
-
-  try {
-    const balance = await BudgetDB.getOpeningBalance();
-    const amount = $("opening-balance-amount");
-    const date = $("opening-balance-date");
-
-    form.dataset.currency = balance?.currency ?? currentCurrency;
-    amount.value = balance ? String(balance.amountCents / 100) : "";
-    date.max = Finance.localDate();
-    date.value = balance?.date ?? date.max;
-
-    let currencyLabel = $("opening-balance-currency-label");
-    if (!currencyLabel) {
-      currencyLabel = document.createElement("span");
-      currencyLabel.id = "opening-balance-currency-label";
-      amount.before(currencyLabel);
-    }
-    currencyLabel.textContent = ` (${form.dataset.currency})`;
-
-    form.hidden = false;
-        openingBalance = balance;
-    void renderTrackedBalance();
-  } catch (error) {
-    console.error("Impossible de charger le solde de départ", error);
-  }
-}
-
-$("opening-balance-form")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const form = event.currentTarget;
-  const button = form.querySelector('button[type="submit"]');
-  const status = $("opening-balance-status");
-  const amount = $("opening-balance-amount");
-  const date = $("opening-balance-date");
-  const amountCents = Math.round(amount.valueAsNumber * 100);
-
-  const showStatus = (key) => {
-    status.dataset.i18n = key;
-    status.textContent = translate(key);
-  };
-
-  if (!Number.isSafeInteger(amountCents) || !date.value) {
-    showStatus("opening_balance_invalid");
-    return;
-  }
-
-  button.disabled = true;
-  delete status.dataset.i18n;
-  status.textContent = "";
-
-  try {
-    openingBalance = await BudgetDB.setOpeningBalance({
-      amountCents,
-      date: date.value,
-      currency: form.dataset.currency
-    });
-    showStatus("opening_balance_saved");
-        void renderTrackedBalance();
-  } catch (error) {
-    console.error("Impossible d’enregistrer le solde de départ", error);
-    showStatus("opening_balance_save_error");
-  } finally {
-    button.disabled = false;
-  }
-});
+  
 $("app-currency")?.addEventListener("change", async (e) => {
   const newCurrency = e.target.value;
 
