@@ -333,6 +333,14 @@ window.supabaseClient.auth.onAuthStateChange(event => {
   </button>
 </div>
 <p id="folder-rates-status" role="status"></p>
+        <article id="tracked-balance-card" class="metric-card balance" hidden>
+  <div class="metric-header">
+    <span data-i18n="tracked_balance_title">Solde suivi à ce jour</span>
+    <span class="metric-badge balance-badge" aria-hidden="true">💰</span>
+  </div>
+  <strong id="tracked-balance-value">—</strong>
+  <small id="tracked-balance-status" role="status"></small>
+</article>
         <div class="metrics-grid">
           <article class="metric-card balance">
             <div class="metric-header">
