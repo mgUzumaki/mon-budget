@@ -495,7 +495,7 @@ function renderDashboard() {
     
     const income = Finance.sum(filteredItems, "income");
     const expense = Finance.sum(filteredItems, "expense");
-    const net = income - expense;
+       const net = Finance.sum(filteredItems, "opening_balance") + income - expense;
     const saving = filteredItems.filter(t => t.type === "transfer" || /épargne|savings/i.test(categoryName(t.categoryId))).reduce((s, t) => s + t.amountCents, 0);
 
     let periodText = "";
@@ -540,22 +540,23 @@ function renderCharts(items) {
     if (canvasDaily && window.Chart) {
       if (dailyChartInstance) dailyChartInstance.destroy();
 
-      const dateMap = {};
+            const dateMap = {};
+
       items.forEach(t => {
-        if (!dateMap[t.date]) {
-          dateMap[t.date] = { expense: 0, income: 0 };
-        }
-        if (t.type === 'expense') {
-          dateMap[t.date].expense += (t.amountCents / 100);
-        } else if (t.type === 'income') {
-          dateMap[t.date].income += (t.amountCents / 100);
+        const day = dateMap[t.date] ??= { expense: 0, income: 0, opening_balance: 0 };
+
+        if (t.type === "expense" || t.type === "income" || t.type === "opening_balance") {
+          day[t.type] += t.amountCents;
         }
       });
 
       const labels = Object.keys(dateMap).sort();
-      const expenseData = labels.map(date => -dateMap[date].expense);
-      const incomeData = labels.map(date => dateMap[date].income);
-      const netData = labels.map(date => dateMap[date].income - dateMap[date].expense);
+      const expenseData = labels.map(date => -dateMap[date].expense / 100);
+      const incomeData = labels.map(date => dateMap[date].income / 100);
+      const netData = labels.map(date => {
+        const day = dateMap[date];
+        return (day.opening_balance + day.income - day.expense) / 100;
+      });
 
       let datasets = [];
 
@@ -1215,8 +1216,21 @@ const openingOperationForm = $("opening-balance-operation-form");
 function openOpeningOperation(transaction) {
   openingOperationForm.reset();
   openingOperationForm.dataset.id = transaction?.id ?? crypto.randomUUID();
-  openingOperationForm.dataset.currency = transaction?.originalCurrency ?? currentCurrency;
+  const currencySelect = $("opening-operation-currency");
+  currencySelect.replaceChildren(
+    ...Array.from($("app-currency").options, option => option.cloneNode(true))
+  );
+  currencySelect.value = transaction?.originalCurrency || currentCurrency;
 
+  const folderSelect = $("opening-operation-folder");
+  const noFolder = new Option(translate("opening_balance_no_folder"), "");
+  noFolder.dataset.i18n = "opening_balance_no_folder";
+
+  folderSelect.replaceChildren(
+    noFolder,
+    ...dashboardFolders.map(folder => new Option(folder.name, folder.id))
+  );
+  folderSelect.value = transaction?.folderId || "";
   const title = $("opening-balance-dialog-title");
   title.dataset.i18n = transaction ? "edit_transaction" : "opening_balance_add";
   title.textContent = translate(title.dataset.i18n);
@@ -1227,7 +1241,6 @@ function openOpeningOperation(transaction) {
     ? String((transaction.originalAmountCents ?? transaction.amountCents) / 100)
     : "";
   $("opening-operation-date").value = transaction?.date ?? Finance.localDate();
-  $("opening-operation-currency").textContent = openingOperationForm.dataset.currency;
 
   const status = $("opening-operation-status");
   delete status.dataset.i18n;
@@ -1252,8 +1265,8 @@ if (openingOperationDialog && openingOperationForm) {
     const status = $("opening-operation-status");
     const date = $("opening-operation-date").value;
     const amountCents = Math.round($("opening-operation-amount").valueAsNumber * 100);
-    const currency = openingOperationForm.dataset.currency;
-    const baseCurrency = currentCurrency;
+    const currency = $("opening-operation-currency").value;
+    const folderId = $("opening-operation-folder").value || null;    const baseCurrency = currentCurrency;
 
     const showStatus = key => {
       status.dataset.i18n = key;
@@ -1276,7 +1289,7 @@ if (openingOperationDialog && openingOperationForm) {
       await BudgetDB.putTransaction({
         id: openingOperationForm.dataset.id,
         type: "opening_balance",
-        folderId: null,
+        folderId,
         date,
         description: $("opening-operation-name").value.trim()
           || translate("opening_balance_operation"),
