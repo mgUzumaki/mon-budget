@@ -276,32 +276,47 @@ window.supabaseClient.auth.onAuthStateChange(event => {
       <section id="page-dashboard" class="page active">
         
         <!-- En-tête & Contrôles de période -->
-        <div class="dash-header-row">
-          <div>
-            <h2><span data-i18n="monthly_overview">Aperçu Mensuel</span></h2>
-            <p data-i18n="dash_intro">Votre situation financière en un coup d'œil.</p>
-          </div>
+<div class="period-card">
+  <div class="period-card-main">
+    <div class="period-card-title">
+      <span class="period-card-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M3 18l6-6 4 3 7-9"/>
+          <path d="M15 6h5v5"/>
+        </svg>
+      </span>
+      <h2 data-i18n="monthly_overview">Aperçu mensuel</h2>
+    </div>
 
-          <div class="dashboard-controls">
-            <div class="btn-group" id="range-selector" aria-label="Période" data-i18n-aria-label="period">
-              <button type="button" class="range-btn" data-range="week" data-i18n="range_week">Semaine</button>
-              <button type="button" class="range-btn active" data-range="month" aria-pressed="true" data-i18n="range_month">Mois</button>
-              <button type="button" class="range-btn" data-range="year" data-i18n="range_year">Année</button>
-            </div>
-
-<div class="period-navigator">
-  <button type="button" id="prev-period" aria-label="Période précédente" data-i18n-aria-label="previous_period">‹</button>
-  
-  <!-- Nouveau conteneur pour rendre le clic 100% fonctionnel -->
-  <div style="position: relative; display: inline-block; cursor: pointer;">
-    <span id="period-display-label" aria-live="polite" style="text-decoration: underline dotted; padding: 2px 6px;"></span>
-    <input type="date" id="hidden-date-picker" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+    <div class="btn-group" id="range-selector" role="group"
+         aria-label="Période" data-i18n-aria-label="period">
+      <button type="button" class="range-btn" data-range="week"
+              aria-pressed="false" data-i18n="range_week">Semaine</button>
+      <button type="button" class="range-btn active" data-range="month"
+              aria-pressed="true" data-i18n="range_month">Mois</button>
+      <button type="button" class="range-btn" data-range="year"
+              aria-pressed="false" data-i18n="range_year">Année</button>
+    </div>
   </div>
 
-  <button type="button" id="next-period" aria-label="Période suivante" data-i18n-aria-label="next_period">›</button>
+  <div class="period-card-picker">
+    <button type="button" id="prev-period"
+            aria-label="Période précédente"
+            data-i18n-aria-label="previous_period">‹</button>
+
+    <div class="period-card-date">
+      <span id="period-display-label" aria-live="polite"></span>
+      <input type="date" id="hidden-date-picker"
+             aria-label="Période" data-i18n-aria-label="period">
+    </div>
+
+    <button type="button" id="next-period"
+            aria-label="Période suivante"
+            data-i18n-aria-label="next_period">›</button>
+  </div>
 </div>
-          </div>
-        </div>
 
 <!-- Cartes d'indicateurs (Solde, Dépenses, Revenus) -->
         <div class="dashboard-loader">
