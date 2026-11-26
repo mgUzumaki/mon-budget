@@ -2129,3 +2129,66 @@ a[data-i18n="contact_support"] {
     border-radius: 0;
   }
 }
+#manage-categories-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(560px, calc(100% - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  padding: clamp(16px, 4vw, 26px);
+  border: 1px solid #dce7df;
+  border-radius: 22px;
+  background: #fff;
+  color: #143b30;
+}
+
+#manage-categories-dialog::backdrop {
+  background: rgb(15 40 31 / 48%);
+}
+
+#manage-categories-dialog #manage-category-form {
+  padding: 12px;
+  border-radius: 14px;
+  background: #eef7f1;
+}
+
+.category-manage-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e8eeeb;
+}
+
+.category-manage-label,
+.category-manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-manage-label small {
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #e8f4ed;
+}
+
+.category-manage-actions button {
+  min-height: 36px;
+  padding: 5px 9px;
+  font-size: .85rem;
+}
+
+#manage-category-status {
+  margin: 0;
+  color: #a1252d;
+}
+
+#manage-category-status:empty,
+#cancel-category-rename[hidden] {
+  display: none;
+}
