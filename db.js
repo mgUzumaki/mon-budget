@@ -293,18 +293,50 @@ const payload = {
       throw error;
     }
 
-    if (!data || data.length === 0) {
-      return this.defaults.map(category => ({ ...category }));
-    }
+        const defaults = this.defaults.map(category => ({
+      ...category,
+      customName: user.user_metadata?.[`category_name_${category.id}`] || ""
+    }));
 
-    return data.map(row => ({
+    if (!data?.length) return defaults;
+
+    const saved = data.map(row => ({
       id: row.id,
       name: row.name,
       kind: row.kind || "expense",
       user_id: row.user_id
     }));
-  },
 
+    return [
+      ...saved,
+      ...defaults.filter(category =>
+        category.customName && !saved.some(row => row.id === category.id)
+      )
+    ];
+  },
+  async renameCategory(category, name) {
+    const user = await this.requireUser();
+    const client = this.client();
+
+    if (!category.user_id && this.defaults.some(item => item.id === category.id)) {
+      const { error } = await client.auth.updateUser({
+        data: { [`category_name_${category.id}`]: name }
+      });
+      if (error) throw error;
+      return { ...category, customName: name };
+    }
+
+    const { data, error } = await client
+      .from("categories")
+      .update({ name })
+      .eq("id", category.id)
+      .eq("user_id", user.id)
+      .select("name")
+      .single();
+
+    if (error) throw error;
+    return { ...category, name: data.name };
+  },
   // Ajoute cette fonction juste après pour enregistrer une catégorie :
   async putCategory(category) {
     const user = await this.requireUser();
