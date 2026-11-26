@@ -37,7 +37,8 @@ function applyTranslations() {
 
   const today = Finance.localDate();
   const categoryName = id => categories.find(c => c.id === id)?.name || translate("category");
-  const categoryLabel = category => window.BudgetI18n.categoryLabel(category, BudgetDB.defaults);
+   const categoryLabel = category => category?.customName
+    || window.BudgetI18n.categoryLabel(category, BudgetDB.defaults);
   const displayCategoryName = id => id === "opening_balance"
     ? translate("opening_balance_operation")
     : categoryLabel(categories.find(category => category.id === id));  const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1623,64 +1624,103 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
   });
  // --- GESTIONNAIRE COMPLET DES CATÉGORIES (CORRIGÉ) ---
 
-  function renderCategoriesManagementList() {
-    const container = $("categories-list-container");
-    if (!container) return;
+    const manageCategoryForm = $("manage-category-form");
+  const manageCategoryName = $("manage-new-cat-name");
+  const manageCategoryKind = $("manage-new-cat-kind");
+  const manageCategorySubmit = manageCategoryForm.querySelector('[type="submit"]');
+  const cancelCategoryRename = $("cancel-category-rename");
+  const manageCategoryStatus = $("manage-category-status");
 
-    container.innerHTML = categories.length ? categories.map(c => `
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
-        <div>
-          <strong>${escapeHTML(categoryLabel(c))}</strong>
-          <span style="font-size: 0.75rem; color: #64748b; margin-left: 6px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
-            ${c.kind === 'income' ? translate("income") : c.kind === 'transfer' ? translate("transfer") : translate("expense")} ${c.is_global ? '(Global)' : ''}
-          </span>
-        </div>
-        ${!c.is_global ? `<button type="button" class="danger-btn-small" onclick="deleteCategory('${c.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">${translate("delete")}</button>` : `<span style="font-size:0.75rem; color:#94a3b8;">${translate("default")}</span>`}
-      </div>
-    `).join("") : `<p style="text-align: center; color: #64748b;">${translate("no_categories_found")}</p>`;
+  function setCategoryEditMode(category) {
+    manageCategoryForm.dataset.categoryId = category?.id ?? "";
+    manageCategoryName.value = category ? categoryLabel(category) : "";
+    manageCategoryKind.disabled = Boolean(category);
+    if (category) manageCategoryKind.value = category.kind;
+
+    const label = category ? "save" : "add";
+    manageCategorySubmit.dataset.i18n = label;
+    manageCategorySubmit.textContent = translate(label);
+    cancelCategoryRename.hidden = !category;
+    manageCategoryStatus.textContent = "";
+    if (category) manageCategoryName.focus();
   }
 
-  // Ouvrir la modale proprement
+  function renderCategoriesManagementList() {
+    const container = $("categories-list-container");
+
+    container.innerHTML = categories.length ? categories.map(category => `
+      <div class="category-manage-row">
+        <div class="category-manage-label">
+          <strong>${escapeHTML(categoryLabel(category))}</strong>
+          <small>${escapeHTML(translate(category.kind))}</small>
+        </div>
+        <div class="category-manage-actions">
+          <button type="button" class="secondary-btn"
+                  data-rename-category="${escapeHTML(category.id)}">
+            ${translate("category_rename")}
+          </button>
+          ${category.user_id && !category.is_global ? `
+            <button type="button" class="danger-btn-small"
+                    data-delete-category="${escapeHTML(category.id)}">
+              ${translate("delete")}
+            </button>
+          ` : ""}
+        </div>
+      </div>
+    `).join("") : `<p>${translate("no_categories_found")}</p>`;
+  }
+
   $("btn-open-manage-cats")?.addEventListener("click", () => {
+    setCategoryEditMode();
     renderCategoriesManagementList();
-    const dlg = $("manage-categories-dialog");
-    if (dlg) {
-      if (typeof dlg.showModal === "function") dlg.showModal();
-      else dlg.setAttribute("open", true);
+    showDialog("manage-categories-dialog");
+  });
+
+  cancelCategoryRename.addEventListener("click", () => setCategoryEditMode());
+
+  $("categories-list-container").addEventListener("click", event => {
+    if (manageCategorySubmit.disabled) return;
+
+    const rename = event.target.closest("[data-rename-category]");
+    const remove = event.target.closest("[data-delete-category]");
+
+    if (rename) {
+      const category = categories.find(item => String(item.id) === rename.dataset.renameCategory);
+      if (category) setCategoryEditMode(category);
+    } else if (remove) {
+      window.deleteCategory(remove.dataset.deleteCategory);
     }
   });
 
-// Fermer la modale explicitement (résout le souci de la croix et du bouton fermer)
-  document.querySelectorAll("[data-close='manage-categories-dialog']").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const dlg = $("manage-categories-dialog");
-      if (dlg) {
-        if (typeof dlg.close === "function") dlg.close();
-        else dlg.removeAttribute("open");
-      }
-    });
-  });
-// Ajouter une catégorie depuis la modale de gestion avec affichage instantané
-  $("manage-category-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const nameInput = $("manage-new-cat-name")?.value.trim();
-    const kindInput = $("manage-new-cat-kind")?.value || "expense";
+  manageCategoryForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const name = manageCategoryName.value.trim();
+    if (!name || manageCategorySubmit.disabled) return;
 
-    if (!nameInput) return;
+    const index = categories.findIndex(
+      item => String(item.id) === manageCategoryForm.dataset.categoryId
+    );
+
+    manageCategorySubmit.disabled = true;
+    cancelCategoryRename.disabled = true;
+    manageCategoryStatus.textContent = "";
 
     try {
-      const newCat = await BudgetDB.putCategory({ name: nameInput, kind: kindInput });
-      categories.push(newCat);
+      if (index >= 0) {
+        categories[index] = await BudgetDB.renameCategory(categories[index], name);
+      } else {
+        await BudgetDB.putCategory({ name, kind: manageCategoryKind.value });
+        await refresh();
+      }
 
-      $("manage-new-cat-name").value = "";
-      toast(translate("category_created"));
-      
+      setCategoryEditMode();
       renderCategoriesManagementList();
-      renderCategoryOptions();
-      await refresh();
-    } catch (err) {
-      console.error("Erreur ajout catégorie :", err);
-      toast(translate("error") + err.message);
+      renderAll();
+    } catch (error) {
+      manageCategoryStatus.textContent = translate("error") + error.message;
+    } finally {
+      manageCategorySubmit.disabled = false;
+      cancelCategoryRename.disabled = false;
     }
   });
 
