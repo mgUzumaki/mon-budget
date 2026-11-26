@@ -1388,9 +1388,9 @@ function openEditTransactionModal(transactionId) {
 
   showDialog("transaction-dialog");
 }
-  $("quick-add")?.addEventListener("click", openNewTransactionModal);
-  $("btn_new_op")?.addEventListener("click", openNewTransactionModal);
-  $("mobile-add")?.addEventListener("click", openNewTransactionModal);
+$("quick-add")?.addEventListener("click", () => openNewTransactionModal());
+$("btn_new_op")?.addEventListener("click", () => openNewTransactionModal());
+$("mobile-add")?.addEventListener("click", () => openNewTransactionModal());
 
 async function saveTransaction({
   folderId, id, date, amount, currency, type, categoryId, description
