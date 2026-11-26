@@ -1990,3 +1990,142 @@ a[data-i18n="contact_support"] {
     width: 100%;
   }
 }
+/* Vue d’ensemble — bandeau bicolore */
+.period-card {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid #dce7df;
+  border-radius: 22px;
+  background: #dcefe3;
+  box-shadow: 0 6px 16px rgb(19 43 37 / 9%);
+}
+
+.period-card-main,
+.period-card-picker {
+  padding: 14px clamp(12px, 2vw, 24px);
+}
+
+.period-card-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f7f3e8;
+  border-radius: 0 24px 24px 0;
+}
+
+.period-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.period-card-title h2 {
+  margin: 0;
+  color: #143b30;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.2;
+}
+
+.period-card-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #dbeee0;
+  color: #174b3b;
+}
+
+#page-dashboard .period-card #range-selector {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: #e7ebe5;
+}
+
+#page-dashboard .period-card #range-selector button {
+  min-height: 44px;
+  padding-inline: clamp(8px, 1vw, 12px);
+  border-radius: 12px;
+}
+
+.period-card-picker {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.period-card-picker button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #174b3b;
+  font: 700 26px / 1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.period-card-picker button:hover {
+  background: #f1faf4;
+}
+
+.period-card-date {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+#page-dashboard .period-card #period-display-label {
+  font-size: clamp(16px, 2.2vw, 24px);
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+#page-dashboard .period-card #period-display-label::before {
+  content: none;
+}
+
+.period-card #hidden-date-picker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.period-card #hidden-date-picker::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.period-card-date:focus-within,
+.period-card button:focus-visible {
+  outline: 2px solid #174b3b;
+  outline-offset: 2px;
+}
+
+@media (max-width: 820px) {
+  .period-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .period-card-main {
+    border-radius: 0;
+  }
+}
