@@ -1908,14 +1908,19 @@ $("transaction-form")?.addEventListener("submit", async (e) => {
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="background: #e6f4ea; color: #065f46; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
-              ${p.status}
+            ${escapeHTML(p.status)}
             </span>
-            <button type="button" onclick="deleteFinancingProject('${p.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+            <button type="button" data-delete-financing="${escapeHTML(p.id)}" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
               ${translate("delete")}
             </button>
           </div>
         </div>
       `).join("") : `<p style="text-align: center; color: #64748b; padding: 15px;">${translate("no_savings_goals_yet")}</p>`;
+         container.querySelectorAll("[data-delete-financing]").forEach(button => {
+        button.addEventListener("click", () => {
+          window.deleteFinancingProject(button.dataset.deleteFinancing);
+        });
+      });
     } catch (err) {
       console.error("Erreur affichage financements :", err);
     }
