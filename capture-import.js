@@ -414,6 +414,7 @@ if (relativeDate) {
       const chinesePayments = window.CaptureImport.isChinesePaymentCapture(text, selectedCurrency);
       const hasRelativeDates = chinesePayments || window.CaptureImport.hasRelativeDate(text);
 
+      const hasGroupedDates = /^\s*\d{2}\/\d{2}\/\d{4}\s*$/m.test(text);
       captureDateField.hidden = !hasRelativeDates;
 
       if (hasRelativeDates && !selectedDate) {
